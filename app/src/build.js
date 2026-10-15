@@ -9,7 +9,13 @@ const packs = ["engine.js", "engine2.js", "engine3.js", "engine4.js", "cinterp.j
 const strip = (f) => fs.readFileSync(path.join(dir, f), "utf8").replace(/if \(typeof module[^\n]*\n/, "");
 const tpl = fs.readFileSync(path.join(dir, "app.template.html"), "utf8");
 if (!tpl.includes("// __ENGINE__")) { console.error("template is missing the // __ENGINE__ marker"); process.exit(1); }
-const html = tpl.replace("// __ENGINE__", () => packs.map(strip).join("\n"));
+const curriculum = JSON.parse(fs.readFileSync(path.join(dir, "..", "..", "curriculum", "catalog.v2.json"), "utf8"));
+const practice = JSON.parse(fs.readFileSync(path.join(dir, "..", "..", "curriculum", "commercial.practice.json"), "utf8"));
+const packed = (value) => JSON.stringify(value).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, " ");
+if (!tpl.includes("/* __CURRICULUM__ */") || !tpl.includes("/* __COMMERCIAL_PRACTICE__ */")) throw new Error("Missing catalog injection markers");
+const html = tpl.replace("// __ENGINE__", () => packs.map(strip).join("\n"))
+  .replace("/* __CURRICULUM__ */", packed(curriculum))
+  .replace("/* __COMMERCIAL_PRACTICE__ */", packed(practice));
 fs.writeFileSync(out, html);
 let bad = 0;
 [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach((m, i) => {

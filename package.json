@@ -1,8 +1,8 @@
 {
   "name": "northstar-engineering-academy",
-  "version": "1.2.0-stage2",
+  "version": "1.3.0-stage3",
   "private": true,
-  "description": "Static Northstar academy with curriculum registry and real commercial software security labs",
+  "description": "Integrated Northstar learner portal with commercial security apprenticeship tickets and real labs",
   "engines": {
     "node": ">=20"
   },
@@ -12,9 +12,10 @@
     "test": "npm run test:catalog && npm run test:sim && npm run test:labs",
     "build": "node app/src/build.js && node scripts/build-curriculum.js && node scripts/build-site.js",
     "verify:site": "node scripts/verify-site.js",
-    "check": "npm run test && npm run build && npm run verify:site && npm run verify:ui && npm run test:http",
+    "check": "npm run test && npm run build && npm run verify:site && npm run verify:portal && npm run verify:ui && npm run test:http",
     "test:catalog": "node scripts/verify-catalog.js",
     "test:http": "python3 scripts/site-http-test.py",
-    "verify:ui": "node scripts/verify-ui-logic.js"
+    "verify:ui": "node scripts/verify-ui-logic.js",
+    "verify:portal": "node scripts/verify-portal-integration.js"
   }
 }

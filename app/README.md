@@ -1,4 +1,4 @@
-# Northstar Academy — the working demo app
+# Northstar Academy — integrated student portal
 
 A single self-contained web app that makes the core learning loop real: onboarding →
 a portal with a live ticket queue and activity feed → open a ticket → do the work in a
@@ -6,7 +6,7 @@ a portal with a live ticket queue and activity feed → open a ticket → do the
 review → merge** → progress, the activity feed, and an evidence-linked competency
 transcript all update across the app. Fifteen labs across six curriculum stages (including an
 ambiguous open ticket and an integrated capstone), a curriculum map, and a company wiki.
-No backend, no accounts; state is saved in the browser.
+No backend, no accounts; state is saved in the browser. Stage 3 embeds the canonical curriculum registry and two commercial Python/SQLite residency tickets with guided reasoning and self-reported workspace notes. The student must still code and test in Codespaces.
 
 ## Files
 - `northstar-academy.html` — **the product.** Open it in any browser.

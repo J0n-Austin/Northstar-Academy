@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0",
-  "catalogVersion": "2026.10-stage2",
-  "description": "Canonical curriculum registry for static portal navigation and metadata validation. This is not a credential service.",
+  "catalogVersion": "2026.10-stage3-integrated",
+  "description": "Canonical versioned registry for the integrated learner portal and standalone static curriculum explorer; not a credential service.",
   "tracks": [
     {
       "id": "core",

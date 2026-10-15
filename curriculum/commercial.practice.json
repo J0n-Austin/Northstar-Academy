@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1.0",
+  "modules": [
+    {
+      "id": "commercial-api-security",
+      "role": "Application Security Apprentice",
+      "sprint": "Commercial Residency · Sprint 1",
+      "context": "Northstar Bank's synthetic account service has two reported security defects. An engineer must reproduce them with authorized test identities, write regression tests, and patch the backend without breaking normal account lookups.",
+      "environmentNote": "Python 3 + SQLite + localhost HTTP server. The X-Demo-User header is a classroom identity simulation, NOT production authentication.",
+      "tasks": [
+        "Reproduce the cross-account access defect with two fictional customers and document expected vs actual behavior.",
+        "Trace the unsafe search query and replace string interpolation with bound SQL parameters.",
+        "Implement server-side per-object ownership checks on every relevant account lookup.",
+        "Run the regression suite, capture before/after evidence, and propose a peer-review summary."
+      ],
+      "checks": [
+        {
+          "id": "bola",
+          "prompt": "Alex requests account 202, which belongs to Blair. Which control actually prevents broken object-level authorization?",
+          "choices": [
+            {"value":"ui","label":"Hide the account link in the frontend"},
+            {"value":"deny","label":"Enforce account ownership in the backend for every object request"},
+            {"value":"obscure","label":"Make account IDs hard to guess"}
+          ],
+          "answer": "deny",
+          "explanation": "Object access must be authorized server-side. Concealing links or IDs is not a security boundary."
+        },
+        {
+          "id": "sql",
+          "prompt": "A search endpoint builds SQL from a user-provided query string. Which correction separates user data from SQL syntax?",
+          "choices": [
+            {"value":"escape","label":"Strip quotes before concatenating the SQL"},
+            {"value":"bound","label":"Use parameterized SQL with bound values"},
+            {"value":"frontend","label":"Validate the value only in JavaScript"}
+          ],
+          "answer": "bound",
+          "explanation": "SQL parameters prevent data from changing the statement structure. Also test authorization and intended search behavior."
+        }
+      ],
+      "evidence": [
+        {"id":"repro","title":"I documented the defect and reproduction commands"},
+        {"id":"tests","title":"I added regression tests and made them pass"},
+        {"id":"review","title":"I prepared a concise patch and risk explanation"}
+      ],
+      "terminal": ["cd labs/commercial-api-security", "bash run-checks.sh", "python3 src/api.py --port 8080"],
+      "acceptance": "The owner can access their account; nonowners cannot. Account search is parameterized. The learner test suite passes."
+    },
+    {
+      "id": "commercial-transaction-integrity",
+      "role": "Secure Backend Engineering Apprentice",
+      "sprint": "Commercial Residency · Sprint 2",
+      "context": "A synthetic money-transfer service processes duplicate requests twice and sometimes writes a debit without the corresponding credit and audit record. Customers report inconsistent balances after retries and errors.",
+      "environmentNote": "Python 3 + SQLite local database. All balances and account holders are fabricated; the service processes no real money.",
+      "tasks": [
+        "Reproduce the duplicate side effect using the same request ID twice.",
+        "Define and enforce idempotency behavior for repeated requests and conflicting payloads.",
+        "Use a single database transaction for debit, credit, request record and audit log.",
+        "Reproduce mid-transaction failure, validate rollback and submit before/after tests and a design summary."
+      ],
+      "checks": [
+        {
+          "id": "retry",
+          "prompt": "The same transfer request ID arrives twice with identical arguments. What should a retry do?",
+          "choices": [
+            {"value":"again","label":"Repeat the debit and credit"},
+            {"value":"once","label":"Return the previously recorded outcome without repeating the transfer"},
+            {"value":"drop","label":"Reject all retries without recording results"}
+          ],
+          "answer":"once",
+          "explanation":"Idempotency keys identify operations and let a safe replay return the prior outcome without repeating side effects. Reject key reuse with different arguments."
+        },
+        {
+          "id": "atomic",
+          "prompt": "A crash occurs after a debit but before a credit and ledger entry. What guarantees consistent recovery?",
+          "choices": [
+            {"value":"first","label":"Commit the debit as soon as possible"},
+            {"value":"atomic","label":"Commit all related changes together or roll all of them back"},
+            {"value":"ignore","label":"Ignore the error and report success"}
+          ],
+          "answer":"atomic",
+          "explanation":"A database transaction must commit every related write together or roll all of them back. Failure-injection tests should prove this."
+        }
+      ],
+      "evidence": [
+        {"id":"repro","title":"I reproduced the duplicate-processing or partial-commit defect"},
+        {"id":"tests","title":"I validated idempotency, conflict handling and atomic rollback"},
+        {"id":"review","title":"I documented the change and its failure modes"}
+      ],
+      "terminal": ["cd labs/commercial-transaction-integrity", "bash run-checks.sh", "python3 src/cli.py --db /tmp/ns-demo-ledger.sqlite3"],
+      "acceptance": "Same-key retries do not repeat transfers; conflicting payloads are rejected and failures leave all balances and records unchanged. All learner tests pass."
+    }
+  ]
+}
