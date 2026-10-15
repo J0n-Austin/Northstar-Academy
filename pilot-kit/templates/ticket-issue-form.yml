@@ -1,0 +1,50 @@
+# GitHub issue form for Northstar tickets.
+# Copy to .github/ISSUE_TEMPLATE/ticket.yml in the learner repo template.
+name: Engineering ticket
+description: A Northstar work ticket (apprenticeship pilot)
+title: "[NS-000] "
+labels: ["ticket"]
+body:
+  - type: markdown
+    attributes:
+      value: "Created by a facilitator. Learners work the ticket; they don't open it."
+  - type: dropdown
+    id: autonomy
+    attributes:
+      label: Autonomy level
+      options:
+        - "L1 · Guided"
+        - "L2 · Assisted"
+        - "L3 · Investigative"
+        - "L4 · Independent"
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options: ["Low", "Medium", "High"]
+    validations:
+      required: true
+  - type: textarea
+    id: situation
+    attributes:
+      label: Situation
+      description: What is happening, in a sentence or two.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: What "done" looks like — one checkbox per criterion.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context & attachments
+      description: Logs, repro steps, and any coworker theory (which may be wrong).

@@ -1,0 +1,39 @@
+2026-10-02T08:14:03Z INFO  app started pid=4120 version=1.8.2
+2026-10-02T08:14:03Z INFO  config loaded from /etc/northstar/app.yaml
+2026-10-02T08:14:05Z INFO  listening on 0.0.0.0:8080
+2026-10-02T08:15:11Z INFO  request handled path=/health status=200 ms=3
+2026-10-02T08:15:40Z WARN  slow query detected ms=812 query=users.lookup
+2026-10-02T08:16:02Z ERROR database connection failed code=E500
+2026-10-02T08:16:02Z INFO  retrying database connection attempt=1
+2026-10-02T08:16:09Z ERROR upstream request timeout after 30s code=E408
+2026-10-02T08:16:20Z INFO  request handled path=/login status=200 ms=42
+2026-10-02T08:17:01Z WARN  cache miss rate high pct=61
+2026-10-02T08:17:30Z ERROR resource not found code=E404
+2026-10-02T08:18:12Z ERROR gateway timeout talking to auth code=E408
+2026-10-02T08:18:44Z INFO  request handled path=/jobs status=200 ms=18
+2026-10-02T08:19:03Z ERROR unhandled exception in handler code=E500
+2026-10-02T08:19:50Z WARN  disk usage above threshold pct=78 mount=/var
+2026-10-02T08:20:15Z ERROR service unavailable code=E503
+2026-10-02T08:20:41Z ERROR missing config key code=E404
+2026-10-02T08:21:07Z ERROR read timeout on socket code=E408
+2026-10-02T08:21:33Z INFO  request handled path=/metrics status=200 ms=6
+2026-10-02T08:22:10Z ERROR null pointer in worker code=E500
+2026-10-02T08:22:55Z WARN  retry budget low remaining=2
+2026-10-02T08:23:19Z ERROR unauthorized token code=E401
+2026-10-02T08:23:48Z ERROR connection timeout to cache code=E408
+2026-10-02T08:24:11Z INFO  request handled path=/jobs status=201 ms=57
+2026-10-02T08:24:52Z ERROR internal error serializing response code=E500
+2026-10-02T08:25:20Z ERROR template not found code=E404
+2026-10-02T08:25:59Z ERROR dependency timeout caused unavailability code=E503
+2026-10-02T08:26:33Z INFO  request handled path=/health status=200 ms=2
+2026-10-02T08:27:04Z ERROR internal error code=E500
+2026-10-02T08:27:41Z ERROR request timeout code=E408
+2026-10-02T08:28:09Z WARN  connection pool near capacity used=95 max=100
+2026-10-02T08:28:50Z ERROR invalid credentials code=E401
+2026-10-02T08:29:22Z ERROR route not found code=E404
+2026-10-02T08:30:00Z ERROR segfault recovered code=E500
+2026-10-02T08:30:38Z ERROR circuit breaker open code=E503
+2026-10-02T08:31:12Z INFO  request handled path=/login status=200 ms=39
+2026-10-02T08:31:55Z INFO  background compaction complete freed_mb=204
+2026-10-02T08:32:40Z WARN  slow query detected ms=905 query=jobs.scan
+2026-10-02T08:33:18Z INFO  request handled path=/health status=200 ms=3

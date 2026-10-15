@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-10-02T08:33:00Z",
+  "region": "us-east-1",
+  "services": [
+    { "name": "api-gateway", "state": "healthy",  "latency_ms": 12, "owner": "platform" },
+    { "name": "auth",        "state": "degraded", "latency_ms": 480, "owner": "identity" },
+    { "name": "billing",     "state": "down",     "latency_ms": null, "owner": "payments" },
+    { "name": "cache",       "state": "degraded", "latency_ms": 210, "owner": "platform" },
+    { "name": "database",    "state": "healthy",  "latency_ms": 8,   "owner": "data" },
+    { "name": "metrics",     "state": "degraded", "latency_ms": 390, "owner": "observability" },
+    { "name": "scheduler",   "state": "healthy",  "latency_ms": 20,  "owner": "platform" },
+    { "name": "storage",     "state": "degraded", "latency_ms": 540, "owner": "data" }
+  ]
+}

@@ -1,0 +1,266 @@
+{
+  "schemaVersion": "1.0",
+  "catalogVersion": "2026.10-stage1",
+  "description": "Stage 1 inventory and migration metadata; simulator UI still owns its runtime definitions. Not an employer verification record.",
+  "modules": [
+    {
+      "id": "fundamentals",
+      "title": "Linux Fundamentals",
+      "ticket": "NS-101",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "triage",
+      "title": "Linux Service Triage",
+      "ticket": "NS-210",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "networking",
+      "title": "Network & Protocol Diagnostics",
+      "ticket": "NS-142",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "automation",
+      "title": "Shell Scripting & Automation",
+      "ticket": "NS-168",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "cprog",
+      "title": "C Programming — Log Helpers",
+      "ticket": "NS-173",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "wininternals",
+      "title": "Windows Internals — Triage",
+      "ticket": "NS-191",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "detection",
+      "title": "Detection Engineering",
+      "ticket": "NS-205",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "linuxint",
+      "title": "Linux Internals — Host Triage",
+      "ticket": "NS-187",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "secure",
+      "title": "Secure Coding — Input Handling",
+      "ticket": "NS-221",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "codereview",
+      "title": "Code Review — Pull Requests",
+      "ticket": "NS-230",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "incident",
+      "title": "Incident Analysis & Postmortem",
+      "ticket": "NS-240",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "capstone",
+      "title": "Capstone — First On-Call Night",
+      "ticket": "NS-300",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "sockets",
+      "title": "Sockets & Protocols — NSP/1",
+      "ticket": "NS-176",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "debugging",
+      "title": "Debugging — Regression Hunt",
+      "ticket": "NS-232",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "ticket",
+      "title": "Open Ticket — \"Dashboard is broken??\"",
+      "ticket": "NS-250",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "linux-fundamentals",
+      "title": "Linux Fundamentals (native)",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "path": "labs/linux-fundamentals",
+      "competencies": [
+        "shell-automation",
+        "linux-fundamentals"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "linux-service-triage",
+      "title": "Linux Service Triage (native)",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "path": "modules/01-linux-service-triage",
+      "competencies": [
+        "system-debugging",
+        "technical-reporting"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "native-c-engineering",
+      "title": "Native C Frame Parser",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "path": "labs/native-c-engineering",
+      "competencies": [
+        "native-c",
+        "input-validation",
+        "testing"
+      ],
+      "evidenceLevel": "practice-only"
+    },
+    {
+      "id": "posix-protocol",
+      "title": "POSIX Socket Framing",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "path": "labs/posix-protocol",
+      "competencies": [
+        "tcp-ip",
+        "posix-sockets",
+        "debugging"
+      ],
+      "evidenceLevel": "practice-only"
+    }
+  ],
+  "upcomingTracks": [
+    {
+      "id": "commercial",
+      "status": "not-implemented"
+    },
+    {
+      "id": "cno",
+      "status": "not-implemented"
+    }
+  ]
+}

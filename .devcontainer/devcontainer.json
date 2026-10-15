@@ -1,0 +1,10 @@
+{
+  "name": "Northstar Engineering Labs — Stage 1",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y build-essential clang gdb valgrind make python3 jq ripgrep && bash labs/linux-fundamentals/setup.sh && bash modules/01-linux-service-triage/setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": ["timonwong.shellcheck", "ms-vscode.cpptools"]
+    }
+  }
+}

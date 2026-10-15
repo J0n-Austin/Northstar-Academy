@@ -1,0 +1,10 @@
+2026-10-02T08:14:06Z INFO  worker pool started size=8
+2026-10-02T08:16:11Z INFO  job started id=9001 type=export
+2026-10-02T08:16:41Z ERROR job failed timeout waiting for database lock id=9001
+2026-10-02T08:18:20Z INFO  job started id=9002 type=report
+2026-10-02T08:18:59Z INFO  job finished id=9002 ms=38210
+2026-10-02T08:21:15Z WARN  queue depth high depth=340
+2026-10-02T08:23:02Z ERROR job failed read timeout from storage backend id=9003
+2026-10-02T08:25:44Z INFO  job finished id=9004 ms=1120
+2026-10-02T08:28:30Z WARN  worker restarted after oom worker=3
+2026-10-02T08:31:02Z INFO  job finished id=9005 ms=642

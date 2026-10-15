@@ -1,0 +1,149 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northstar MVP v1</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#0b0e14; --surface:#10141d; --surface-2:#161c28; --raise:#1b2230;
+    --line:#242c3a; --line-soft:#1b2230;
+    --fg:#e7eaf1; --muted:#8c96a9; --faint:#5c6678;
+    --accent:#5ab0ff; --accent-ink:#0b0e14; --accent-dim:rgba(90,176,255,.14);
+    --good:#45d39a; --warn:#ecb94e; --level:#a98bff;
+    --font-ui:'IBM Plex Sans',system-ui,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+    color-scheme:dark;
+  }
+  @media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+    --bg:#eef1f6;--surface:#fff;--surface-2:#f4f6fa;--raise:#eaeef5;
+    --line:#dce2ec;--line-soft:#eaeef5;--fg:#161b24;--muted:#586072;--faint:#8894a6;
+    --accent:#1f6fe0;--accent-ink:#fff;--accent-dim:rgba(31,111,224,.1);
+    --good:#0f9566;--warn:#b2781a;--level:#6f47cf;color-scheme:light;}}
+  :root[data-theme="light"]{
+    --bg:#eef1f6;--surface:#fff;--surface-2:#f4f6fa;--raise:#eaeef5;
+    --line:#dce2ec;--line-soft:#eaeef5;--fg:#161b24;--muted:#586072;--faint:#8894a6;
+    --accent:#1f6fe0;--accent-ink:#fff;--accent-dim:rgba(31,111,224,.1);
+    --good:#0f9566;--warn:#b2781a;--level:#6f47cf;color-scheme:light;}
+  *{box-sizing:border-box}
+  body{font-family:var(--font-ui);background:var(--bg);color:var(--fg);line-height:1.5;
+    -webkit-font-smoothing:antialiased}
+  .mono{font-family:var(--font-mono)}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .page{max-width:980px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));
+    padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:0 56px}
+  .bar{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding-block:18px 14px;
+    border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600}
+  .brand svg{color:var(--accent)}
+  .brand .dim{color:var(--faint);font-weight:400}
+  .bar .spacer{flex:1}
+  .ver{font-family:var(--font-mono);font-size:12px;color:var(--muted);border:1px solid var(--line);
+    border-radius:999px;padding:3px 10px;background:var(--surface-2)}
+  .concept{font-size:11px;color:var(--warn);border:1px dashed var(--warn);border-radius:999px;
+    padding:3px 10px;background:rgba(236,185,78,.12)}
+  h1{font-size:27px;font-weight:700;letter-spacing:-.4px;margin:30px 0 8px;text-wrap:balance}
+  .lede{color:var(--muted);font-size:15px;max-width:68ch;margin:0}
+  h2{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--faint);
+    margin:38px 0 14px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:17px;color:inherit}
+  a.card:hover{border-color:var(--accent);text-decoration:none}
+  .card .k{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+  .card .ic{width:30px;height:30px;border-radius:8px;background:var(--accent-dim);color:var(--accent);
+    display:grid;place-items:center;flex:none}
+  .card .ic svg{width:17px;height:17px}
+  .card h3{font-size:15px;font-weight:600;margin:0}
+  .card .ty{font-family:var(--font-mono);font-size:11px;color:var(--faint);margin-left:auto}
+  .card p{font-size:13px;color:var(--muted);margin:0}
+  .card code{font-family:var(--font-mono);font-size:12px;background:var(--bg);border:1px solid var(--line);
+    border-radius:5px;padding:1px 6px;color:var(--fg)}
+  .card .run{margin-top:10px;font-size:12px;color:var(--muted)}
+  .pill{display:inline-block;font-size:10.5px;font-family:var(--font-mono);border-radius:999px;
+    padding:1px 8px;margin-left:6px}
+  .p-live{color:var(--good);background:rgba(69,211,154,.14)}
+  .p-draft{color:var(--warn);background:rgba(236,185,78,.14)}
+  .map{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 16px}
+  .mrow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:11px 0;
+    border-bottom:1px solid var(--line-soft);font-size:13px}
+  .mrow:last-child{border-bottom:0}
+  .mrow .d{width:8px;height:8px;border-radius:50%}
+  .foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--faint)}
+  @media (max-width:680px){.cards{grid-template-columns:1fr}}
+</style>
+
+<div class="page">
+  <div class="bar">
+    <div class="brand">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l2.2 7.3 7.3 2.2-7.3 2.2L12 22.5l-2.2-7.3L2.5 13l7.3-2.2z"/></svg>
+      <span><b>northstar</b> <span class="dim">/ engineering academy</span></span>
+    </div>
+    <div class="spacer"></div>
+    <span class="concept">Concept / pilot</span>
+    <span class="ver">MVP v1 · 2026-10-15</span>
+  </div>
+
+  <h1>Northstar MVP v1</h1>
+  <p class="lede">The first assembled slice of the cyber-engineering apprenticeship: a working
+  interactive demo, two UI concept screens, and four runnable Linux labs set inside the
+  fictional Northstar engineering org. Enough to put in front of test players and to show a
+  design partner what the experience feels like.</p>
+
+  <h2>The working demo · runs in the browser</h2>
+  <div class="cards">
+    <a class="card" href="app/northstar-academy.html" style="grid-column:1 / -1">
+      <div class="k"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></svg></span><h3>Northstar Academy</h3><span class="ty">interactive</span></div>
+      <p>The core loop, live: onboarding → a portal with a ticket queue and activity feed → a simulated in-browser terminal (tab-completion, a file editor) where you practice commands → tasks check themselves → open a pull request, get a mentor review, and merge. Fifteen labs playable across six stages: fundamentals, scripting, C, service triage, network diagnostics, sockets &amp; protocols, detection engineering, Linux and Windows internals, secure coding, debugging, code review, incident analysis, an ambiguous open ticket, and an integrated on-call capstone. Plus a curriculum map, a company wiki, and an evidence-linked competency transcript. Nothing to install. Source + tests in <code>app/</code>.</p>
+    </a>
+  </div>
+
+  <h2>Stage 1 · authentic engineering work</h2>
+  <div class="cards">
+    <a class="card" href="docs/real-labs.html" style="grid-column:1 / -1">
+      <div class="k"><span class="ic">⌘</span><h3>Native C + POSIX socket labs</h3><span class="ty">REAL TOOLCHAIN</span></div>
+      <p>Go beyond the simulator. Compile and debug a real C binary parser, fix a fragmented socket read, and run a localhost TCP client/server. Designed for GitHub Codespaces or local Ubuntu, with GCC tests and report templates. The starter labs deliberately contain defects.</p>
+      <div class="run">Workspace instructions → native build · regression tests · peer review</div>
+    </a>
+  </div>
+
+  <h2>Experience · concept screens</h2>
+  <div class="cards">
+    <a class="card" href="mockups/portal.html">
+      <div class="k"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-5H4z"/></svg></span><h3>Learner portal</h3><span class="ty">mockup</span></div>
+      <p>The apprentice's daily home — work queue, active lab session, competency snapshot. The "it's a job, not a course" screen.</p>
+    </a>
+    <a class="card" href="mockups/competency-record.html">
+      <div class="k"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.4 8.3 8 10 4.6-1.7 8-5 8-10V5z"/><path d="m9 12 2 2 4-4"/></svg></span><h3>Competency record</h3><span class="ty">mockup</span></div>
+      <p>The employer-facing credential — evidence-backed ratings and the verification that answers "did they really do it?"</p>
+    </a>
+  </div>
+
+  <h2>Runnable content · open in Codespaces or any Linux shell</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="k"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></svg></span><h3>Linux Fundamentals Lab</h3><span class="ty">4 tasks</span></div>
+      <p>grep &amp; pipes, field-tallying, jq, and file permissions against seeded company data.</p>
+      <div class="run"><code>labs/linux-fundamentals/</code> → <code>bash run-checks.sh</code></div>
+    </div>
+    <div class="card">
+      <div class="k"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5V6a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M8 4v15"/></svg></span><h3>Module 01 · Linux Service Triage</h3><span class="ty">3 units + milestone</span></div>
+      <p>Triage a failing telemetry service across the autonomy ladder (L1 read → L2 fix → L3 investigate), ending in an incident report.</p>
+      <div class="run"><code>modules/01-linux-service-triage/</code> → <code>bash setup.sh</code> then <code>bash run-checks.sh</code></div>
+    </div>
+  </div>
+
+  <h2>Status</h2>
+  <div class="map">
+    <div class="mrow"><span class="d" style="background:var(--good)"></span><span>Working interactive demo — portal + 15 in-browser labs incl. capstone, live-checked</span><span class="mono" style="color:var(--good)">done</span></div>
+    <div class="mrow"><span class="d" style="background:var(--good)"></span><span>Concept screens + four standalone Linux labs (two new C/network labs)</span><span class="mono" style="color:var(--good)">done</span></div>
+    <div class="mrow"><span class="d" style="background:var(--warn)"></span><span>Pilot kit (runbook + templates), ready to run a cohort</span><span class="mono" style="color:var(--warn)">ready</span></div>
+    <div class="mrow"><span class="d" style="background:var(--faint)"></span><span>Live backend, cohort accounts, specialization tracks</span><span class="mono" style="color:var(--faint)">later</span></div>
+  </div>
+
+  <p class="foot">Concept / pilot build. Illustrative example data throughout; nothing here is a
+  live product, a real credential, or a real secret. Product direction lives in the
+  version-controlled product roadmap. &nbsp;·&nbsp; <span class="mono">northstar-mvp-v1</span></p>
+</div>
+
+<script>
+  try{var s=localStorage.getItem('ns-theme');if(s)document.documentElement.setAttribute('data-theme',s);}catch(e){}
+</script>

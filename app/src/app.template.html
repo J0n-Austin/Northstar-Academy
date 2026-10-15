@@ -1,0 +1,1101 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Northstar Academy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: fixed top bar + left icon rail; main area swaps between Onboarding, Portal (dashboard) and a Lab (terminal + live-checked tasks). Dark-first engineering console; terminal committed-dark in both themes. */
+  :root{
+    --bg:#0b0e14;--surface:#10141d;--surface-2:#161c28;--raise:#1b2230;
+    --line:#242c3a;--line-soft:#1b2230;--fg:#e7eaf1;--muted:#8c96a9;--faint:#5c6678;
+    --accent:#5ab0ff;--accent-ink:#0b0e14;--accent-dim:rgba(90,176,255,.14);
+    --good:#45d39a;--good-dim:rgba(69,211,154,.14);--warn:#ecb94e;--warn-dim:rgba(236,185,78,.14);
+    --crit:#f2616b;--crit-dim:rgba(242,97,107,.14);--level:#a98bff;--level-dim:rgba(169,139,255,.14);
+    --term-bg:#080a0e;--term-fg:#cdd3df;--term-dim:#5c6678;
+    --font-ui:'IBM Plex Sans',system-ui,sans-serif;--font-mono:'IBM Plex Mono',ui-monospace,monospace;
+    --radius:10px;color-scheme:dark;
+  }
+  @media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+    --bg:#eef1f6;--surface:#fff;--surface-2:#f4f6fa;--raise:#eaeef5;--line:#dce2ec;--line-soft:#eaeef5;
+    --fg:#161b24;--muted:#586072;--faint:#8894a6;--accent:#1f6fe0;--accent-ink:#fff;--accent-dim:rgba(31,111,224,.1);
+    --good:#0f9566;--good-dim:rgba(15,149,102,.12);--warn:#b2781a;--warn-dim:rgba(178,120,26,.12);
+    --crit:#d2333f;--crit-dim:rgba(210,51,63,.1);--level:#6f47cf;--level-dim:rgba(111,71,207,.12);color-scheme:light;}}
+  :root[data-theme="light"]{
+    --bg:#eef1f6;--surface:#fff;--surface-2:#f4f6fa;--raise:#eaeef5;--line:#dce2ec;--line-soft:#eaeef5;
+    --fg:#161b24;--muted:#586072;--faint:#8894a6;--accent:#1f6fe0;--accent-ink:#fff;--accent-dim:rgba(31,111,224,.1);
+    --good:#0f9566;--good-dim:rgba(15,149,102,.12);--warn:#b2781a;--warn-dim:rgba(178,120,26,.12);
+    --crit:#d2333f;--crit-dim:rgba(210,51,63,.1);--level:#6f47cf;--level-dim:rgba(111,71,207,.12);color-scheme:light;}
+
+  *{box-sizing:border-box}
+  [hidden]{display:none!important} /* don't rely on the host's reset: the bundle is also opened locally */
+  html,body{height:100%}
+  body{margin:0;font-family:var(--font-ui);background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased;font-size:14px}
+  .mono{font-family:var(--font-mono);font-feature-settings:"zero"1}
+  button{font-family:inherit;cursor:pointer}
+  a{color:var(--accent);text-decoration:none}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .app{display:grid;grid-template-columns:58px 1fr;grid-template-rows:52px 1fr;grid-template-areas:"top top" "rail main";height:100%}
+  .top{grid-area:top;display:flex;align-items:center;gap:12px;
+    padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px));
+    border-bottom:1px solid var(--line);background:var(--surface);z-index:20}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600}
+  .brand svg{color:var(--accent)}
+  .brand .dim{color:var(--faint);font-weight:400}
+  .ws{display:flex;align-items:center;gap:7px;padding:3px 9px;border:1px solid var(--line);border-radius:999px;
+    background:var(--surface-2);font-size:12px;color:var(--muted)}
+  .ws i{width:7px;height:7px;border-radius:50%;background:var(--good);display:block}
+  .top .spacer{flex:1}
+  .concept{font-size:11px;color:var(--warn);border:1px dashed var(--warn);border-radius:999px;padding:2px 9px;background:var(--warn-dim);white-space:nowrap}
+  .iconbtn{display:grid;place-items:center;width:32px;height:32px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--muted)}
+  .iconbtn:hover{background:var(--surface-2);color:var(--fg)}
+  .avatar{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-family:var(--font-mono);
+    font-size:12px;font-weight:600;color:var(--accent-ink);background:linear-gradient(135deg,var(--accent),#7d7bff)}
+
+  .rail{grid-area:rail;border-right:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;
+    align-items:center;gap:4px;padding:10px 0}
+  .rail button{position:relative;width:40px;height:40px;border-radius:9px;display:grid;place-items:center;color:var(--muted);border:0;background:transparent;padding:0;font:inherit}
+  .rail button svg{width:19px;height:19px}
+  .rail button:hover{background:var(--surface-2);color:var(--fg)}
+  .rail button.active{color:var(--accent);background:var(--accent-dim)}
+  .rail button.active::before{content:"";position:absolute;left:-10px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
+  .rail button .lab{position:absolute;left:50px;white-space:nowrap;background:var(--raise);border:1px solid var(--line);color:var(--fg);
+    font-size:12px;padding:4px 9px;border-radius:6px;opacity:0;pointer-events:none;transition:.12s;z-index:30}
+  .rail button:hover .lab{opacity:1}
+
+  .main{grid-area:main;overflow:auto;min-width:0}
+  .wrap{max-width:1200px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:22px 36px}
+
+  h1.ph{font-size:21px;font-weight:600;letter-spacing:-.2px;margin:0 0 3px}
+  .ph-sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .ph-sub .mono{color:var(--faint)}
+
+  /* generic card */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);min-width:0}
+  .card>.hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 15px;border-bottom:1px solid var(--line-soft)}
+  .card>.hd h2{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin:0}
+  .card>.hd .act{font-size:12px;color:var(--accent);background:none;border:0}
+
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:start}
+  .col{display:flex;flex-direction:column;gap:18px;min-width:0}
+
+  /* onboarding */
+  .onb{max-width:640px;margin:6vh auto 0;text-align:left}
+  .onb .eyebrow{font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--accent)}
+  .onb h1{font-size:30px;font-weight:700;letter-spacing:-.5px;margin:10px 0;text-wrap:balance}
+  .onb p{color:var(--muted);font-size:15px;line-height:1.6}
+  .onb .steps{display:flex;flex-direction:column;gap:10px;margin:22px 0}
+  .onb .step{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .onb .step .n{width:24px;height:24px;border-radius:50%;background:var(--accent-dim);color:var(--accent);display:grid;place-items:center;
+    font-family:var(--font-mono);font-size:12px;font-weight:600;flex:none}
+  .onb .step .t{font-weight:600;font-size:13.5px}
+  .onb .step .d{color:var(--muted);font-size:12.5px;margin-top:2px}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:8px;font-size:13.5px;font-weight:500;border:1px solid var(--line);background:var(--surface-2);color:var(--fg)}
+  .btn svg{width:15px;height:15px}
+  .btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+  .btn.pri:hover{filter:brightness(1.06)}
+  .btn:hover{border-color:var(--muted)}
+
+  /* ticket queue */
+  .tick{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:13px;align-items:center;padding:12px 15px;border-bottom:1px solid var(--line-soft);width:100%;text-align:left;background:none;border-left:0;border-right:0;border-top:0;color:inherit}
+  .tick:last-child{border-bottom:0}
+  .tick:hover{background:var(--surface-2)}
+  .tick .stat{width:9px;height:9px;border-radius:50%;flex:none}
+  .s-done{background:var(--good)}.s-prog{background:var(--accent)}.s-todo{background:var(--faint)}
+  .tick .mid{min-width:0}
+  .tick .id{font-family:var(--font-mono);font-size:11px;color:var(--faint)}
+  .tick .name{font-weight:500;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tick .tags{display:flex;gap:7px;margin-top:4px;flex-wrap:wrap}
+  .chip{font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+  .chip.lv{color:var(--level);border-color:transparent;background:var(--level-dim);font-family:var(--font-mono)}
+  .tick .rt{font-size:11.5px;white-space:nowrap}
+  .rt-done{color:var(--good)}.rt-prog{color:var(--accent)}.rt-todo{color:var(--faint)}
+
+  /* competency */
+  .comp{padding:7px 15px 13px}
+  .skill{padding:9px 0;border-bottom:1px solid var(--line-soft)}
+  .skill:last-child{border-bottom:0}
+  .skill .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+  .skill .nm{font-size:13px}
+  .skill .rt{font-size:11px;font-family:var(--font-mono);color:var(--muted)}
+  .track{display:flex;gap:4px}
+  .track span{height:5px;flex:1;border-radius:2px;background:var(--line)}
+  .track span.on{background:var(--accent)}
+  .track.full span.on{background:var(--good)}
+  .skill .rt.full{color:var(--good)}
+
+  /* overall progress tile */
+  .ptile{display:flex;align-items:center;gap:14px;padding:15px}
+  .ring{--p:0;width:52px;height:52px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center;flex:none}
+  .ring i{width:40px;height:40px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-style:normal;font-family:var(--font-mono);font-size:12px;font-weight:600}
+  .ptile .t{font-weight:600}
+  .ptile .d{color:var(--muted);font-size:12.5px}
+
+  /* lab cards (Labs view) */
+  .labgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .labcard{display:flex;flex-direction:column;gap:11px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:17px}
+  .labcard .k{display:flex;align-items:center;gap:10px}
+  .labcard .ic{width:34px;height:34px;border-radius:9px;background:var(--accent-dim);color:var(--accent);display:grid;place-items:center;flex:none}
+  .labcard h3{font-size:15px;font-weight:600;margin:0}
+  .labcard p{font-size:13px;color:var(--muted);margin:0;flex:1}
+  .labcard .foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .labcard .mono{font-size:12px;color:var(--faint)}
+
+  /* lab view: terminal + tasks */
+  .labview{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+  .backbtn{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);background:none;border:0;padding:0;margin-bottom:12px}
+  .backbtn:hover{color:var(--fg)}
+  .term-wrap{display:flex;flex-direction:column;background:var(--term-bg);border:1px solid var(--line);border-radius:10px;overflow:hidden;height:70vh;min-height:420px}
+  .term-bar{display:flex;align-items:center;gap:7px;padding:9px 13px;border-bottom:1px solid #1a1f29;flex:none}
+  .term-bar .dot{width:10px;height:10px;border-radius:50%}
+  .term-bar .t{margin-left:8px;font-family:var(--font-mono);font-size:11.5px;color:var(--term-dim)}
+  .term{flex:1;min-height:0;overflow-y:auto;padding:12px 14px;font-family:var(--font-mono);font-size:13px;line-height:1.6;color:var(--term-fg);white-space:pre-wrap;word-break:break-word}
+  .term .dir{color:var(--accent);font-weight:600}.term .pr{color:var(--accent)}.term .pa{color:var(--level)}.term .sys{color:var(--term-dim)}.term .err{color:var(--crit)}.term .ok{color:var(--good)}
+  .inputline{display:flex;align-items:center;padding:0 14px 14px;font-family:var(--font-mono);font-size:13px}
+  .inputline .pr{color:var(--accent);white-space:pre}.inputline .pa{color:var(--level)}
+  .inputline input{flex:1;min-width:0;background:transparent;border:0;outline:none;color:var(--term-fg);font-family:var(--font-mono);font-size:13px;caret-color:var(--accent)}
+
+  .tasks{display:flex;flex-direction:column;gap:12px;min-width:0}
+  .prog{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .prog .k{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:9px}
+  .prog .k b{color:var(--fg);font-family:var(--font-mono)}
+  .bar{height:7px;border-radius:999px;background:var(--line);overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .3s}
+  .task{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .task.done{border-color:var(--good);background:var(--good-dim)}
+  .task .h{display:flex;align-items:flex-start;gap:10px}
+  .task .st{width:20px;height:20px;border-radius:50%;border:2px solid var(--faint);flex:none;margin-top:1px;display:grid;place-items:center}
+  .task.done .st{border-color:var(--good);background:var(--good)}
+  .task .st svg{width:12px;height:12px;color:var(--accent-ink);opacity:0}
+  .task.done .st svg{opacity:1}
+  .task .ti{font-weight:600;font-size:13.5px}
+  .task .lv{font-family:var(--font-mono);font-size:10.5px;color:var(--accent);background:var(--accent-dim);border-radius:999px;padding:1px 7px;margin-left:6px}
+  .task p{font-size:12.5px;color:var(--muted);margin:9px 0 0;line-height:1.85}
+  .task code{font-family:var(--font-mono);font-size:11.5px;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--fg)}
+  .task .hintbtn{margin-top:10px;font-size:12px;color:var(--accent);background:none;border:0;padding:0}
+  .task .hint{margin-top:9px;font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:9px 11px;line-height:1.5}
+  .done-banner{background:var(--good-dim);border:1px solid var(--good);border-radius:10px;padding:14px 15px;font-size:13px}
+  .done-banner b{color:var(--good)}
+
+  /* transcript */
+  .tr{max-width:640px;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .tr-skill{padding:14px 16px;border-bottom:1px solid var(--line-soft)}
+  .tr-skill:last-child{border-bottom:0}
+  .tr-skill .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .tr-skill .nm{font-weight:600;font-size:13.5px}
+  .tr-skill .rt{font-size:11px;font-family:var(--font-mono);color:var(--muted)}
+  .tr-skill .rt.full{color:var(--good)}
+  .tr-skill .track{display:flex;gap:4px;margin-bottom:9px}
+  .tr-skill .track span{height:5px;flex:1;border-radius:2px;background:var(--line)}
+  .tr-skill .track span.on{background:var(--accent)}
+  .tr-skill .track.full span.on{background:var(--good)}
+  .ev-list{margin:0;padding-left:16px;color:var(--muted);font-size:12px;line-height:1.7}
+  .ev-list li{list-style:none;position:relative}
+  .ev-list li::before{content:"✓";position:absolute;left:-16px;color:var(--good);font-weight:700}
+  .ev-none{color:var(--faint);font-size:12px}
+  .sec-h{font-size:15px;font-weight:600;margin:28px 0 2px}
+  .replies{max-width:640px;display:flex;flex-direction:column;gap:10px}
+  .reply{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:12px 14px}
+  .reply .rh{font-size:11.5px;color:var(--muted);margin-bottom:5px}
+  .reply .rb{font-size:13px;line-height:1.5}
+  .tr-foot{max-width:640px;color:var(--muted);font-size:12.5px;margin-top:16px;line-height:1.6}
+
+  /* curriculum map */
+  .stages{display:flex;flex-direction:column;gap:12px;max-width:720px}
+  .stage{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+  .stage.coming{opacity:.72}
+  .st-h{display:flex;align-items:center;gap:10px;margin-bottom:5px}
+  .st-n{font-weight:600;font-size:14px}
+  .st-note{color:var(--muted);font-size:12.5px;margin-bottom:10px}
+  .st-labs{display:flex;flex-wrap:wrap;gap:9px}
+  .map-lab{display:inline-flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 11px;font-size:12.5px;color:var(--fg)}
+  .map-lab:hover{border-color:var(--accent)}
+  .map-lab .d{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+  .map-lab.done .d{background:var(--good)}
+  .map-lab .mono{color:var(--faint);font-size:11px}
+  .chip.live{color:var(--good);background:var(--good-dim);border-color:transparent}
+
+  /* wiki */
+  .wiki{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  .wiki-card{padding:16px}
+  .wk-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+  .wk-h h3{font-size:14.5px;font-weight:600;margin:0;font-family:var(--font-mono)}
+  .wk-d{font-size:12.5px;color:var(--muted);line-height:1.6;margin:0 0 12px}
+  .wk-run{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+  .wiki-card ul{margin:0;padding-left:16px;font-size:12.5px;line-height:1.7}
+  @media (max-width:720px){.wiki{grid-template-columns:1fr}}
+
+  /* activity feed */
+  .feed{padding:5px 15px 10px}
+  .ev-row{display:grid;grid-template-columns:auto 1fr;gap:11px;padding:10px 0;border-bottom:1px solid var(--line-soft)}
+  .ev-row:last-child{border-bottom:0}
+  .ev-ic{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;flex:none}
+  .ev-ic svg{width:14px;height:14px}
+  .ev-ci{background:var(--good-dim);color:var(--good)}
+  .ev-mg{background:var(--level-dim);color:var(--level)}
+  .ev-tk{background:var(--accent-dim);color:var(--accent)}
+  .ev-bd{min-width:0;font-size:12.5px;line-height:1.5}
+  .ev-bd .who{font-weight:600}
+  .ev-bd .mono{color:var(--faint);font-size:11px}
+  .ev-bd time{display:block;color:var(--faint);font-size:11px;margin-top:2px}
+
+  /* in-terminal file editor */
+  .term-wrap{position:relative}
+  .editor{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--term-bg);z-index:5}
+  .ed-head{display:flex;align-items:center;gap:10px;padding:9px 13px;border-bottom:1px solid #1a1f29;font-family:var(--font-mono);font-size:12px;color:var(--term-dim)}
+  .ed-head .fn{color:var(--term-fg);font-weight:600}
+  .ed-head .mod{color:var(--warn)}
+  .ed-head .tag{margin-left:auto;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase}
+  .ed-text{flex:1;min-height:0;width:100%;resize:none;border:0;outline:none;background:var(--term-bg);color:var(--term-fg);
+    font-family:var(--font-mono);font-size:13px;line-height:1.6;padding:12px 14px;tab-size:2;white-space:pre;overflow:auto;caret-color:var(--accent)}
+  .ed-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 13px;border-top:1px solid #1a1f29;font-family:var(--font-mono);font-size:11.5px;color:var(--term-dim)}
+  .ed-foot .k{color:var(--term-fg);border:1px solid #2a3140;border-radius:4px;padding:0 5px}
+  .ed-foot .warn{color:var(--warn)}
+  .ed-foot .sp{flex:1}
+  .ed-btn{font-family:var(--font-ui);font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #2a3140;background:#121722;color:var(--term-fg)}
+  .ed-btn.pri{background:var(--accent);border-color:var(--accent);color:#0b0e14;font-weight:600}
+
+  /* PR review modal */
+  .overlay{position:fixed;inset:0;background:rgba(6,8,12,.6);display:grid;place-items:center;padding:20px;z-index:50}
+  .modal{width:min(560px,100%);max-height:88vh;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column}
+  .pr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line-soft)}
+  .pr-title{display:flex;align-items:flex-start;gap:11px}
+  .pr-title svg{width:20px;height:20px;color:var(--level);margin-top:1px}
+  .pr-title .t{font-weight:600;font-size:15px}
+  .pr-title .b{font-size:11.5px;color:var(--faint);margin-top:2px}
+  .pr-body{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+  .pr-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .pr-badge{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--good);background:var(--good-dim);border-radius:999px;padding:3px 10px;font-weight:500}
+  .pr-badge .st{width:8px;height:8px;border-radius:50%;background:var(--good)}
+  .pr-meta-d{font-size:11.5px;color:var(--faint)}
+  .review{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .rv-head{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--surface-2);border-bottom:1px solid var(--line-soft);font-size:12.5px}
+  .rv-head .av{width:28px;height:28px;border-radius:8px;background:var(--raise);display:grid;place-items:center;font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--muted)}
+  .rv-head .muted{color:var(--muted);font-weight:400}
+  .rv-body{padding:13px}
+  .rv-body p{margin:0 0 10px;font-size:13.5px;line-height:1.55}
+  .rv-body code{font-family:var(--font-mono);font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+  .rv-body .approve{display:flex;align-items:center;gap:7px;color:var(--good);font-weight:500;margin:0}
+  .rv-body .approve svg{width:15px;height:15px;flex:none}
+  .rv-reply-l{font-size:12px;color:var(--fg)}
+  .rv-reply-l .muted{color:var(--faint)}
+  .rv-reply{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--fg);font-family:var(--font-ui);font-size:13px;resize:vertical;margin-top:6px}
+  .pr-foot{display:flex;justify-content:flex-end;gap:9px;padding:14px 18px;border-top:1px solid var(--line-soft)}
+
+  @media (max-width:860px){.grid,.labview{grid-template-columns:1fr}.labgrid{grid-template-columns:1fr}.term-wrap{height:56vh}}
+  @media (max-width:560px){.app{grid-template-columns:50px 1fr}.ws{display:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l2.2 7.3 7.3 2.2-7.3 2.2L12 22.5l-2.2-7.3L2.5 13l7.3-2.2z"/></svg>
+      <span><b>northstar</b> <span class="dim">/ academy</span></span>
+    </div>
+    <div class="ws"><i></i> Platform team</div>
+    <div class="spacer"></div>
+    <span class="concept">Simulated training environment</span>
+    <button class="iconbtn" id="theme" title="Toggle theme" aria-label="Toggle theme"><svg id="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+    <button class="iconbtn" id="reset-all" title="Reset all progress" aria-label="Reset all progress"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+    <div class="avatar">SR</div>
+  </header>
+
+  <nav class="rail" aria-label="Primary">
+    <button data-view="portal" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-5H4z"/></svg><span class="lab">My Work</span></button>
+    <button data-view="labs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></svg><span class="lab">Labs</span></button>
+    <button data-view="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><span class="lab">Curriculum</span></button>
+    <button data-view="wiki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 3v15"/></svg><span class="lab">Wiki</span></button>
+    <button data-view="skills"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg><span class="lab">Skills</span></button>
+  </nav>
+
+  <main class="main"><div class="wrap" id="view"></div></main>
+</div>
+
+<script>
+// __ENGINE__
+</script>
+<script>
+(function(){
+  "use strict";
+  var $=function(s,r){return (r||document).querySelector(s);};
+  function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  function norm(s){return (s||"").split("\n").map(function(l){return l.replace(/\s+/g," ").trim();}).filter(Boolean).join("\n");}
+  function sortLines(s){return (s||"").split("\n").map(function(l){return l.trim();}).filter(Boolean).sort().join("\n");}
+
+  // ---------- lab definitions ----------
+  var LABS=[
+    { id:"fundamentals", name:"Linux Fundamentals", ticketId:"NS-101", icon:"term",
+      blurb:"grep, pipes, jq and permissions against the company's logs and config.",
+      make:function(){ return createShell(); },
+      seedNote:"scenario/ has the logs, a status.json, and a key file.",
+      tasks:[
+        {id:"f1",title:"Count the timeout errors",lv:"L1",
+         brief:"Across <code>scenario/logs/</code>, count ERROR lines that mention <b>timeout</b> (case-insensitive). Write the number to <code>answers/01.txt</code>.",
+         hints:["Match two things: filter once, then pipe into another filter.","<code>grep -c</code> counts; <code>-i</code> ignores case; <code>-w</code> whole word; <code>&gt;</code> redirects.","<code>grep -h -w ERROR scenario/logs/*.log | grep -i -c timeout &gt; answers/01.txt</code>"],
+         check:function(sh){return (sh.fileContent("answers/01.txt")||"").replace(/[^0-9]/g,"")==="8";}},
+        {id:"f2",title:"Rank the top error codes",lv:"L2",
+         brief:"In <code>scenario/logs/app.log</code>, ERROR lines end with <code>code=E###</code>. Write the top 3 to <code>answers/02.txt</code> as <code>CODE COUNT</code>, highest first.",
+         hints:["Isolate the codes, then sort → uniq -c → sort by count.","<code>grep -oE 'code=E[0-9]+'</code>, strip with <code>sed 's/code=//'</code>, <code>uniq -c</code> needs sorted input.","<code>grep -w ERROR scenario/logs/app.log | grep -oE 'code=E[0-9]+' | sed 's/code=//' | sort | uniq -c | sort -rn | head -3 | awk '{print $2, $1}' &gt; answers/02.txt</code>"],
+         check:function(sh){return norm(sh.fileContent("answers/02.txt"))==="E500 6\nE408 5\nE404 4";}},
+        {id:"f3",title:"List the degraded services",lv:"L2",
+         brief:"From <code>scenario/service/status.json</code>, write the <b>degraded</b> service names, sorted, to <code>answers/03.txt</code>.",
+         hints:["Reach into the services array, keep degraded, print name.","<code>.services[]</code> streams; <code>select(...)</code> filters; <code>-r</code> raw.","<code>jq -r '.services[] | select(.state == \"degraded\") | .name' scenario/service/status.json | sort &gt; answers/03.txt</code>"],
+         check:function(sh){return sortLines(sh.fileContent("answers/03.txt"))==="auth\ncache\nmetrics\nstorage";}},
+        {id:"f4",title:"Fix the key permissions",lv:"L1",
+         brief:"<code>scenario/secrets/service.key</code> is world-readable. Make it owner-only — mode <b>600</b>.",
+         hints:["Owner read+write; nothing for group/others.","Check <code>ls -l</code>; fix with <code>chmod</code>. read+write=6, none=0.","<code>chmod 600 scenario/secrets/service.key</code>"],
+         check:function(sh){return sh.fileMode("scenario/secrets/service.key")==="600";}}
+      ],
+      review:{branch:"chore/log-triage",q:"Clean work pulling the degraded services out of that JSON. Before I approve — if the status file had 500 services instead of 8, would that same one-liner still be the right tool, or would you reach for something else?"} },
+    { id:"triage", name:"Linux Service Triage", ticketId:"NS-210", icon:"wrench",
+      blurb:"Triage a down telemetry service up the autonomy ladder: read, fix, then investigate.",
+      make:function(){ var sh=createShell(); installModule01(sh); return sh; },
+      seedNote:"telemetryd is DOWN. Config in etc/, logs in var/log/. Run it with telemetryd --check.",
+      tasks:[
+        {id:"t1",title:"Read the system",lv:"L1",
+         brief:"The agent is down. Report two facts to <code>answers/u1.txt</code>: <code>failed_starts = N</code> (count of 'start failed' in <code>var/log/telemetryd.log</code>) and <code>latest_error = E_CODE</code> (the code on the last ERROR line).",
+         hints:["Everything is in the log. Count, and read the last error line.","<code>grep -c 'start failed' var/log/telemetryd.log</code> and <code>grep ERROR var/log/telemetryd.log | tail -1</code>.","failed_starts is 4; the last error is E_PERM. Write both as <code>key = value</code> lines with <code>echo ... &gt; answers/u1.txt</code> (use <code>&gt;&gt;</code> for the second)."],
+         check:function(sh){var t=(sh.fileContent("answers/u1.txt")||"").toLowerCase();return /failed_starts\s*=\s*4/.test(t)&&/latest_error\s*=\s*e_perm/.test(t);}},
+        {id:"t2",title:"Make it start",lv:"L2",
+         brief:"Get <code>telemetryd --check</code> to report <b>healthy</b>. Run it, read the error, fix the cause, repeat. There's a bad config value and an unsafe key-file permission.",
+         hints:["It reports one problem at a time. Fix, re-run.","Interval 0 isn't positive. Open the file with <code>edit etc/telemetryd.conf</code>, change it, save with Ctrl/⌘ S (or one-line it: <code>sed -i 's/interval  = 0/interval  = 15/' etc/telemetryd.conf</code>). Then the key: <code>chmod 600 etc/telemetryd.key</code>.","Run <code>telemetryd --check</code> until it says healthy."],
+         check:function(sh){var r=sh.run("telemetryd --check");return r.code===0;}},
+        {id:"t3",title:"Investigate the load failure",lv:"L3",
+         brief:"<code>telemetryd --stress</code> still fails under load. A teammate says it's the network — they may be wrong. Find the real cause and make <code>--stress</code> healthy.",
+         hints:["The basic check passes, so it's load-only. Read what --stress prints. Config isn't just one file.","It loads <code>etc/telemetryd.conf</code> then overrides in <code>etc/telemetryd.d/</code>. Try <code>grep -r max_batch etc</code>.","A stale override sets max_batch=100000 (limit is 500). <code>rm etc/telemetryd.d/90-local.conf</code>, then re-run --stress. The network theory was wrong."],
+         check:function(sh){var r=sh.run("telemetryd --stress");return r.code===0;}}
+      ],
+      review:{branch:"fix/telemetryd-triage",q:"Good — the fix is clean and the override is gone. One thing before I close this out: that bad <code>max_batch</code> was added during a past incident and never reverted. Beyond “remember to check it”, what would actually catch a value like that next time?"} },
+    { id:"networking", name:"Network & Protocol Diagnostics", ticketId:"NS-142", icon:"net",
+      blurb:"The api-gateway can't reach auth. Diagnose DNS and the upstream port, then restore the connection.",
+      make:function(){ var sh=createShell(); installNetworking(sh); return sh; },
+      seedNote:"Gateway is failing. Tools: dig, ss -ltn, curl, gateway --check. Config in etc/.",
+      tasks:[
+        {id:"n1",title:"Map the problem",lv:"L1",
+         brief:"Find the mismatch. Write to <code>answers/net1.txt</code>: <code>resolved_ip = X</code> (what <code>dig auth.northstar.internal</code> returns now) and <code>listening = IP:PORT</code> (the auth service's real address from <code>ss -ltn</code>).",
+         hints:["<code>dig auth.northstar.internal</code> shows what the name resolves to; <code>ss -ltn</code> shows what's actually listening.","They don't match — that's the problem. The auth service is the <code>10.0.3.x:8443</code> line.","resolved_ip is 10.0.3.99; listening is 10.0.3.12:8443. Write both with <code>echo ... &gt; answers/net1.txt</code> and <code>&gt;&gt;</code>."],
+         check:function(sh){var t=(sh.fileContent("answers/net1.txt")||"").replace(/\s+/g,"");return /resolved_ip=10\.0\.3\.99/.test(t)&&/listening=10\.0\.3\.12:8443/.test(t);}},
+        {id:"n2",title:"Fix DNS resolution",lv:"L2",
+         brief:"The name points at the wrong host. Edit <code>etc/hosts</code> so <code>auth.northstar.internal</code> resolves to the real auth IP, and confirm with <code>dig</code>.",
+         hints:["<code>etc/hosts</code> maps IPs to names. One line has the wrong IP for auth. Open it with <code>edit etc/hosts</code>.","<code>sed -i 's/10.0.3.99/10.0.3.12/' etc/hosts</code>, then <code>dig +short auth.northstar.internal</code>.","After the edit, dig should return 10.0.3.12."],
+         check:function(sh){var h=sh.fileContent("etc/hosts")||"";return /10\.0\.3\.12\s+auth\.northstar\.internal/.test(h);}},
+        {id:"n3",title:"Restore the connection",lv:"L2",
+         brief:"The gateway still can't connect. Fix the upstream port in <code>etc/gateway.conf</code> to match what auth actually listens on, until <code>gateway --check</code> is healthy.",
+         hints:["Run <code>gateway --check</code> and read the error — it names what's wrong.","auth listens on 8443 (from <code>ss</code>), but the gateway is configured for a different port. <code>edit etc/gateway.conf</code>.","<code>sed -i 's/upstream_port = 8080/upstream_port = 8443/' etc/gateway.conf</code>, then <code>gateway --check</code>."],
+         check:function(sh){return sh.run("gateway --check").code===0;}}
+      ],
+      review:{branch:"fix/gateway-auth-connectivity",q:"Nice, gateway's healthy. Quick one: you fixed the record in <code>etc/hosts</code> directly, but in production that lives in real DNS, not a local file. How would you confirm the fix actually took effect from the gateway's point of view, not just from <code>dig</code>?"} },
+    { id:"automation", name:"Shell Scripting & Automation", ticketId:"NS-168", icon:"script",
+      blurb:"Write a log-summary script, make it executable, and schedule it to run on a cron.",
+      make:function(){ var sh=createShell(); installAutomation(sh); return sh; },
+      seedNote:"Logs in logs/. Write scripts in bin/. Run with bash, make executable with chmod +x, schedule with crontab -e.",
+      tasks:[
+        {id:"a1",title:"Write the summary script",lv:"L1",
+         brief:"Create <code>bin/summary.sh</code> that takes a log file as <code>$1</code> and prints exactly two lines: <code>lines=&lt;total lines&gt;</code> and <code>errors=&lt;count of ERROR lines&gt;</code>. Develop against <code>logs/service.log</code>; run with <code>bash bin/summary.sh logs/service.log</code>.",
+         hints:["Open a new file with <code>edit bin/summary.sh</code>. Use <code>$1</code> for the argument.","<code>wc -l &lt; $1</code> counts lines; <code>grep -c ERROR $1</code> counts error lines. Put each in a <code>$(...)</code>.","<code>#!/bin/bash</code><br><code>f=$1</code><br><code>echo lines=$(wc -l &lt; $f)</code><br><code>echo errors=$(grep -c ERROR $f)</code>"],
+         check:function(sh){
+           function want(p){var c=sh.fileContent(p)||"";var ls=c.split("\n");if(ls[ls.length-1]==="")ls.pop();return "lines="+ls.length+"\nerrors="+ls.filter(function(l){return /ERROR/.test(l);}).length;}
+           if(!sh.fileContent("bin/summary.sh"))return false;
+           return sh.run("bash bin/summary.sh logs/service.log").out===want("logs/service.log")
+               && sh.run("bash bin/summary.sh logs/audit.log").out===want("logs/audit.log");}},
+        {id:"a2",title:"Make it executable",lv:"L2",
+         brief:"Make the script runnable on its own and invoke it directly: <code>./bin/summary.sh logs/service.log</code> should work (not just via <code>bash</code>).",
+         hints:["Scripts need an execute bit before <code>./</code> will run them.","<code>chmod +x bin/summary.sh</code>, then <code>./bin/summary.sh logs/service.log</code>.","Without the execute bit you'll get 'Permission denied'."],
+         check:function(sh){var m=sh.fileMode("bin/summary.sh");if(!m||!(parseInt(m[0],10)&1))return false;return sh.run("./bin/summary.sh logs/service.log").code===0;}},
+        {id:"a3",title:"Schedule it",lv:"L2",
+         brief:"Schedule the script to run automatically. Add a crontab entry (a 5-field schedule) that runs <code>summary.sh</code>. Edit your crontab with <code>crontab -e</code>, then confirm with <code>crontab -l</code>.",
+         hints:["<code>crontab -e</code> opens your crontab in the editor; <code>crontab -l</code> lists it.","A cron line is five schedule fields then the command, e.g. <code>0 2 * * * /home/sam/lab/bin/summary.sh logs/service.log</code> for 2am daily.","Save in the editor (Ctrl/⌘ S), then <code>crontab -l</code> should show your line."],
+         check:function(sh){var r=sh.run("crontab -l");if(r.code!==0)return false;return /^\s*\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+.*summary\.sh/m.test(r.out);}}
+      ],
+      review:{branch:"feat/log-summary-automation",q:"Solid — the script generalizes and it's scheduled. One thing I always ask about cron jobs: this writes no output anywhere and emails nothing. If it starts failing silently at 2am, how would anyone find out?"} },
+    { id:"cprog", name:"C Programming — Log Helpers", ticketId:"NS-173", icon:"code",
+      blurb:"Three C functions in src/logutil.c each have a bug. Find and fix them until the tests pass.",
+      make:function(){ var sh=createShell(); installC(sh); return sh; },
+      seedNote:"Edit src/logutil.c. Compile with gcc, run the suite with make test. Each function has one real bug.",
+      tasks:[
+        {id:"c1",title:"Compile cleanly",lv:"L1",
+         brief:"Open <code>src/logutil.c</code> and read it. Get it to compile with no errors: <code>gcc -Wall src/logutil.c</code> should exit cleanly. (It already does — this is your starting point; confirm it.)",
+         hints:["<code>edit src/logutil.c</code> to read the three functions.","<code>gcc -Wall src/logutil.c</code> — a clean compile exits 0 and prints nothing.","If you introduce a syntax error while editing, gcc will point at it. Keep it compiling."],
+         check:function(sh){return sh.run("gcc -Wall src/logutil.c").code===0;}},
+        {id:"c2",title:"Fix count_char and to_int",lv:"L2",
+         brief:"<code>count_char</code> misses the last character; <code>to_int</code> doesn't reject non-digits. Fix both so their tests pass. Run <code>make test</code> to see which cases fail.",
+         hints:["<code>make test</code> shows the first failing case per function — look at the input and expected output.","count_char's loop bound stops one short of the end. to_int needs to check each char is between '0' and '9' and return -1 otherwise.","count_char: <code>i &lt; strlen(s)</code> (or loop while <code>s[i] != 0</code>). to_int: add <code>if (s[i] &lt; '0' || s[i] &gt; '9') return -1;</code> before using the digit."],
+         check:function(sh){var r=sh.cTestResults();if(!r||!r.compiled)return false;return r.results.count_char.passed===r.results.count_char.total && r.results.to_int.passed===r.results.to_int.total;}},
+        {id:"c3",title:"Fix longest_run",lv:"L2",
+         brief:"<code>longest_run</code> should return the longest run of <i>consecutive</i> matching characters, but the counter never resets when the run breaks. Fix it so <code>make test</code> passes everything.",
+         hints:["Trace it on \"aabbbbac\": the counter keeps climbing even after the run of b's ends.","When the current char isn't c, the running count must go back to 0.","<code>if (s[i] == c) cur++; else cur = 0;</code>"],
+         check:function(sh){var r=sh.cTestResults();if(!r||!r.compiled)return false;return r.results.longest_run.passed===r.results.longest_run.total;}}
+      ],
+      review:{branch:"fix/logutil-bugs",q:"All green. The off-by-one in count_char is the classic one — it read the whole string eventually, so it compiled and ran fine, it just gave the wrong answer. How would you catch a bug like that before it ships, given the compiler was perfectly happy with it?"} },
+    { id:"wininternals", name:"Windows Internals — Triage", ticketId:"NS-191", icon:"win",
+      blurb:"A Windows host looks off. Inspect the process tree, handles, PE headers and tokens to work out what's wrong.",
+      make:function(){ var sh=createShell(); installWindows(sh); return sh; },
+      seedNote:"Read-only range. Tools: tasklist, handle <pid>, pe <file>, token <pid>. Report findings to answers/.",
+      tasks:[
+        {id:"w1",title:"Spot the odd process",lv:"L1",
+         brief:"One process has an unusual parent — a user shell parented by a service instead of explorer.exe. Find it in <code>tasklist</code> and write its PID to <code>answers/w1.txt</code> as <code>pid=NNNN</code>.",
+         hints:["Run <code>tasklist</code> and look at the PPID column — which parent is surprising for the process it spawned?","A <code>cmd.exe</code> should normally descend from explorer.exe (the user session), not from a print-spooler service.","cmd.exe (pid 4820) is parented by spoolsv.exe (980). Write <code>pid=4820</code>."],
+         check:function(sh){return /pid\s*=\s*4820/.test((sh.fileContent("answers/w1.txt")||""));}},
+        {id:"w2",title:"Read the PE header",lv:"L1",
+         brief:"Inspect <code>telemetryd.exe</code> with <code>pe</code>. Write two facts to <code>answers/w2.txt</code>: <code>subsystem=...</code> (CUI or GUI) and <code>sections=N</code> (how many sections it has).",
+         hints:["<code>pe telemetryd.exe</code> prints the subsystem and the section list.","CUI means a console program; count the space-separated names on the sections line.","It's a console binary with 5 sections: <code>subsystem=CUI</code> and <code>sections=5</code>."],
+         check:function(sh){var t=(sh.fileContent("answers/w2.txt")||"").toLowerCase().replace(/\s+/g,"");return /subsystem=(windows)?cui/.test(t)&&/sections=5/.test(t);}},
+        {id:"w3",title:"Follow the shared handle",lv:"L2",
+         brief:"The telemetry database should only be open in the telemetry agent. Using <code>handle</code> on the suspicious process and on the agent (pid 1120), find the file both hold open and write its name to <code>answers/w3.txt</code>.",
+         hints:["Run <code>handle 1120</code> and <code>handle 4820</code> and compare their open files.","Both processes hold the same File handle — that's the leak.","They both have <code>C:\\ProgramData\\Northstar\\telemetry.db</code> open. Write <code>telemetry.db</code> (the filename is enough)."],
+         check:function(sh){return /telemetry\.db/i.test((sh.fileContent("answers/w3.txt")||""));}}
+      ],
+      review:{branch:"report/win-host-triage",q:"Good triage — a service-spawned cmd.exe holding the telemetry DB open is exactly the kind of thing worth escalating. If you were handing this to the incident team, what one piece of evidence from the range would you lead with, and why that one?"} },
+    { id:"detection", name:"Detection Engineering", ticketId:"NS-205", icon:"shield",
+      blurb:"Write detection rules over an auth log: catch a brute-force attack without alerting on a noisy service account.",
+      make:function(){ var sh=createShell(); installDetection(sh); return sh; },
+      seedNote:"Log in logs/auth.jsonl. Write rules in rules/detections.txt; run detect. Goal: catch the real attack, no false positives.",
+      tasks:[
+        {id:"de1",title:"Flag failed logins",lv:"L1",
+         brief:"Write a rule in <code>rules/detections.txt</code> that alerts on every <code>login_failed</code> event, then run <code>detect</code>. This is your baseline signal.",
+         hints:["<code>edit rules/detections.txt</code>. A rule is a <code>rule:</code> line plus one or more <code>when:</code> conditions.","<code>when: event == login_failed</code> matches the field <code>event</code> against the value.","<br><code>rule: auth-failure</code><br><code>when: event == login_failed</code><br>then run <code>detect</code>."],
+         check:function(sh){var r=sh.detRun("visible");if(!r.ok)return false;var t=sh.detTruth("visible");return r.rules.some(function(x){return x.kind==="event"&&JSON.stringify(x.set)===JSON.stringify(t.allFailed);});}},
+        {id:"de2",title:"Catch repeated failures",lv:"L2",
+         brief:"Raw failures are too noisy. Add a rule that groups failed logins <code>by user</code> and alerts when a user has <b>5 or more</b>. Run <code>detect</code> — it should flag two accounts.",
+         hints:["Add <code>group_by: user</code> and <code>count: >= 5</code> to a rule whose <code>when</code> matches failed logins.","This aggregates per user instead of per event.","<br><code>rule: brute-force</code><br><code>when: event == login_failed</code><br><code>group_by: user</code><br><code>count: >= 5</code>"],
+         check:function(sh){var r=sh.detRun("visible");if(!r.ok)return false;var t=sh.detTruth("visible");return r.rules.some(function(x){return x.kind==="group"&&JSON.stringify(x.set)===JSON.stringify(t.thresholdUsers);});}},
+        {id:"de3",title:"Add a high-fidelity rule",lv:"L2",
+         brief:"One of those two accounts is a misconfigured service that just fails a lot — not an attack. The real attacker's failures were <i>followed by a successful login</i>. Keep your earlier rules and <b>add a new one</b> that fires on the attack only, using <code>followed_by</code>. It must still work on tomorrow's logs, not just today's.",
+         hints:["Leave your previous rules in place (a blank line separates rules). The difference that isolates the attacker isn't the name — it's what happened next: they got in.","Add a separate rule with <code>followed_by: event == login_success</code> so it only fires when a success follows the failures for that user.","<br><code>rule: brute-force-confirmed</code><br><code>when: event == login_failed</code><br><code>group_by: user</code><br><code>count: >= 5</code><br><code>followed_by: event == login_success</code>. Don't hardcode the username — the grader checks a second, hidden log."],
+         check:function(sh){var rv=sh.detRun("visible"),rh=sh.detRun("hidden");if(!rv.ok||!rh.ok)return false;var tv=sh.detTruth("visible"),th=sh.detTruth("hidden");
+           return rv.rules.some(function(x){return x.kind==="group"&&JSON.stringify(x.set)===JSON.stringify(tv.attackUsers)
+             && rh.rules.some(function(y){return y.name===x.name&&JSON.stringify(y.set)===JSON.stringify(th.attackUsers);});});}}
+      ],
+      review:{branch:"detect/brute-force-rule",q:"Nice — precision and recall both right, and it held up on the second log. The thing that separated the attacker from the noisy service was the follow-on success. What would you add to this rule to catch a *slow* brute force that spreads its failures across days to stay under the count?"} },
+    { id:"linuxint", name:"Linux Internals — Host Triage", ticketId:"NS-187", icon:"cpu",
+      blurb:"A host is misbehaving: the disk is full but nothing's big, processes are piling up, and something's listening that shouldn't be. Read the kernel's view and explain it.",
+      make:function(){ var sh=createShell(); installLinux(sh); return sh; },
+      seedNote:"Read-only range. Tools: ps, lsof <pid>, procstat <pid>, df, du <dir>, mounts. Write findings to answers/.",
+      tasks:[
+        {id:"li1",title:"Find where the disk went",lv:"L2",
+         brief:"<code>df</code> says <code>/var</code> is 97% full, but <code>du /var/log</code> only finds about 1.4G. Find the process holding the missing space and write <code>pid=&lt;n&gt;</code> to <code>answers/l1.txt</code>.",
+         hints:["du only counts files that still have a name. A file that was deleted while open keeps its space until the last file descriptor closes.","Check what each long-running process has open with <code>lsof &lt;pid&gt;</code> — look for <code>(deleted)</code> and a size.","telemetryd (pid 902) still holds <code>telemetryd.log.1 (deleted)</code> at 17.9G. <code>echo pid=902 &gt; answers/l1.txt</code>. The fix in real life: restart or signal it to reopen its log."],
+         check:function(sh){return /pid\s*=\s*902\b/.test(sh.fileContent("answers/l1.txt")||"");}},
+        {id:"li2",title:"Trace the zombies",lv:"L1",
+         brief:"Several processes show <code>Z</code> in <code>ps</code>. A zombie has already exited; it's waiting for its parent to collect its status. Find the parent that isn't calling <code>wait()</code> and write <code>parent=&lt;pid&gt;</code> to <code>answers/l2.txt</code>.",
+         hints:["Look at the STAT column in <code>ps</code>.","<code>procstat &lt;pid&gt;</code> on a zombie shows its PPid.","All three zombies have PPid 2201 (reportgen). <code>echo parent=2201 &gt; answers/l2.txt</code>. Killing a zombie does nothing — the parent must reap it (or be restarted)."],
+         check:function(sh){var t=sh.fileContent("answers/l2.txt")||"";return /parent\s*=\s*2201\b/.test(t)&&!/22(40|41|42)/.test(t);}},
+        {id:"li3",title:"Report the odd listener",lv:"L2",
+         brief:"One process is running from a binary that no longer exists on disk, listening on a port and talking to an outside address. Write <code>pid=&lt;n&gt;</code> and <code>remote=&lt;ip&gt;</code> to <code>answers/l3.txt</code> so the security team can take it from here.",
+         hints:["<code>ps</code>: which command runs out of <code>/tmp</code>, as a web-server user?","<code>lsof</code> on it shows the deleted executable and its sockets.","pid 3177; its ESTABLISHED socket goes to 198.51.100.23. <code>printf 'pid=3177\\nremote=198.51.100.23\\n' &gt; answers/l3.txt</code> — and don't kill it yet; preserve evidence and hand off."],
+         check:function(sh){var t=sh.fileContent("answers/l3.txt")||"";return /pid\s*=\s*3177\b/.test(t)&&/remote\s*=\s*198\.51\.100\.23\b/.test(t);}}
+      ],
+      review:{branch:"triage/plt-host-7",q:"Good triage, and you handed the odd listener off instead of killing it. The disk one is a classic: du and df disagree because a deleted file is still open. What would you change in the logrotate setup so this doesn't happen again?"} },
+    { id:"secure", name:"Secure Coding — Input Handling", ticketId:"NS-221", icon:"lock",
+      blurb:"The config loader's parsing helpers trust their input. Harden them so no input can read past a buffer or slip an out-of-range value through.",
+      make:function(){ var sh=createShell(); installSecure(sh); return sh; },
+      seedNote:"Edit src/netparse.c. make test runs adversarial inputs with an out-of-bounds sanitizer. Fixes must be real validation — hidden cases run too.",
+      tasks:[
+        {id:"sc1",title:"Stop the out-of-bounds read",lv:"L2",
+         brief:"<code>checksum(s, len)</code> reads <code>len</code> bytes no matter how long <code>s</code> is. Run <code>make test</code> — the sanitizer catches it reading past the end. Make it return <code>-1</code> when <code>len</code> is negative or longer than the string.",
+         hints:["The caller controls <code>len</code>. Never trust a length that comes from outside — check it against the real size first.","Validate before the loop, not inside it.","<code>if (len &lt; 0 || len &gt; strlen(s)) return -1;</code> right after <code>int sum = 0;</code>"],
+         check:function(sh){var r=sh.secResults();return !!(r&&r.compiled&&r.results.checksum.passed===r.results.checksum.total);}},
+        {id:"sc2",title:"Range-check the port",lv:"L2",
+         brief:"<code>parse_port</code> rejects non-digits but happily returns <code>99999</code> or <code>0</code>. A port is 1–65535. Return <code>-1</code> for anything outside that range.",
+         hints:["Two missing checks: too big, and too small.","Checking inside the loop also stops runaway values on very long inputs.","Inside the loop after updating p: <code>if (p &gt; 65535) return -1;</code>; after the loop: <code>if (p &lt; 1) return -1;</code>"],
+         check:function(sh){var r=sh.secResults();return !!(r&&r.compiled&&r.results.parse_port.passed===r.results.parse_port.total);}},
+        {id:"sc3",title:"Clamp the copy length",lv:"L2",
+         brief:"<code>copy_len(s, max)</code> tells the caller how many bytes to copy into a buffer of size <code>max</code> — and ignores <code>max</code>. That's how buffer overflows start. Never return more than <code>max</code>; return 0 if <code>max</code> is negative.",
+         hints:["The answer is the smaller of the string length and max.","Handle the negative case first.","<code>if (max &lt; 0) return 0; int n = strlen(s); if (n &gt; max) return max; return n;</code>"],
+         check:function(sh){var r=sh.secResults();return !!(r&&r.compiled&&r.results.copy_len.passed===r.results.copy_len.total);}}
+      ],
+      review:{branch:"harden/netparse",q:"All three now treat input as hostile, which is the habit we want. The sanitizer found the checksum read, but nothing flagged copy_len — it returned a wrong number without crashing. How would you make sure bugs like that one get caught in CI?"} },
+    { id:"codereview", name:"Code Review — Pull Requests", ticketId:"NS-230", icon:"review",
+      blurb:"Three teammates' PRs are waiting on you. Read each diff, run its tests, and approve it or request changes, with a reason.",
+      make:function(){ var sh=createShell(); installCodeReview(sh); return sh; },
+      seedNote:"pr list · pr show <id> · pr test <id>. Record verdicts in answers/review.txt, one line per PR: pr1: approve  or  pr1: request-changes <issue>.",
+      tasks:[
+        {id:"cr1",title:"Review pr1",lv:"L2",
+         brief:"<code>pr show pr1</code>. The author says it's a speed-up. Is it correct? Record your verdict in <code>answers/review.txt</code>; if you request changes, name the problem.",
+         hints:["Read the description's claim carefully — is it true for a C string?","What happens to a match at index 0? Try <code>pr test pr1</code>.","It skips the first character (off-by-one). <code>pr1: request-changes off-by-one, skips index 0</code>"],
+         check:function(sh){return sh.reviewGrade(["pr1"]).pr1.ok;}},
+        {id:"cr2",title:"Review pr2",lv:"L1",
+         brief:"<code>pr show pr2</code>. Review it the same way. Not every PR has a problem — blocking a clean change costs the team too.",
+         hints:["Compare each removed line with its added line.","<code>pr test pr2</code> to confirm behavior is unchanged.","It's a pure rename. <code>pr2: approve</code>"],
+         check:function(sh){return sh.reviewGrade(["pr2"]).pr2.ok;}},
+        {id:"cr3",title:"Review pr3",lv:"L2",
+         brief:"<code>pr show pr3</code> adds a new helper. Would you want this parsing ports in the config loader?",
+         hints:["What does it return for <code>\"80x\"</code>?","New code that parses external input needs to validate it.","<code>pr3: request-changes no input validation for non-digits</code>"],
+         check:function(sh){return sh.reviewGrade(["pr3"]).pr3.ok;}}
+      ],
+      review:{branch:"review/sprint-3-queue",q:"Right calls on all three, including approving the clean one. On pr1 the author was confident and the change looked like an optimization. How would you word that review so it's useful to them and doesn't come across as a gotcha?"} },
+    { id:"incident", name:"Incident Analysis & Postmortem", ticketId:"NS-240", icon:"doc",
+      blurb:"Yesterday's gateway outage is resolved. Reconstruct what happened from metrics, the change log, alerts and chat, then write the blameless postmortem.",
+      make:function(){ var sh=createShell(); installIncident(sh); return sh; },
+      seedNote:"Evidence in incident/ (metrics.csv, changes.csv, alerts.log, chat.log). Answers in answers/. postmortem-lint checks structure.",
+      tasks:[
+        {id:"ir1",title:"Establish the impact window",lv:"L2",
+         brief:"Using <code>incident/metrics.csv</code>, find the first and last minute the gateway's error rate was above 5%. Write <code>start=HH:MM</code> and <code>end=HH:MM</code> to <code>answers/window.txt</code>. Impact starts when customers were hurt, not when the alert fired.",
+         hints:["Column 4 is error_rate_pct. <code>awk -F,</code> splits on commas.","<code>awk -F, 'NR &gt; 1 &amp;&amp; $4 &gt; 5 {print $1}' incident/metrics.csv</code> lists every impacted minute (NR &gt; 1 skips the header).","First and last of that list: 14:02 and 14:47. <code>printf 'start=14:02\\nend=14:47\\n' &gt; answers/window.txt</code>"],
+         check:function(sh){return sh.incidentGrade().windowOk;}},
+        {id:"ir2",title:"Find the triggering change",lv:"L3",
+         brief:"Which single change caused it? Write its ID to <code>answers/cause.txt</code>. Someone in chat suspected the most recent deploy — check the evidence before you agree.",
+         hints:["Which changes happened before 14:02, and which service do they touch?","The chat at 14:34–14:41 connects auth latency to a gateway setting.","CHG-2291 cut the auth timeout from 30s to 3s at 14:00 — below auth's normal ~3s p99. CHG-2292 came after impact started. <code>echo CHG-2291 &gt; answers/cause.txt</code>"],
+         check:function(sh){return sh.incidentGrade().causeOk;}},
+        {id:"ir3",title:"Write the postmortem",lv:"L3",
+         brief:"Fill in <code>answers/postmortem.md</code>: Summary, Impact (with the window), Timeline, Root cause (name the change), and at least two Action items that would stop this class of problem. Keep it blameless: write about systems and decisions, not people.",
+         hints:["<code>edit answers/postmortem.md</code>; run <code>postmortem-lint</code> for structure.","Good action items prevent the whole class of problem (e.g. guardrails on timeout values, canary deploys), not just 'be more careful'.","Include 14:02, 14:47 and CHG-2291; bullets ('- ...') under Action items; no names or handles."],
+         check:function(sh){return sh.incidentGrade().report.ok;}}
+      ],
+      review:{branch:"postmortem/inc-0412",q:"Clear and blameless, and you didn't fall for the most recent deploy. Your action items are the part people will actually act on. Which one would you do first, and how would you know it worked?"} },
+    { id:"capstone", name:"Capstone — First On-Call Night", ticketId:"NS-300", icon:"flag",
+      blurb:"Three problems landed overnight in one environment: logins are down, someone may have got in, and the counting tool is wrong. Fix them, then write it up. No step-by-step.",
+      make:function(){ var sh=createShell(); installCapstone(sh); return sh; },
+      seedNote:"Start with cat README.txt (the handoff). Everything from earlier tickets is here: dig, ss, gateway --check, make test, detect, grep/awk/jq, report-lint.",
+      tasks:[
+        {id:"cp1",title:"Restore logins",lv:"L3",
+         brief:"The gateway can't reach auth. Get <code>gateway --check</code> healthy.",
+         hints:["Work from the outside in: what does the gateway think it's connecting to, and what's actually listening?","There's more than one fault.","See NS-142 in the wiki."],
+         check:function(sh){return sh.run("gateway --check").code===0;}},
+        {id:"cp2",title:"Fix the counting tool",lv:"L3",
+         brief:"The log-summary helpers in <code>src/logutil.c</code> are giving wrong numbers. Get <code>make test</code> fully green.",
+         hints:["<code>make test</code> shows the first failing case for each function.","Three functions, three separate bugs.","You've seen this code before (NS-173)."],
+         check:function(sh){var r=sh.cTestResults();if(!r||!r.compiled)return false;return Object.keys(r.results).every(function(k){return r.results[k].passed===r.results[k].total;});}},
+        {id:"cp3",title:"Detect the break-in",lv:"L3",
+         brief:"Security wants to know if anyone got in, and a rule in <code>rules/detections.txt</code> that would have caught it, without paging on service accounts. It must work on tomorrow's logs too.",
+         hints:["Look at logs/auth.jsonl: who failed a lot, and what happened next?","Thresholds alone will page on the noisy service account.","Correlate failures with a following success (NS-205)."],
+         check:function(sh){var rv=sh.detRun("visible"),rh=sh.detRun("hidden");if(!rv.ok||!rh.ok)return false;var tv=sh.detTruth("visible"),th=sh.detTruth("hidden");
+           return rv.rules.some(function(x){return JSON.stringify(x.set)===JSON.stringify(tv.attackUsers)&&rh.rules.some(function(y){return y.name===x.name&&JSON.stringify(y.set)===JSON.stringify(th.attackUsers);});});}},
+        {id:"cp4",title:"Write the incident report",lv:"L3",
+         brief:"Fill in <code>answers/report.md</code> for the morning. A reader should learn what broke and the correct configuration, which account was compromised and from where, what was wrong with the tooling, and at least three action items. Blameless.",
+         hints:["<code>report-lint</code> checks structure; the facts come from your own investigation.","Be specific: addresses, ports, the account, the source IP, the function names.","Every section in the template needs content."],
+         check:function(sh){return sh.capReport().ok;}}
+      ],
+      review:{branch:"oncall/night-1",q:"That was a full night: an outage, a security finding and a tooling bug, worked through in a sensible order and written up so someone else can act on it. If this were your first real on-call, what would you want in the handoff document that wasn't there?"} },
+    { id:"sockets", name:"Sockets & Protocols — NSP/1", ticketId:"NS-176", icon:"plug",
+      blurb:"The status service speaks a small length-prefixed protocol over TCP. Talk to it by hand, then fix the client's framing code so it works on a real byte stream.",
+      make:function(){ var sh=createShell(); installSockets(sh); return sh; },
+      seedNote:"Spec in docs/NSP.md. Talk to the server with printf '…' | nc status.northstar.internal 7070. Fix src/nspframe.c; make test and nsp-client check it.",
+      tasks:[
+        {id:"so1",title:"Talk to the server by hand",lv:"L1",
+         brief:"Read <code>docs/NSP.md</code>, then build frames yourself and send them with <code>nc</code>. Get a <code>PONG</code>, then ask for <code>STATUS</code> and write the build id it returns (e.g. <code>build=…</code>) to <code>answers/build.txt</code>.",
+         hints:["A frame is 4 digits of payload length, a colon, then the payload. No newline.","<code>printf '0004:PING' | nc status.northstar.internal 7070</code>. If the length is wrong, the server waits for bytes that never come.","STATUS is 6 bytes: <code>printf '0006:STATUS' | nc status.northstar.internal 7070</code>, then <code>echo build=7f3a2c &gt; answers/build.txt</code> (use the id you actually got)."],
+         check:function(sh){return /build=7f3a2c/.test(sh.fileContent("answers/build.txt")||"")&&sh.nspState().status;}},
+        {id:"so2",title:"Parse the header safely",lv:"L2",
+         brief:"<code>frame_len</code> in <code>src/nspframe.c</code> assumes the whole header has arrived, and it trusts any length. Make it return <code>0</code> when fewer than 5 bytes are available from <code>start</code>, and <code>-1</code> for lengths over 1024. Only <code>buf[0..n-1]</code> is valid; the buffer is reused, so anything after that is left over from an earlier read.",
+         hints:["Run <code>make test</code>. The first failing case is a header split across two reads: 3 bytes so far.","Check <code>n - start</code> before reading the header. Don't use <code>strlen(buf)</code>: the buffer isn't NUL-terminated at <code>n</code>, and the stale bytes will fool you.","Add <code>if (n - start &lt; 5) return 0;</code> before the digit loop and <code>if (len &gt; 1024) return -1;</code> before the return."],
+         check:function(sh){var r=sh.nspResults();return !!(r&&r.compiled&&r.results.frame_len.passed===r.results.frame_len.total);}},
+        {id:"so3",title:"Handle a stream, not messages",lv:"L3",
+         brief:"TCP delivers bytes, not messages. One <code>recv()</code> can hold half a frame or three frames back to back. <code>frames_in</code> assumes one frame per read. Make it count every complete frame at the start of the buffer, then run <code>nsp-client</code>. It streams real replies through your code, and the grader re-runs it with segment boundaries you can't see.",
+         hints:["Read <code>src/client_loop.c</code>: that's the receive loop your functions plug into.","Walk an offset through the buffer: ask <code>frame_len(buf, off, n)</code> for each frame, stop when it's incomplete, and fail on -1.","<code>int off = 0; int count = 0; while (off &lt; n) { int len = frame_len(buf, off, n); if (len &lt; 0) return -1; if (len == 0 || off + len &gt; n) return count; count++; off += len; } return count;</code>"],
+         check:function(sh){var r=sh.nspResults();return !!(r&&r.compiled&&r.results.frame_len.passed===r.results.frame_len.total&&r.results.frames_in.passed===r.results.frames_in.total&&r.client.visible.ok&&r.client.hidden.every(Boolean));}}
+      ],
+      review:{branch:"fix/nsp-framing",q:"This is the most common networking bug there is: code that works on localhost, where one send tends to arrive as one recv, and breaks on a real network. You also capped the length. What would happen to the client if a hostile server sent 9999 as the length and we had just allocated that much?"} },
+    { id:"debugging", name:"Debugging — Regression Hunt", ticketId:"NS-232", icon:"bug",
+      blurb:"A regression shipped because no test covered it. Reproduce it with a failing test, find the commit that broke it with git bisect, then fix it on main and keep the test.",
+      make:function(){ var sh=createShell(); installDebugging(sh); return sh; },
+      seedNote:"Bug: tickets/BUG-311.txt. Tests: tests/cases.txt (make test). Step through code with trace word_count \"…\". History: git log / show / bisect.",
+      tasks:[
+        {id:"db1",title:"Reproduce it with a failing test",lv:"L2",
+         brief:"Read <code>tickets/BUG-311.txt</code>. <code>make test</code> passes today, which is how this shipped. Add a line to <code>tests/cases.txt</code> that captures the bug: it should state the <i>correct</i> answer, so it fails now and passes once the bug is fixed.",
+         hints:["The format is <code>function \"input\" expected</code>, one per line.","Try <code>trace word_count \"  deploy failed \"</code> to watch the count go wrong.","<code>echo 'word_count \"  deploy failed \" 2' &gt;&gt; tests/cases.txt</code>, then <code>make test</code> should show one FAIL."],
+         check:function(sh){return sh.dbgState().reproducers>=1;}},
+        {id:"db2",title:"Find the commit that broke it",lv:"L2",
+         brief:"The report says it worked a few weeks ago. Use the history to find the <b>first bad commit</b> and write its short sha to <code>answers/bisect.txt</code>. The commit messages won't give it away; <code>git bisect</code> will.",
+         hints:["<code>git log --oneline</code>. The oldest commit is a good starting point for \"good\".","<code>git bisect start</code>, <code>git bisect bad</code>, <code>git bisect good a1c09e2</code>. Then test each checkout, or let your new test do it: <code>git bisect run make test</code>.","It's <code>f13b9d2</code> (\"Performance pass on hot paths\"). <code>echo f13b9d2 &gt; answers/bisect.txt</code>, then <code>git bisect reset</code>."],
+         check:function(sh){return sh.dbgState().bisectOk;}},
+        {id:"db3",title:"Fix it on main and keep the test",lv:"L2",
+         brief:"Back on <code>main</code>, fix <code>word_count</code> so runs of spaces and leading or trailing spaces count correctly. Keep your new test in <code>tests/cases.txt</code>, get <code>make test</code> green, and commit with <code>git commit -am \"…\"</code>. Hidden inputs check the fix is general.",
+         hints:["<code>git show f13b9d2</code> shows what the regression removed. The earlier version tracked whether it was inside a word.","Count a word when you see a non-space character and you weren't already inside a word.","Restore the <code>inside</code>-flag version from before f13b9d2, run <code>make test</code>, then <code>git commit -am \"Fix word_count for repeated spaces (BUG-311)\"</code>."],
+         check:function(sh){var s=sh.dbgState();return s.onMain&&s.mainFixed&&s.reproducers>=1;}}
+      ],
+      review:{branch:"fix/bug-311",q:"Reproduce, localize, fix, and guard: that's the whole loop, and the test you added is why this can't silently come back. f13b9d2 was called a performance change and nobody questioned it. What would you have asked in review if you'd seen that diff?"} },
+    { id:"ticket", name:"Open Ticket — \"Dashboard is broken??\"", ticketId:"NS-250", icon:"inbox",
+      blurb:"A vague ticket from Product with three complaints and a bad suggestion. Work out what's actually wrong, fix the real causes without breaking anything, and reply to the requester.",
+      make:function(){ var sh=createShell(); installTicket(sh); return sh; },
+      seedNote:"Start with cat tickets/NS-250.txt. No runbook: dashboard, ps, crontab, logs/ and etc/ are what you have.",
+      tasks:[
+        {id:"tk1",title:"Triage the claims",lv:"L3",
+         brief:"Priya reports three things: it's slow, the counts look wrong, and Tuesday's data is gone. For each one, decide from the evidence whether it's a real bug or the system working as configured. Record your call in <code>answers/triage.txt</code> as <code>slow = …</code>, <code>counts = …</code>, <code>tuesday = …</code>, using <code>bug</code> or <code>not-a-bug</code>.",
+         hints:["Compare what the dashboard shows with the raw logs (<code>grep -c</code>). Check what's running (<code>ps</code>) and what's scheduled (<code>crontab -l</code>).","What changed \"last week\"? <code>logs/rebuild.log</code> and the config comments have dates. And what range is the dashboard showing by default?","slow = bug (rebuilds overlap), counts = bug (a log source is ingested twice), tuesday = not-a-bug (it's outside the default 2-day range; <code>dashboard --range 7d</code> shows it)."],
+         check:function(sh){return sh.ticketState().triage.ok;}},
+        {id:"tk2",title:"Fix what's actually broken",lv:"L4",
+         brief:"Fix the root causes of the real problems. Every number on the dashboard should match the raw logs, and pages should load fast. Don't take the shortcut in the ticket: all the existing logs must still be there when you're done.",
+         hints:["Two separate causes, both from the 2026-10-07 change.","<code>edit etc/ingest.conf</code> and <code>crontab -e</code>. Check your work with <code>dashboard</code> and <code>ps</code>.","Remove the duplicate <code>source = logs/auth/*.log</code> line, and schedule the rebuild less often than it takes to run (e.g. <code>*/5 * * * *</code>) or wrap it in <code>flock -n</code>."],
+         check:function(sh){return sh.ticketState().fixed;}},
+        {id:"tk3",title:"Reply to Priya",lv:"L3",
+         brief:"Write your reply in <code>answers/reply.md</code>. She's not an engineer. Tell her what was wrong and what you changed, explain Tuesday and how she can see it, and respond to her suggestion to delete the old data.",
+         hints:["Three findings, one suggestion. Plain language beats jargon.","Explain the cause of each problem briefly; she'll be asked about it in the review.","Cover the double-counting, the rebuild schedule, the date range, and say you didn't delete any data and why (it wasn't the cause, and the history is useful)."],
+         check:function(sh){return sh.ticketState().reply.ok;}}
+      ],
+      review:{branch:"ops/ns-250",q:"Most real tickets look like this one: a mix of real bugs, a misunderstanding, and a suggested fix that would have caused a new problem. You separated them and said no to the deletion without making it awkward. If Priya replied \"can you just make it show 7 days by default then?\", would you do it, and what would you check first?"} }
+  ];
+  // mentor review attached per lab above (.review)
+
+  // ---------- state ----------
+  var KEY="ns-academy-v1";
+  var state={ onboarded:false, view:"portal", lab:null, done:{}, reviewed:{}, taskState:{}, prReply:{}, events:[] };
+  try{var raw=localStorage.getItem(KEY); if(raw) state=Object.assign(state,JSON.parse(raw));}catch(e){}
+  if(!state.reviewed)state.reviewed={};
+  if(!state.taskState)state.taskState={};
+  if(!state.prReply)state.prReply={};
+  if(!state.events)state.events=[];
+  function save(){ try{localStorage.setItem(KEY,JSON.stringify({onboarded:state.onboarded,done:state.done,reviewed:state.reviewed,taskState:state.taskState,prReply:state.prReply,events:state.events.slice(-40)}));}catch(e){} }
+  function logEvent(ev){ ev.t=Date.now(); state.events.push(ev); if(state.events.length>40)state.events=state.events.slice(-40); }
+  function relTime(t){ var s=Math.round((Date.now()-t)/1000); if(s<45)return "just now"; var m=Math.round(s/60); if(m<60)return m+"m ago"; var h=Math.round(m/60); if(h<24)return h+"h ago"; return Math.round(h/24)+"d ago"; }
+
+  // live shells, one per lab, created on demand
+  var shells={};
+  function shellFor(id){ if(!shells[id]){ var L=LABS.find(function(x){return x.id===id;}); shells[id]=L.make(); } return shells[id]; }
+  function resetShell(id){ var L=LABS.find(function(x){return x.id===id;}); shells[id]=L.make(); }
+
+  function labDone(id){ var L=LABS.find(function(x){return x.id===id;}); var sh=shellFor(id); return L.tasks.filter(function(t){try{return t.check(sh);}catch(e){return false;}}).length; }
+  function labTotal(id){ return LABS.find(function(x){return x.id===id;}).tasks.length; }
+  function totalDone(){ return LABS.reduce(function(a,L){return a+labDone(L.id);},0); }
+  function totalTasks(){ return LABS.reduce(function(a,L){return a+L.tasks.length;},0); }
+
+  // does a specific task currently pass, against its live shell?
+  function taskPassed(labId,taskId){
+    var L=LABS.find(function(x){return x.id===labId;}); if(!L)return false;
+    var t=L.tasks.find(function(x){return x.id===taskId;}); if(!t)return false;
+    try{return t.check(shellFor(labId));}catch(e){return false;}
+  }
+  function taskTitle(labId,taskId){ var L=LABS.find(function(x){return x.id===labId;}); var t=L&&L.tasks.find(function(x){return x.id===taskId;}); return t?t.title:taskId; }
+  function ticketId(labId){ var L=LABS.find(function(x){return x.id===labId;}); return L?L.ticketId:labId; }
+
+  // competencies map to the exact tasks that evidence them
+  var COMP=[
+    {nm:"Text processing & search",ev:[["fundamentals","f1"],["fundamentals","f2"],["fundamentals","f3"]]},
+    {nm:"Linux permissions",ev:[["fundamentals","f4"],["automation","a2"]]},
+    {nm:"Service troubleshooting",ev:[["triage","t1"],["triage","t2"]]},
+    {nm:"Evidence-based investigation",ev:[["triage","t3"]]},
+    {nm:"Networking & DNS",ev:[["networking","n1"],["networking","n2"],["networking","n3"]]},
+    {nm:"Shell scripting & automation",ev:[["automation","a1"],["automation","a3"]]},
+    {nm:"C programming",ev:[["cprog","c2"],["cprog","c3"]]},
+    {nm:"Detection engineering",ev:[["detection","de2"],["detection","de3"]]},
+    {nm:"OS internals (Windows)",ev:[["wininternals","w1"],["wininternals","w3"]]},
+    {nm:"Linux internals",ev:[["linuxint","li1"],["linuxint","li2"],["linuxint","li3"]]},
+    {nm:"Secure coding (input handling)",ev:[["secure","sc1"],["secure","sc2"],["secure","sc3"]]},
+    {nm:"Reviewing others' code",ev:[["codereview","cr1"],["codereview","cr2"],["codereview","cr3"]]},
+    {nm:"Incident analysis & writing",ev:[["incident","ir1"],["incident","ir2"],["incident","ir3"],["capstone","cp4"]]},
+    {nm:"Network protocols & sockets",ev:[["sockets","so1"],["sockets","so2"],["sockets","so3"]]},
+    {nm:"Debugging & testing",ev:[["debugging","db1"],["debugging","db2"],["debugging","db3"]]},
+    {nm:"Handling ambiguous work",ev:[["ticket","tk1"],["ticket","tk2"],["ticket","tk3"]]},
+    {nm:"Integrated on-call (capstone)",ev:[["capstone","cp1"],["capstone","cp2"],["capstone","cp3"],["capstone","cp4"]]}
+  ];
+  function competency(){
+    var rows=COMP.map(function(c){
+      var got=c.ev.filter(function(p){return taskPassed(p[0],p[1]);}).length;
+      return {nm:c.nm,max:c.ev.length,got:got,ev:c.ev};
+    });
+    var merged=LABS.filter(function(L){return state.reviewed[L.id]&&labDone(L.id)===L.tasks.length;}).length;
+    rows.push({nm:"Professional code review",max:LABS.length,got:merged,review:true});
+    return rows;
+  }
+  // evidence strings for the transcript: the tickets/tasks behind a competency
+  function evidenceFor(c){
+    if(c.review) return LABS.filter(function(L){return state.reviewed[L.id];}).map(function(L){return L.ticketId+" merged on "+L.review.branch;});
+    return c.ev.filter(function(p){return taskPassed(p[0],p[1]);}).map(function(p){return ticketId(p[0])+" · "+taskTitle(p[0],p[1]);});
+  }
+
+  // ---------- views ----------
+  var view=$("#view");
+  function setView(v,labId){ state.view=v; state.lab=labId||null; render(); }
+
+  function render(){
+    if(!state.onboarded){ renderOnboard(); return; }
+    document.querySelectorAll(".rail button[data-view]").forEach(function(b){ b.classList.toggle("active",b.dataset.view===state.view||(state.view==="lab"&&b.dataset.view==="labs")); });
+    if(state.view==="portal") renderPortal();
+    else if(state.view==="labs") renderLabs();
+    else if(state.view==="skills") renderSkills();
+    else if(state.view==="map") renderMap();
+    else if(state.view==="wiki") renderWiki();
+    else if(state.view==="lab") renderLab(state.lab);
+  }
+
+  function renderOnboard(){
+    view.innerHTML=
+      '<div class="onb"><div class="eyebrow">Welcome to the apprenticeship</div>'+
+      '<h1>Your first week on the Platform team</h1>'+
+      '<p>You\'ve joined Northstar Engineering as an apprentice. This works like a real job, not a course: you pick up tickets, work in a real shell, and your work is checked as you go. Everything is simulated — no real systems, no real secrets — but the engineering is real.</p>'+
+      '<div class="steps">'+
+      '<div class="step"><span class="n">1</span><div><div class="t">Pick up a ticket</div><div class="d">Your work queue is on <b>My Work</b>. Each ticket is a real task with acceptance criteria.</div></div></div>'+
+      '<div class="step"><span class="n">2</span><div><div class="t">Work it in the terminal</div><div class="d">Open the lab, type real commands. Stuck? Each task has escalating hints.</div></div></div>'+
+      '<div class="step"><span class="n">3</span><div><div class="t">Build your competencies</div><div class="d">Finishing work fills your <b>Skills</b> transcript with evidence — not points.</div></div></div>'+
+      '</div>'+
+      '<button class="btn pri" id="start">Start your first ticket →</button></div>';
+    $("#start").addEventListener("click",function(){ state.onboarded=true; save(); setView("portal"); });
+  }
+
+  function renderPortal(){
+    var pct=Math.round(totalDone()/totalTasks()*100);
+    var ticketsHtml=LABS.map(function(L){
+      var d=labDone(L.id),n=L.tasks.length,st=d===0?"todo":d===n?"done":"prog";
+      var merged=state.reviewed[L.id]&&d===n;
+      var label=merged?"Merged":st==="done"?"In review":st==="prog"?(d+"/"+n+" done"):"To do";
+      if(merged)st="done";
+      return '<button class="tick" data-open="'+L.id+'"><span class="stat s-'+st+'"></span>'+
+        '<span class="mid"><span class="id">'+L.ticketId+'</span><div class="name">'+L.name+'</div>'+
+        '<div class="tags"><span class="chip lv">'+L.tasks[0].lv+'+</span><span class="chip">lab</span></div></span>'+
+        '<span class="rt rt-'+st+'">'+label+'</span></button>';
+    }).join("");
+    view.innerHTML=
+      '<h1 class="ph">My Work</h1><div class="ph-sub">Platform team · Sprint 3 · <span class="mono">'+totalTasks()+' tasks across '+LABS.length+' tickets</span></div>'+
+      '<div class="grid"><div class="col">'+
+        '<section class="card"><div class="hd"><h2>Assigned to you</h2></div>'+ticketsHtml+'</section>'+
+        '<section class="card"><div class="hd"><h2>How this works</h2></div><div style="padding:14px 15px;color:var(--muted);font-size:13px;line-height:1.6">Click a ticket to open its lab. Type real commands in the terminal; tasks check themselves the moment your work is correct. Your progress and skills update here automatically and are saved in this browser.</div></section>'+
+      '</div><div class="col">'+
+        '<section class="card"><div class="ptile"><div class="ring" style="--p:'+pct+'"><i>'+pct+'%</i></div><div><div class="t">Apprenticeship progress</div><div class="d">'+totalDone()+' of '+totalTasks()+' tasks complete</div></div></div></section>'+
+        skillsCard()+
+        activityCard()+
+      '</div></div>';
+    bindOpens();
+  }
+
+  function activityCard(){
+    if(!state.events.length){
+      return '<section class="card"><div class="hd"><h2>Activity</h2></div><div style="padding:14px 15px;color:var(--faint);font-size:12.5px">Your work shows up here — tasks you pass, pull requests you merge.</div></section>';
+    }
+    var rows=state.events.slice().reverse().slice(0,8).map(function(e){
+      var ic,txt;
+      if(e.kind==="merge"){ ic='ev-mg'; txt='<span class="who">Merged</span> '+esc(e.ticket)+' on <span class="mono">'+esc(e.branch)+'</span>'; }
+      else if(e.kind==="lab"){ ic='ev-ci'; txt='<span class="who">Ticket complete</span> · '+esc(e.ticket)+' — all checks passing'; }
+      else { ic='ev-tk'; txt='<span class="who">Passed</span> '+esc(e.ticket)+' · '+esc(e.title); }
+      return '<div class="ev-row"><div class="ev-ic '+ic+'">'+evIcon(e.kind)+'</div><div class="ev-bd">'+txt+'<time>'+relTime(e.t)+'</time></div></div>';
+    }).join("");
+    return '<section class="card"><div class="hd"><h2>Activity</h2></div><div class="feed">'+rows+'</div></section>';
+  }
+  function evIcon(k){
+    if(k==="merge")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 8.5v7M8.3 7.2 15.6 9M18 10.5c0 4-5 2.5-5 5.5"/></svg>';
+    if(k==="lab")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 13 4 4L19 7"/></svg>';
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>';
+  }
+
+  function skillsCard(){
+    var rows=competency().map(function(s){
+      var got=s.cap?Math.min(s.got,s.cap):s.got, max=s.cap||s.max;
+      var full=got>=max&&got>0;
+      var label=got===0?"Not assessed":full?"Independent":got>=Math.ceil(max/2)?"Assisted":"Developing";
+      var pips="";for(var i=0;i<max;i++)pips+='<span class="'+(i<got?"on":"")+'"></span>';
+      return '<div class="skill"><div class="top"><span class="nm">'+s.nm+'</span><span class="rt '+(full?"full":"")+'">'+label+'</span></div><div class="track '+(full?"full":"")+'">'+pips+'</div></div>';
+    }).join("");
+    return '<section class="card"><div class="hd"><h2>Competency</h2><button class="act" data-view-jump="skills">Transcript →</button></div><div class="comp">'+rows+'</div></section>';
+  }
+
+  function renderSkills(){
+    var rows=competency().map(function(c){
+      var full=c.got>=c.max&&c.got>0;
+      var label=c.got===0?"Not assessed":full?"Independent":c.got>=Math.ceil(c.max/2)?"Assisted":"Developing";
+      var pips="";for(var i=0;i<c.max;i++)pips+='<span class="'+(i<c.got?"on":"")+'"></span>';
+      var ev=evidenceFor(c);
+      var evHtml=ev.length?'<ul class="ev-list">'+ev.map(function(s){return '<li>'+esc(s)+'</li>';}).join("")+'</ul>':'<div class="ev-none">No evidence yet — complete the linked tickets to earn this.</div>';
+      return '<div class="tr-skill"><div class="top"><span class="nm">'+c.nm+'</span><span class="rt '+(full?"full":"")+'">'+label+'</span></div>'+
+        '<div class="track '+(full?"full":"")+'">'+pips+'</div>'+evHtml+'</div>';
+    }).join("");
+    var replies=LABS.filter(function(L){return state.prReply[L.id];}).map(function(L){
+      return '<div class="reply"><div class="rh"><span class="mono">'+esc(L.ticketId)+'</span> · your reply on review</div><div class="rb">"'+esc(state.prReply[L.id])+'"</div></div>';
+    }).join("");
+    view.innerHTML='<h1 class="ph">Competency transcript</h1><div class="ph-sub">Sam Reyes · Platform apprentice · every rating links to the work behind it, not a score.</div>'+
+      '<div class="tr">'+rows+'</div>'+
+      (replies?'<h2 class="sec-h">Review reflections</h2><div class="ph-sub">What you said when your pull requests were reviewed — part of the record employers see.</div><div class="replies">'+replies+'</div>':'')+
+      '<p class="tr-foot">In the full program a mentor review sets the top rating and co-signs the transcript. Here, ratings move as you complete the linked tickets.</p>';
+    bindJumps();
+  }
+
+  function renderMap(){
+    var stageList=[
+      {s:"1 · Technical foundations",items:[["Linux Fundamentals","fundamentals"],["Shell Scripting & Automation","automation"],["C Programming — Log Helpers","cprog"]],note:"Linux, the shell, files and permissions, automation, and C."},
+      {s:"2 · Systems, networking & detection",items:[["Linux Service Triage","triage"],["Network & Protocol Diagnostics","networking"],["Sockets & Protocols — NSP/1","sockets"],["Detection Engineering","detection"]],note:"Operate services; diagnose DNS, ports and connectivity; write detections."},
+      {s:"3 · Low-level & OS internals",items:[["Linux Internals — Host Triage","linuxint"],["Windows Internals — Triage","wininternals"]],note:"How the kernel sees processes, files and descriptors on Linux and Windows."},
+      {s:"4 · Secure engineering practice",items:[["Secure Coding — Input Handling","secure"],["Debugging — Regression Hunt","debugging"],["Code Review — Pull Requests","codereview"],["Incident Analysis & Postmortem","incident"]],note:"Treat input as hostile, reproduce and bisect regressions, review teammates' changes, and write incidents up blamelessly."},
+      {s:"5 · Specialization",items:[],note:"Detection, product security, then the gated offensive/CNO tracks (instructor-led, authorization required).",coming:true},
+      {s:"6 · Capstone",items:[["Open Ticket — \"Dashboard is broken??\"","ticket"],["Capstone — First On-Call Night","capstone"]],note:"Unscripted work: an ambiguous ticket to scope and resolve, then one environment with several systems to restore, investigate, detect and write up."}
+    ];
+    var html=stageList.map(function(st){
+      var labs=st.items.map(function(it){
+        var d=labDone(it[1]),n=labTotal(it[1]),done=d===n;
+        return '<button class="map-lab'+(done?" done":"")+'" data-open="'+it[1]+'"><span class="d"></span>'+esc(it[0])+'<span class="mono">'+d+'/'+n+'</span></button>';
+      }).join("");
+      return '<div class="stage'+(st.coming?" coming":"")+'"><div class="st-h"><span class="st-n">'+esc(st.s)+'</span>'+(st.coming?'<span class="chip">coming</span>':'<span class="chip live">available</span>')+'</div>'+
+        '<div class="st-note">'+esc(st.note)+'</div>'+(labs?'<div class="st-labs">'+labs+'</div>':'')+'</div>';
+    }).join("");
+    view.innerHTML='<h1 class="ph">Curriculum map</h1><div class="ph-sub">The path from apprentice to junior-ready. Stages 1–4 and the capstone are playable now; specialization tracks are on the roadmap.</div><div class="stages">'+html+'</div>';
+    bindOpens();
+  }
+
+  var WIKI=[
+    {svc:"telemetryd",owner:"platform",tag:"NS-210",d:"Host telemetry agent on plt-ingest-3. Reads etc/telemetryd.conf plus overrides in etc/telemetryd.d/ (last value wins). Validates config and the signing key's permissions on start.",run:["Config key file must be mode 600 or it refuses to load.","max_batch must stay ≤ 500 or events drop under load.","Check health: telemetryd --check; under load: telemetryd --stress."]},
+    {svc:"api-gateway → auth",owner:"identity",tag:"NS-142",d:"The gateway proxies to the auth service. Upstream host and port live in etc/gateway.conf; names resolve through etc/hosts in the lab (real DNS in production). Auth listens on 10.0.3.12:8443.",run:["Confirm resolution: dig <name>; what's listening: ss -ltn.","End-to-end health: gateway --check.","A wrong record or port shows as E_DNS / E_PORT."]},
+    {svc:"log pipeline",owner:"observability",tag:"NS-101 / NS-168",d:"Service, auth and worker logs land in logs/ (and scenario/logs/ in the fundamentals range). Lines are ISO-timestamp, level, message. Summaries and alerts are built from them.",run:["ERROR lines carry a code=E### field.","Summaries are scripted (bin/summary.sh) and scheduled via crontab.","Keep scripts generic — they run on more than one log."]},
+    {svc:"config loader (netparse)",owner:"platform",tag:"NS-221",d:"Parses values from service config files (ports, lengths, checksums). Config can come from other teams and automation, so every value is treated as untrusted input.",run:["Validate ranges and lengths before use; return -1 on bad input.","make test runs adversarial cases with an out-of-bounds sanitizer.","Never trust a length the caller gives you over the real size of the data."]},
+    {svc:"reportgen",owner:"analytics",tag:"NS-187",d:"Nightly report daemon on plt-host-7. Forks a worker per report. Known issue: workers that exit aren't always reaped, leaving zombie processes.",run:["ps STAT 'Z' = zombie; its parent must wait() for it.","procstat <pid> shows the parent (PPid).","Disk full but du looks small? Look for deleted-but-open files with lsof."]},
+    {svc:"incident process",owner:"sre",tag:"NS-240 / NS-300",d:"Every customer-impacting incident gets a blameless postmortem within two business days: summary, impact (with a precise window), timeline, root cause, action items with owners.",run:["Impact starts when customers were hurt, not when the alert fired.","Confirm cause from evidence; the latest deploy is often a coincidence.","Action items should prevent the class of problem, not just this instance."]},
+    {svc:"status service (NSP/1)",owner:"platform",tag:"NS-176",d:"status.northstar.internal:7070 answers PING / STATUS / HELP over NSP/1: a 4-digit length, a colon, then the payload. Clients use src/nspframe.c to find frame boundaries in the TCP stream.",run:["Full spec: docs/NSP.md.","Smoke test: printf '0004:PING' | nc status.northstar.internal 7070.","A frame can arrive split across reads, or several can arrive in one read. Lengths over 1024 are a protocol error."]},
+    {svc:"textstats",owner:"observability",tag:"NS-232",d:"Word and capital-letter counts for the log summary card. Regression tests live in tests/cases.txt; a bug fix lands with a test that would have caught it.",run:["Run tests: make test. Step through code: trace <fn> \"input\".","Find regressions with git bisect (git bisect run make test once a failing test exists).","Fix on main, never on a detached checkout."]},
+    {svc:"ops dashboard",owner:"sre",tag:"NS-250",d:"Logins and request counts per day, built by /opt/dash/rebuild.sh from the sources in etc/ingest.conf on a cron schedule. The default view range is set in etc/dashboard.conf.",run:["Numbers should match the raw logs: grep -c login_success logs/auth/<day>.log.","A rebuild must finish before the next one starts (check ps).","Never delete logs to make it faster: retention is a separate decision."]},
+    {svc:"detection rules",owner:"observability",tag:"NS-205",d:"Auth events (logs/auth.jsonl) are scored by rules in rules/detections.txt. A rule matches fields (when:), optionally aggregates (group_by + count), and can correlate (followed_by). Alerts feed the on-call queue.",run:["Run rules with `detect`.","Tune for precision: a noisy service account is not an incident.","A real brute force shows repeated failures followed by a success — correlate, don't just threshold."]}
+  ];
+  function renderWiki(){
+    var cards=WIKI.map(function(w){
+      return '<section class="card wiki-card"><div class="wk-h"><h3>'+esc(w.svc)+'</h3><span class="chip">'+esc(w.owner)+'</span><span class="chip mono">'+esc(w.tag)+'</span></div>'+
+        '<p class="wk-d">'+esc(w.d)+'</p><div class="wk-run">Runbook</div><ul>'+w.run.map(function(r){return '<li>'+esc(r)+'</li>';}).join("")+'</ul></section>';
+    }).join("");
+    view.innerHTML='<h1 class="ph">Northstar wiki</h1><div class="ph-sub">Runbooks for the services you work on. The same systems recur across tickets as you go deeper.</div><div class="wiki">'+cards+'</div>';
+  }
+
+  function renderLabs(){
+    var cards=LABS.map(function(L){
+      var d=labDone(L.id),n=L.tasks.length;
+      return '<div class="labcard"><div class="k"><span class="ic">'+iconSvg(L.icon)+'</span><h3>'+L.name+'</h3></div>'+
+        '<p>'+L.blurb+'</p><div class="foot"><span class="mono">'+d+' / '+n+' tasks</span>'+
+        '<button class="btn pri" data-open="'+L.id+'">'+(d===0?"Start":d===n?"Review":"Resume")+'</button></div></div>';
+    }).join("");
+    view.innerHTML='<h1 class="ph">Labs</h1><div class="ph-sub">Real terminals, checked live. Nothing here is a real system.</div><div class="labgrid">'+cards+'</div>';
+    bindOpens();
+  }
+
+  // ---------- lab view (terminal) ----------
+  var activeLab=null;
+  function renderLab(id){
+    var L=LABS.find(function(x){return x.id===id;}); if(!L){setView("portal");return;}
+    activeLab=L;
+    view.innerHTML=
+      '<button class="backbtn" id="back">← My Work</button>'+
+      '<h1 class="ph">'+L.name+'</h1><div class="ph-sub mono">'+esc(L.ticketId)+' · '+esc(L.seedNote)+'</div>'+
+      '<div class="labview"><section class="term-wrap">'+
+        '<div class="term-bar"><span class="dot" style="background:#f2616b"></span><span class="dot" style="background:#ecb94e"></span><span class="dot" style="background:#45d39a"></span><span class="t" id="termTitle">sam@northstar · ~/lab</span></div>'+
+        '<div class="term" id="term" tabindex="0"></div>'+
+        '<div class="inputline"><span class="pr">sam@northstar</span><span class="sys">:</span><span class="pa" id="promptPath">~/lab</span><span class="sys">$ </span><input id="cmd" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="shell input"></div>'+
+        '<div class="editor" id="editor" hidden>'+
+          '<div class="ed-head"><span>editing</span><span class="fn" id="edName"></span><span class="mod" id="edMod" hidden>● modified</span><span class="tag" id="edTag"></span></div>'+
+          '<textarea class="ed-text" id="edText" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="file contents"></textarea>'+
+          '<div class="ed-foot"><span><span class="k">Ctrl/⌘ S</span> save</span><span><span class="k">Esc</span> close</span><span id="edPos">Ln 1, Col 1</span><span class="warn" id="edWarn" hidden>Unsaved changes. Esc again discards them.</span><span class="sp"></span>'+
+          '<button class="ed-btn" id="edClose">Close</button><button class="ed-btn pri" id="edSave">Save</button></div>'+
+        '</div>'+
+      '</section><aside class="tasks">'+
+        '<div class="prog"><div class="k"><span>Tasks complete</span><b id="score">0 / '+L.tasks.length+'</b></div><div class="bar"><i id="barfill"></i></div>'+
+        '<button class="btn" id="reset-lab" style="margin-top:12px;font-size:12px;padding:5px 10px">Reset this lab</button></div>'+
+        '<div id="tasklist"></div>'+
+        '<div class="done-banner" id="doneBanner" hidden><b>Ticket complete.</b> In the full program this is where you\'d open a pull request and a mentor would review it.</div>'+
+      '</aside></div>';
+    $("#back").addEventListener("click",function(){setView("portal");});
+    $("#reset-lab").addEventListener("click",function(){resetShell(id);var t=$("#term");t.innerHTML="";banner();updatePrompt(id);checkLab();$("#cmd").focus();});
+    renderTasks(L); banner(); updatePrompt(id); checkLab(); wireInput(id); wireEditor(); ed=null;
+    $("#cmd").focus();
+  }
+
+  function banner(){
+    var t=$("#term");
+    add(t,'<span class="sys">Northstar · interactive shell (simulated). Your work is checked live on the right.</span>');
+    add(t,'<span class="sys">Try <span style="color:var(--term-fg)">ls</span>, <span style="color:var(--term-fg)">cd</span>, <span style="color:var(--term-fg)">cat</span>, <span style="color:var(--term-fg)">help</span>. Tab completes, up/down recalls history.</span>');
+    add(t,"&nbsp;");
+  }
+  function add(t,html){var d=document.createElement("div");d.innerHTML=html;t.appendChild(d);t.scrollTop=t.scrollHeight;}
+  function promptHtml(path){ return '<span class="pr">sam@northstar</span><span class="sys">:</span><span class="pa">'+esc(path)+'</span><span class="sys">$</span>'; }
+  function updatePrompt(id){
+    var p=shellFor(id).promptPath();
+    var pp=$("#promptPath"); if(pp)pp.textContent=p;
+    var tt=$("#termTitle"); if(tt)tt.textContent="sam@northstar · "+p;
+  }
+  // colour directory names in ls output, the way a real terminal does
+  function colorDirs(text,dirs){
+    if(!dirs||!dirs.length)return esc(text);
+    var set={};dirs.forEach(function(d){set[d]=1;});
+    return text.split("\n").map(function(line){
+      return line.split(/(\s+)/).map(function(tok){ return set[tok]?'<span class="dir">'+esc(tok)+'</span>':esc(tok); }).join("");
+    }).join("\n");
+  }
+
+  var hist=[],hp=0;
+  function wireInput(id){
+    var inp=$("#cmd"),t=$("#term");
+    inp.addEventListener("keydown",function(e){
+      // always resolve the live shell: a lab reset swaps in a fresh one
+      var sh=shellFor(id);
+      if(e.key==="Enter"){e.preventDefault();var v=inp.value;if(v.trim()){hist.push(v);hp=hist.length;}inp.value="";runLine(id,t,v);}
+      else if(e.key==="ArrowUp"){if(hp>0){hp--;inp.value=hist[hp]||"";}e.preventDefault();}
+      else if(e.key==="ArrowDown"){if(hp<hist.length){hp++;inp.value=hist[hp]||"";}e.preventDefault();}
+      else if(e.key==="Tab"){
+        e.preventDefault();
+        var r=sh.complete(inp.value);
+        if(r.line!==inp.value){ inp.value=r.line; }
+        else if(r.matches.length>1){ add(t,promptHtml(sh.promptPath())+' '+esc(inp.value)); add(t,'<span class="sys">'+r.matches.map(esc).join("  ")+'</span>'); }
+      }
+      else if(e.key==="l"&&e.ctrlKey){ t.innerHTML=""; e.preventDefault(); }
+    });
+    t.addEventListener("click",function(){if(!window.getSelection().toString())inp.focus();});
+  }
+  function runLine(id,t,line){
+    var sh=shellFor(id);
+    add(t,promptHtml(sh.promptPath())+' '+esc(line));
+    if(line.trim()==="clear"){t.innerHTML="";return;}
+    var r=sh.run(line);
+    if(r.out)add(t,colorDirs(r.out,r.dirs));
+    if(r.err)add(t,'<span class="err">'+esc(r.err)+'</span>');
+    updatePrompt(id);
+    checkLab();
+    if(r.open)openEditor(id,r.open);
+  }
+
+  // ---------- in-terminal editor ----------
+  var ed=null; // {id, path, name, orig, warned}
+  function openEditor(id,o){
+    ed={id:id,path:o.path,name:o.name,orig:o.content,warned:false};
+    $("#edName").textContent=o.name;
+    $("#edTag").textContent=o.isNew?"new file":"";
+    var ta=$("#edText"); ta.value=o.content;
+    $("#edMod").hidden=true; $("#edWarn").hidden=true;
+    $("#editor").hidden=false;
+    setTimeout(function(){ ta.focus(); ta.setSelectionRange(0,0); ta.scrollTop=0; edPos(); },0);
+  }
+  function edDirty(){ return ed && $("#edText").value!==ed.orig; }
+  function edPos(){
+    var ta=$("#edText"), before=ta.value.slice(0,ta.selectionStart).split("\n");
+    $("#edPos").textContent="Ln "+before.length+", Col "+(before[before.length-1].length+1);
+  }
+  function edSave(){
+    if(!ed)return;
+    var sh=shellFor(ed.id), txt=$("#edText").value;
+    if(sh.writeFile(ed.path,txt)){
+      ed.orig=txt; $("#edMod").hidden=true; $("#edWarn").hidden=true; ed.warned=false; $("#edTag").textContent="";
+      add($("#term"),'<span class="ok">[saved '+esc(ed.name)+']</span>');
+      checkLab();
+    } else {
+      add($("#term"),'<span class="err">[could not save '+esc(ed.name)+': directory no longer exists]</span>');
+    }
+  }
+  function edClose(force){
+    if(!ed)return;
+    if(edDirty()&&!force&&!ed.warned){ ed.warned=true; $("#edWarn").hidden=false; return; }
+    if(edDirty()) add($("#term"),'<span class="sys">[closed '+esc(ed.name)+' without saving]</span>');
+    $("#editor").hidden=true; ed=null; $("#cmd").focus();
+  }
+  function wireEditor(){
+    var ta=$("#edText");
+    ta.addEventListener("input",function(){ $("#edMod").hidden=!edDirty(); if(ed){ed.warned=false;$("#edWarn").hidden=true;} edPos(); });
+    ta.addEventListener("keyup",edPos); ta.addEventListener("click",edPos);
+    ta.addEventListener("keydown",function(e){
+      if((e.ctrlKey||e.metaKey)&&(e.key==="s"||e.key==="S")){ e.preventDefault(); edSave(); }
+      else if(e.key==="Escape"){ e.preventDefault(); edClose(false); }
+      else if(e.key==="Tab"){ e.preventDefault(); var s=ta.selectionStart,en=ta.selectionEnd; ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(en); ta.selectionStart=ta.selectionEnd=s+2; ta.dispatchEvent(new Event("input")); }
+    });
+    $("#edSave").addEventListener("click",function(){ edSave(); $("#edText").focus(); });
+    $("#edClose").addEventListener("click",function(){ edClose(false); });
+  }
+
+  function renderTasks(L){
+    var list=$("#tasklist");list.innerHTML="";
+    L.tasks.forEach(function(t){
+      var el=document.createElement("div");el.className="task";el.id="task-"+t.id;
+      el.innerHTML='<div class="h"><span class="st"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 13 4 4L19 7"/></svg></span>'+
+        '<div><span class="ti">'+t.title+'</span><span class="lv">'+t.lv+'</span><p>'+t.brief+'</p>'+
+        '<button class="hintbtn" data-hid="'+t.id+'">Show hint</button><div class="hint" id="hint-'+t.id+'" hidden></div></div></div>';
+      list.appendChild(el);
+    });
+    list.querySelectorAll(".hintbtn").forEach(function(b){
+      var step=0;
+      b.addEventListener("click",function(){
+        var t=L.tasks.find(function(x){return x.id===b.dataset.hid;});
+        var h=$("#hint-"+t.id);h.hidden=false;h.innerHTML=t.hints[step];step++;
+        if(step>=t.hints.length){b.textContent="Hint "+t.hints.length+" of "+t.hints.length;b.disabled=true;}
+        else b.textContent="Next hint ("+step+"/"+t.hints.length+")";
+      });
+    });
+  }
+
+  function checkLab(){
+    if(!activeLab)return;var sh=shellFor(activeLab.id),done=0;
+    var ts=state.taskState[activeLab.id]||(state.taskState[activeLab.id]={});
+    var changed=false, wasComplete=state.done[activeLab.id]===activeLab.tasks.length;
+    activeLab.tasks.forEach(function(t){
+      var ok=false;try{ok=t.check(sh);}catch(e){}
+      var el=$("#task-"+t.id);if(el){el.classList.toggle("done",ok);}
+      if(ok){ done++; if(!ts[t.id]){ ts[t.id]=true; changed=true; logEvent({kind:"task",lab:activeLab.id,ticket:activeLab.ticketId,title:t.title}); } }
+      else if(ts[t.id]){ ts[t.id]=false; }
+    });
+    if(done===activeLab.tasks.length && !wasComplete) logEvent({kind:"lab",lab:activeLab.id,ticket:activeLab.ticketId});
+    var sc=$("#score");if(sc)sc.textContent=done+" / "+activeLab.tasks.length;
+    var bf=$("#barfill");if(bf)bf.style.width=(done/activeLab.tasks.length*100)+"%";
+    var db=$("#doneBanner");
+    if(db){
+      var complete=done===activeLab.tasks.length;
+      db.hidden=!complete;
+      if(complete){
+        if(state.reviewed[activeLab.id]){
+          db.innerHTML='<b>Merged.</b> '+esc(activeLab.name)+' is reviewed and merged on <span class="mono">'+esc(activeLab.review.branch)+'</span>. This is what a finished ticket looks like.';
+        } else {
+          db.innerHTML='<b>All tasks pass.</b> Time to ship it — open a pull request and get it reviewed.<div style="margin-top:11px"><button class="btn pri" id="openPR">Open pull request →</button></div>';
+          var op=$("#openPR"); if(op) op.addEventListener("click",function(){ openPR(activeLab); });
+        }
+      }
+    }
+    state.done[activeLab.id]=done; save();
+  }
+
+  // ---------- pull request + mentor review ----------
+  function openPR(L){
+    var done=labDone(L.id), n=L.tasks.length;
+    var ov=document.createElement("div"); ov.className="overlay"; ov.id="pr-overlay";
+    ov.innerHTML=
+      '<div class="modal" role="dialog" aria-modal="true" aria-label="Pull request review">'+
+        '<div class="pr-top"><div class="pr-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 8.5v7M8.3 7.2 15.6 9M18 10.5c0 4-5 2.5-5 5.5"/></svg>'+
+          '<div><div class="t">'+esc(L.name)+' fix</div><div class="b mono">'+esc(L.review.branch)+' → main · '+esc(L.ticketId)+'</div></div></div>'+
+          '<button class="iconbtn" id="pr-x" aria-label="Close">✕</button></div>'+
+        '<div class="pr-body">'+
+          '<div class="pr-meta"><span class="pr-badge"><span class="st"></span>'+n+' checks passing</span><span class="pr-meta-d mono">'+done+'/'+n+' acceptance criteria met</span></div>'+
+          '<div class="review">'+
+            '<div class="rv-head"><div class="av">MO</div><div><b>M. Okafor</b> <span class="muted">requested review · mentor</span></div></div>'+
+            '<div class="rv-body"><p>'+L.review.q+'</p><p class="approve"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 13 4 4L19 7"/></svg> Approved — merge when you\'ve had a think about that.</p></div>'+
+          '</div>'+
+          '<label class="rv-reply-l" for="pr-reply">Your reply <span class="muted">(optional — this is how the conversation works on a real PR)</span></label>'+
+          '<textarea id="pr-reply" class="rv-reply" rows="3" placeholder="e.g. I\'d add a validation check on load so a bad value fails fast…"></textarea>'+
+        '</div>'+
+        '<div class="pr-foot"><button class="btn" id="pr-cancel">Not yet</button><button class="btn pri" id="pr-merge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 8.5v7M8.3 7.2 15.6 9M18 10.5c0 4-5 2.5-5 5.5"/></svg>Merge pull request</button></div>'+
+      '</div>';
+    document.body.appendChild(ov);
+    function close(){ var e=$("#pr-overlay"); if(e)e.remove(); }
+    $("#pr-x").addEventListener("click",close);
+    $("#pr-cancel").addEventListener("click",close);
+    ov.addEventListener("click",function(e){ if(e.target===ov)close(); });
+    $("#pr-merge").addEventListener("click",function(){
+      state.reviewed[L.id]=true;
+      var reply=$("#pr-reply"); if(reply&&reply.value.trim())state.prReply[L.id]=reply.value.trim();
+      logEvent({kind:"merge",lab:L.id,ticket:L.ticketId,branch:L.review.branch});
+      save(); close(); checkLab();
+    });
+    setTimeout(function(){ var r=$("#pr-reply"); if(r)r.focus(); },50);
+  }
+
+  function bindOpens(){ document.querySelectorAll("[data-open]").forEach(function(b){ b.addEventListener("click",function(){ setView("lab",b.dataset.open); }); }); bindJumps(); }
+  function bindJumps(){ document.querySelectorAll("[data-view-jump]").forEach(function(b){ b.addEventListener("click",function(){ setView(b.dataset.viewJump); }); }); }
+
+  function iconSvg(n){
+    if(n==="wrench")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 0 1 5.4-5.4l-2.5 2.5-1.4-1.4z"/></svg>';
+    if(n==="net")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>';
+    if(n==="script")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 7h6M9 11h6M9 15h3"/><path d="M6 3h9l4 4v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/></svg>';
+    if(n==="code")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13 6l-2 12"/></svg>';
+    if(n==="win")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M3 5.5 10.5 4v7.5H3zM10.5 12.5V20L3 18.5V12.5zM12.5 3.8 21 2.5v9H12.5zM12.5 12.5H21v9l-8.5-1.3z"/></svg>';
+    if(n==="shield")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2 4 5v6c0 5 3.4 8.3 8 10 4.6-1.7 8-5 8-10V5z"/><path d="M9 12h.01M15 12h.01M9 12c0 1.5 1.3 2.5 3 2.5s3-1 3-2.5"/></svg>';
+    if(n==="cpu")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="6" y="6" width="12" height="12" rx="1"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>';
+    if(n==="lock")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+    if(n==="review")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="9" r="2.5"/><path d="M6 8.5v7M18 11.5c0 4-6 3-10 5"/></svg>';
+    if(n==="doc")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M6 3h9l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5M8 13h8M8 17h5"/></svg>';
+    if(n==="plug")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 2v5M15 2v5M6 7h12v4a6 6 0 0 1-12 0zM12 17v5"/></svg>';
+    if(n==="bug")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="7" y="7" width="10" height="13" rx="5"/><path d="M9 7a3 3 0 0 1 6 0M12 11v9M3 13h4M17 13h4M4 7l3 2M20 7l-3 2M4 20l3-2M20 20l-3-2"/></svg>';
+    if(n==="inbox")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6z"/></svg>';
+    if(n==="flag")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>';
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></svg>';
+  }
+
+  // nav + global controls
+  document.querySelectorAll(".rail button[data-view]").forEach(function(b){ b.addEventListener("click",function(){ setView(b.dataset.view); }); });
+  $("#reset-all").addEventListener("click",function(){ for(var k in shells)delete shells[k]; state.done={}; save(); setView(state.view==="lab"?"portal":state.view); });
+  (function(){
+    var root=document.documentElement,btn=$("#theme");
+    var sun='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+    var moon=$("#ic").outerHTML;
+    function sysDark(){return window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches;}
+    function cur(){var t=root.getAttribute("data-theme");return t||(sysDark()?"dark":"light");}
+    function paint(){btn.innerHTML=cur()==="dark"?sun:moon;}
+    try{var s=localStorage.getItem("ns-theme");if(s)root.setAttribute("data-theme",s);}catch(e){}
+    paint();
+    btn.addEventListener("click",function(){var n=cur()==="dark"?"light":"dark";root.setAttribute("data-theme",n);try{localStorage.setItem("ns-theme",n);}catch(e){}paint();});
+  })();
+
+  render();
+})();
+</script>

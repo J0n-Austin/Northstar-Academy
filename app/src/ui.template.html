@@ -1,0 +1,262 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Linux Fundamentals Lab</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: app header, then a two-pane work area — a live terminal on the left, the task checklist on the right. Terminal is a committed dark console in both themes; the chrome follows the viewer theme. */
+  :root{
+    --bg:#0b0e14; --surface:#10141d; --surface-2:#161c28; --raise:#1b2230;
+    --line:#242c3a; --line-soft:#1b2230; --fg:#e7eaf1; --muted:#8c96a9; --faint:#5c6678;
+    --accent:#5ab0ff; --accent-ink:#0b0e14; --accent-dim:rgba(90,176,255,.14);
+    --good:#45d39a; --good-dim:rgba(69,211,154,.14); --warn:#ecb94e;
+    /* terminal — committed dark, both themes */
+    --term-bg:#080a0e; --term-fg:#cdd3df; --term-prompt:#5ab0ff; --term-path:#a98bff;
+    --term-ok:#45d39a; --term-err:#f2616b; --term-dim:#5c6678;
+    --font-ui:'IBM Plex Sans',system-ui,sans-serif; --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+    color-scheme:dark;
+  }
+  @media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+    --bg:#eef1f6;--surface:#fff;--surface-2:#f4f6fa;--raise:#eaeef5;--line:#dce2ec;--line-soft:#eaeef5;
+    --fg:#161b24;--muted:#586072;--faint:#8894a6;--accent:#1f6fe0;--accent-ink:#fff;--accent-dim:rgba(31,111,224,.1);
+    --good:#0f9566;--good-dim:rgba(15,149,102,.12);--warn:#b2781a;color-scheme:light;}}
+  :root[data-theme="light"]{
+    --bg:#eef1f6;--surface:#fff;--surface-2:#f4f6fa;--raise:#eaeef5;--line:#dce2ec;--line-soft:#eaeef5;
+    --fg:#161b24;--muted:#586072;--faint:#8894a6;--accent:#1f6fe0;--accent-ink:#fff;--accent-dim:rgba(31,111,224,.1);
+    --good:#0f9566;--good-dim:rgba(15,149,102,.12);--warn:#b2781a;color-scheme:light;}
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:var(--font-ui);background:var(--bg);color:var(--fg);
+    -webkit-font-smoothing:antialiased;font-size:14px;display:flex;flex-direction:column}
+  .mono{font-family:var(--font-mono)}
+  button{font-family:inherit;cursor:pointer}
+  a{color:var(--accent)}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+    padding-block:11px;border-bottom:1px solid var(--line);background:var(--surface);flex:none}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600}
+  .brand svg{color:var(--accent)}
+  .brand .dim{color:var(--faint);font-weight:400}
+  .top .spacer{flex:1}
+  .concept{font-size:11px;color:var(--warn);border:1px dashed var(--warn);border-radius:999px;padding:2px 9px;background:rgba(236,185,78,.12)}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:7px;font-size:12.5px;
+    border:1px solid var(--line);background:var(--surface-2);color:var(--fg)}
+  .btn:hover{border-color:var(--muted)}
+  .btn svg{width:14px;height:14px}
+
+  .wrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;
+    padding:14px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+
+  /* terminal */
+  .term-wrap{display:flex;flex-direction:column;min-width:0;background:var(--term-bg);
+    border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .term-bar{display:flex;align-items:center;gap:7px;padding:9px 13px;border-bottom:1px solid #1a1f29;flex:none}
+  .term-bar .dot{width:10px;height:10px;border-radius:50%}
+  .term-bar .t{margin-left:8px;font-family:var(--font-mono);font-size:11.5px;color:var(--term-dim)}
+  .term{flex:1;min-height:0;overflow-y:auto;padding:12px 14px;font-family:var(--font-mono);font-size:13px;
+    line-height:1.6;color:var(--term-fg);white-space:pre-wrap;word-break:break-word}
+  .term .cmd{color:var(--term-fg)}
+  .term .pr{color:var(--term-prompt)}
+  .term .pa{color:var(--term-path)}
+  .term .err{color:var(--term-err)}
+  .term .sys{color:var(--term-dim)}
+  .term .ok{color:var(--term-ok)}
+  .inputline{display:flex;align-items:center;gap:0;padding:0 14px 14px;font-family:var(--font-mono);font-size:13px}
+  .inputline .pr{color:var(--term-prompt);white-space:pre}
+  .inputline .pa{color:var(--term-path)}
+  #cmd{flex:1;min-width:0;background:transparent;border:0;outline:none;color:var(--term-fg);
+    font-family:var(--font-mono);font-size:13px;caret-color:var(--term-prompt)}
+
+  /* tasks */
+  .tasks{display:flex;flex-direction:column;gap:12px;min-width:0;overflow-y:auto}
+  .prog{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .prog .k{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:9px}
+  .prog .k b{color:var(--fg);font-family:var(--font-mono)}
+  .bar{height:7px;border-radius:999px;background:var(--line);overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .3s}
+  .task{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .task.done{border-color:var(--good);background:var(--good-dim)}
+  .task .h{display:flex;align-items:flex-start;gap:10px}
+  .task .st{width:20px;height:20px;border-radius:50%;border:2px solid var(--faint);flex:none;margin-top:1px;
+    display:grid;place-items:center}
+  .task.done .st{border-color:var(--good);background:var(--good)}
+  .task .st svg{width:12px;height:12px;color:var(--accent-ink);opacity:0}
+  .task.done .st svg{opacity:1}
+  .task .ti{font-weight:600;font-size:13.5px}
+  .task .lv{font-family:var(--font-mono);font-size:10.5px;color:var(--accent);background:var(--accent-dim);
+    border-radius:999px;padding:1px 7px;margin-left:6px}
+  .task p{font-size:12.5px;color:var(--muted);margin:9px 0 0}
+  .task code{font-family:var(--font-mono);font-size:11.5px;background:var(--bg);border:1px solid var(--line);
+    border-radius:4px;padding:1px 5px;color:var(--fg)}
+  .task .hintbtn{margin-top:10px;font-size:12px;color:var(--accent);background:none;border:0;padding:0}
+  .task .hint{margin-top:9px;font-size:12px;color:var(--fg);background:var(--surface-2);border:1px solid var(--line);
+    border-radius:7px;padding:9px 11px;line-height:1.5}
+  .task .hint code{background:var(--bg)}
+  .done-banner{background:var(--good-dim);border:1px solid var(--good);border-radius:10px;padding:14px 15px;
+    font-size:13px}
+  .done-banner b{color:var(--good)}
+
+  @media (max-width:820px){
+    .wrap{grid-template-columns:1fr;grid-auto-rows:minmax(0,auto)}
+    .term-wrap{min-height:52vh}
+    body{font-size:14px}
+  }
+</style>
+
+<header class="top">
+  <div class="brand">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l2.2 7.3 7.3 2.2-7.3 2.2L12 22.5l-2.2-7.3L2.5 13l7.3-2.2z"/></svg>
+    <span><b>northstar</b> <span class="dim">/ linux fundamentals</span></span>
+  </div>
+  <div class="spacer"></div>
+  <span class="concept">Interactive · simulated shell</span>
+  <button class="btn" id="reset" title="Reset the lab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Reset</button>
+  <button class="btn" id="theme" title="Toggle theme" aria-label="Toggle theme"><svg id="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</header>
+
+<div class="wrap">
+  <section class="term-wrap">
+    <div class="term-bar">
+      <span class="dot" style="background:#f2616b"></span><span class="dot" style="background:#ecb94e"></span><span class="dot" style="background:#45d39a"></span>
+      <span class="t">sam@northstar · ~/lab</span>
+    </div>
+    <div class="term" id="term" tabindex="0"></div>
+    <div class="inputline"><span class="pr">sam@northstar</span><span style="color:var(--term-dim)">:</span><span class="pa">~/lab</span><span style="color:var(--term-dim)">$&nbsp;</span><input id="cmd" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="shell input"></div>
+  </section>
+
+  <aside class="tasks">
+    <div class="prog">
+      <div class="k"><span>Tasks complete</span><b id="score">0 / 4</b></div>
+      <div class="bar"><i id="barfill"></i></div>
+    </div>
+    <div id="tasklist"></div>
+    <div class="done-banner" id="doneBanner" hidden><b>Lab complete.</b> You just did this against a simulated shell. The real version runs in a genuine Linux shell in Codespaces — same tasks, real tools.</div>
+  </aside>
+</div>
+
+<script>
+// __ENGINE__
+</script>
+<script>
+(function(){
+  var shell = createShell();
+  var term = document.getElementById('term');
+  var input = document.getElementById('cmd');
+  var history = [], hp = 0;
+
+  var TASKS = [
+    { id:1, title:'Count the timeout errors', lv:'L1',
+      brief:'Across <code>scenario/logs/</code>, count how many ERROR lines mention <b>timeout</b> (case-insensitive). Write just the number to <code>answers/01.txt</code>.',
+      hints:[
+        'You need lines matching two things. Filter once, then pipe into another filter.',
+        '<code>grep -c</code> counts matching lines; <code>-i</code> is case-insensitive; <code>-w</code> matches a whole word. Redirect the result with <code>&gt;</code>.',
+        '<code>grep -h -w ERROR scenario/logs/*.log | grep -i -c timeout &gt; answers/01.txt</code>'
+      ],
+      check:function(){ return (shell.fileContent('answers/01.txt')||'').replace(/[^0-9]/g,'') === '8'; } },
+    { id:2, title:'Rank the top error codes', lv:'L2',
+      brief:'In <code>scenario/logs/app.log</code>, each ERROR line ends with <code>code=E###</code>. Write the top 3 codes to <code>answers/02.txt</code>, one per line as <code>CODE COUNT</code>, highest first.',
+      hints:[
+        'Isolate the codes, then count-and-rank: sort → uniq -c → sort again by count.',
+        '<code>grep -oE \'code=E[0-9]+\'</code> prints just the codes; strip the prefix with <code>sed \'s/code=//\'</code>; <code>uniq -c</code> needs sorted input.',
+        '<code>grep -w ERROR scenario/logs/app.log | grep -oE \'code=E[0-9]+\' | sed \'s/code=//\' | sort | uniq -c | sort -rn | head -3 | awk \'{print $2, $1}\' &gt; answers/02.txt</code>'
+      ],
+      check:function(){ return norm(shell.fileContent('answers/02.txt')) === 'E500 6\nE408 5\nE404 4'; } },
+    { id:3, title:'List the degraded services', lv:'L2',
+      brief:'From <code>scenario/service/status.json</code>, write the names of services whose <code>state</code> is <b>degraded</b>, sorted, one per line, to <code>answers/03.txt</code>.',
+      hints:[
+        'Reach into the services array, keep the degraded ones, print their name.',
+        '<code>.services[]</code> streams the array; <code>select(...)</code> filters; <code>-r</code> prints raw strings. Then <code>sort</code>.',
+        '<code>jq -r \'.services[] | select(.state == "degraded") | .name\' scenario/service/status.json | sort &gt; answers/03.txt</code>'
+      ],
+      check:function(){ return sortLines(shell.fileContent('answers/03.txt')) === 'auth\ncache\nmetrics\nstorage'; } },
+    { id:4, title:'Fix the key permissions', lv:'L1',
+      brief:'<code>scenario/secrets/service.key</code> is world-readable. The service needs it readable/writable only by its owner — mode <b>600</b>. Fix it.',
+      hints:[
+        'Owner read+write, nothing for group or others.',
+        'Check with <code>ls -l scenario/secrets/service.key</code>; fix with <code>chmod</code>. In octal, read+write = 6, none = 0.',
+        '<code>chmod 600 scenario/secrets/service.key</code>'
+      ],
+      check:function(){ return shell.fileMode('scenario/secrets/service.key') === '600'; } }
+  ];
+
+  function norm(s){ return (s||'').split('\n').map(function(l){return l.replace(/\s+/g,' ').trim();}).filter(Boolean).join('\n'); }
+  function sortLines(s){ return (s||'').split('\n').map(function(l){return l.trim();}).filter(Boolean).sort().join('\n'); }
+  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function writeln(html){ var d=document.createElement('div'); d.innerHTML=html; term.appendChild(d); term.scrollTop=term.scrollHeight; }
+  function banner(){
+    writeln('<span class="sys">Northstar · Linux Fundamentals (interactive). A simulated shell — your work is checked live on the right.</span>');
+    writeln('<span class="sys">Try: <span class="mono">ls</span>, <span class="mono">cat scenario/logs/app.log</span>, <span class="mono">help</span>. Type a command and press Enter.</span>');
+    writeln('&nbsp;');
+  }
+
+  function runLine(line){
+    writeln('<span class="pr">sam@northstar</span><span class="sys">:</span><span class="pa">~/lab</span><span class="sys">$</span> <span class="cmd">'+esc(line)+'</span>');
+    if(line.trim()==='clear'){ term.innerHTML=''; return; }
+    var r = shell.run(line);
+    if(r.out) writeln(esc(r.out));
+    if(r.err) writeln('<span class="err">'+esc(r.err)+'</span>');
+    checkAll();
+  }
+
+  function renderTasks(){
+    var list=document.getElementById('tasklist'); list.innerHTML='';
+    TASKS.forEach(function(t){
+      var el=document.createElement('div'); el.className='task'; el.id='task'+t.id;
+      el.innerHTML='<div class="h"><span class="st"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 13 4 4L19 7"/></svg></span>'
+        +'<div><span class="ti">'+t.id+'. '+t.title+'</span><span class="lv">'+t.lv+'</span><p>'+t.brief+'</p>'
+        +'<button class="hintbtn" data-id="'+t.id+'">Show hint</button><div class="hint" id="hint'+t.id+'" hidden></div></div></div>';
+      list.appendChild(el);
+    });
+    list.querySelectorAll('.hintbtn').forEach(function(b){
+      var step=0;
+      b.addEventListener('click',function(){
+        var t=TASKS.find(function(x){return x.id==b.dataset.id;});
+        var h=document.getElementById('hint'+t.id);
+        h.hidden=false; h.innerHTML=t.hints[step];
+        step++; if(step>=t.hints.length){ b.textContent='Hint '+t.hints.length+' of '+t.hints.length; b.disabled=true; }
+        else b.textContent='Next hint ('+step+'/'+t.hints.length+')';
+      });
+    });
+  }
+
+  function checkAll(){
+    var done=0;
+    TASKS.forEach(function(t){
+      var ok=false; try{ ok=t.check(); }catch(e){ ok=false; }
+      var el=document.getElementById('task'+t.id);
+      if(ok){ el.classList.add('done'); done++; } else el.classList.remove('done');
+    });
+    document.getElementById('score').textContent=done+' / '+TASKS.length;
+    document.getElementById('barfill').style.width=(done/TASKS.length*100)+'%';
+    document.getElementById('doneBanner').hidden = done!==TASKS.length;
+  }
+
+  input.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){ var v=input.value; if(v.trim()){history.push(v);hp=history.length;} runLine(v); input.value=''; }
+    else if(e.key==='ArrowUp'){ if(hp>0){hp--;input.value=history[hp]||'';} e.preventDefault(); }
+    else if(e.key==='ArrowDown'){ if(hp<history.length){hp++;input.value=history[hp]||'';} e.preventDefault(); }
+    else if(e.key==='l'&&e.ctrlKey){ term.innerHTML=''; e.preventDefault(); }
+  });
+  term.addEventListener('click',function(){ if(!window.getSelection().toString()) input.focus(); });
+  document.getElementById('reset').addEventListener('click',function(){
+    shell.reset(); term.innerHTML=''; banner(); checkAll(); input.focus();
+  });
+
+  // theme toggle
+  (function(){
+    var root=document.documentElement, btn=document.getElementById('theme');
+    var sun='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+    var moon=document.getElementById('ic').outerHTML;
+    function sysDark(){return window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;}
+    function cur(){var t=root.getAttribute('data-theme');return t||(sysDark()?'dark':'light');}
+    function paint(){btn.innerHTML=cur()==='dark'?sun:moon;}
+    try{var s=localStorage.getItem('ns-theme'); if(s)root.setAttribute('data-theme',s);}catch(e){}
+    paint();
+    btn.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('ns-theme',n);}catch(e){}paint();});
+  })();
+
+  renderTasks(); banner(); checkAll(); input.focus();
+})();
+</script>

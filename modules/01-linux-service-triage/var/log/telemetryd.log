@@ -1,0 +1,11 @@
+2027-02-11T06:02:14Z INFO  telemetryd boot sequence begin host=plt-ingest-3
+2027-02-11T06:02:14Z INFO  loaded config endpoint=https://telemetry.northstar.internal/v1/ingest
+2027-02-11T06:02:15Z INFO  healthy interval=15s batch=250
+2027-02-11T09:41:02Z WARN  ingest latency rising p95=820ms
+2027-02-11T09:58:37Z ERROR start failed E_LOAD: max_batch 100000 exceeds the safe limit of 500 under load
+2027-02-11T10:03:11Z INFO  operator applied override etc/telemetryd.d/90-local.conf
+2027-02-11T10:03:12Z ERROR start failed E_LOAD: max_batch 100000 exceeds the safe limit of 500 under load
+2027-02-12T22:14:49Z WARN  disk usage on /var above 80 percent
+2027-02-13T01:20:05Z ERROR start failed E_CONF_INTERVAL: interval must be a positive integer (got '0')
+2027-02-13T08:30:41Z INFO  config edited by apprentice onboarding script
+2027-02-13T08:31:00Z ERROR start failed E_PERM: key file etc/telemetryd.key must be mode 600, found 644

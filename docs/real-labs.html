@@ -1,0 +1,14 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Northstar • Real Linux labs</title>
+<style>:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0b0e14;color:#e7eaf1}body{max-width:860px;margin:50px auto;padding:0 20px;line-height:1.65}h1,h2{line-height:1.2}a{color:#5ab0ff}code,pre{font:14px ui-monospace,monospace}pre{background:#161c28;padding:18px;border:1px solid #303848;border-radius:10px;overflow:auto}.tag{font-size:12px;color:#ecb94e}article{padding:12px 0;border-bottom:1px solid #303848}</style></head>
+<body><p><a href="../index.html">← Northstar</a></p><p class="tag">STAGE 1 · REAL EXECUTION</p><h1>Build and debug with real tools</h1><p>The browser academy uses simulated systems and is good for guided practice. These labs run in an actual Linux shell with GCC, POSIX APIs and a real localhost network. GitHub Pages hosts only instructions; open the repository in GitHub Codespaces or use Ubuntu locally.</p>
+<article><h2>Start a workspace</h2><p>From your GitHub repository, select <strong>Code → Codespaces → Create codespace on main</strong>. Wait for the devcontainer setup to complete. Open its terminal at the repository root.</p><pre>npm run check
+cd labs/native-c-engineering
+bash run-checks.sh</pre><p>The first native C lab deliberately ships with defects; a failing learner check is expected until the student fixes it. Repository-level <code>npm run check</code> validates the challenge's intended initial state without pretending the starter solution is correct.</p></article>
+<article><h2>CORE-C01 · Native C parsing</h2><p>Implement a safe bounded telemetry frame parser in C. Build with real GCC and fix the seeded defects by using real unit tests and sanitizers.</p><pre>cd labs/native-c-engineering
+bash run-checks.sh
+SANITIZE=1 bash run-checks.sh</pre></article>
+<article><h2>CORE-NET01 · Socket reads and framing</h2><p>Run a real POSIX TCP client/server and investigate why a stream read is not equivalent to a complete message.</p><pre>cd labs/posix-protocol
+bash run-checks.sh
+bash run-demo.sh</pre></article>
+<p><strong>Assessment status:</strong> practice-only. Source-visible checks are not secure employer verification. Browser progress is local to your browser and is not synced into Codespaces.</p>
+</body></html>

@@ -1,0 +1,19 @@
+{
+  "name": "northstar-engineering-academy",
+  "version": "1.1.0-stage1",
+  "private": true,
+  "description": "Static academy simulator with standalone real-tool apprentice labs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test:sim": "node scripts/run-simulator-tests.js",
+    "test:labs": "bash scripts/smoke-real-labs.sh",
+    "test": "npm run test:catalog && npm run test:sim && npm run test:labs",
+    "build": "node app/src/build.js && node scripts/build-site.js",
+    "verify:site": "node scripts/verify-site.js",
+    "check": "npm run test && npm run build && npm run verify:site && npm run test:http",
+    "test:catalog": "node scripts/verify-catalog.js",
+    "test:http": "python3 scripts/site-http-test.py"
+  }
+}

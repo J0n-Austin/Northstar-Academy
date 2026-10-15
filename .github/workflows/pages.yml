@@ -1,0 +1,60 @@
+name: Test and deploy Northstar Academy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: northstar-pages
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install native lab toolchain
+        run: sudo apt-get update && sudo apt-get install -y build-essential python3
+      - name: Regression, native labs, build, and site verification
+        run: npm run check
+      - name: Publish build to workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: northstar-tested-site
+          path: _site/
+          include-hidden-files: true
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download verified site
+        uses: actions/download-artifact@v4
+        with:
+          name: northstar-tested-site
+          path: _site
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

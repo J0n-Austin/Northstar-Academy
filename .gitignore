@@ -1,0 +1,10 @@
+node_modules/
+_site/
+**/build/
+*.o
+*.core
+.DS_Store
+.vscode/
+.env
+.env.*
+!.env.example

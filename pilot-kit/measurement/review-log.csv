@@ -1,0 +1,4 @@
+date,learner,unit,submission_type,review_minutes,outcome,needed_final_hint,notes
+2027-01-12,example-sam,fundamentals-task2,check+review,8,approve,n,"clean; good use of sort|uniq -c"
+2027-01-12,example-sam,module01-unit2,pr-review,14,changes,n,"fixed interval but left key 644; pointed at ls -l"
+2027-01-14,example-sam,module01-unit3,rca-review,22,approve,y,"needed final hint to find conf.d override; RCA solid once there"

@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# telemetryd — Northstar telemetry agent (SIMULATED for training).
+# Reads etc/telemetryd.conf plus any overrides in etc/telemetryd.d/*.conf,
+# validates its configuration and environment, and reports health.
+# Modes:
+#   telemetryd --check     validate config + environment, exit 0 if healthy
+#   telemetryd --stress    --check, plus validate behaviour under load
+# Nothing here talks to a real network or a real secret.
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+RUNLOG="$ROOT/var/log/telemetryd.runtime.log"
+mkdir -p "$(dirname "$RUNLOG")"
+
+log(){ echo "$(date -u +%FT%TZ) $1" >> "$RUNLOG"; }
+die(){ echo "telemetryd: start failed" >&2; echo "  $1" >&2; log "ERROR $1"; exit 1; }
+
+mode="--check"
+[ "${1:-}" = "--stress" ] && mode="--stress"
+[ "${1:-}" = "--check" ] && mode="--check"
+
+# ---- resolve configuration (base, then sorted overrides; last value wins) ----
+declare -A cfg
+read_conf(){
+  local f="$1" k v line
+  [ -f "$f" ] || return 0
+  while IFS= read -r line; do
+    line="${line%%#*}"
+    [[ "$line" =~ ^[[:space:]]*$ ]] && continue
+    k="$(echo "${line%%=*}" | xargs)"
+    v="$(echo "${line#*=}" | xargs)"
+    [ -n "$k" ] && cfg["$k"]="$v"
+  done < "$f"
+}
+read_conf "$ROOT/etc/telemetryd.conf"
+if [ -d "$ROOT/etc/telemetryd.d" ]; then
+  for f in $(ls "$ROOT/etc/telemetryd.d"/*.conf 2>/dev/null | sort); do read_conf "$f"; done
+fi
+
+interval="${cfg[interval]:-}"
+endpoint="${cfg[endpoint]:-}"
+key_file="${cfg[key_file]:-}"
+max_batch="${cfg[max_batch]:-}"
+
+log "start requested (mode=$mode)"
+
+# ---- validate ----
+[ -n "$endpoint" ] || die "E_CONF_ENDPOINT: endpoint is not set"
+[[ "$endpoint" == https://* ]] || die "E_CONF_ENDPOINT: endpoint must be an https URL (got '$endpoint')"
+
+[[ "$interval" =~ ^[1-9][0-9]*$ ]] || die "E_CONF_INTERVAL: interval must be a positive integer (got '$interval')"
+
+[ -n "$key_file" ] || die "E_CONF_KEY: key_file is not set"
+keypath="$ROOT/$key_file"
+[ -f "$keypath" ] || die "E_KEY_MISSING: key file not found at $key_file"
+mode_bits="$(stat -c '%a' "$keypath" 2>/dev/null || stat -f '%Lp' "$keypath" 2>/dev/null)"
+[ "$mode_bits" = "600" ] || die "E_PERM: key file $key_file must be mode 600, found $mode_bits"
+
+if [ "$mode" = "--stress" ]; then
+  [[ "$max_batch" =~ ^[0-9]+$ ]] || die "E_LOAD: max_batch must be an integer (got '$max_batch')"
+  if [ "$max_batch" -gt 500 ]; then
+    die "E_LOAD: max_batch $max_batch exceeds the safe limit of 500 under load — events are being dropped"
+  fi
+fi
+
+log "healthy (interval=${interval}s batch=${max_batch})"
+echo "telemetryd: healthy"
+echo "  endpoint=$endpoint interval=${interval}s max_batch=${max_batch} mode=${mode#--}"
+exit 0

@@ -1,0 +1,10 @@
+{
+  "name": "Linux Fundamentals Lab",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y jq ripgrep && bash ./setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": ["timonwong.shellcheck"]
+    }
+  }
+}
