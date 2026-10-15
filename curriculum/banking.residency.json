@@ -1,0 +1,305 @@
+{
+  "schemaVersion": "1.0",
+  "release": "stage4-connected-residency",
+  "title": "Northstar Banking Engineering Residency",
+  "warnings": [
+    "All financial records are synthetic. Never use production credentials or account data.",
+    "X-Demo-User is caller-controlled and is NOT a real authentication system. Bind localhost only.",
+    "GitHub Pages is a static learning interface; code and tests run locally or in Codespaces.",
+    "Browser ticket progress and simulated reviews are not employer-verified skills."
+  ],
+  "sprints": [
+    {
+      "id": 1,
+      "label": "Sprint 1",
+      "theme": "Service onboarding",
+      "goal": "Read unfamiliar code, repair the health contract and account queries"
+    },
+    {
+      "id": 2,
+      "label": "Sprint 2",
+      "theme": "Secure account APIs",
+      "goal": "Eliminate broken object-level authorization and injection risks"
+    },
+    {
+      "id": 3,
+      "label": "Sprint 3",
+      "theme": "Reliable money movement",
+      "goal": "Enforce atomicity, balance checks and safe retries"
+    },
+    {
+      "id": 4,
+      "label": "Sprint 4",
+      "theme": "Audit and release",
+      "goal": "Protect history and logs; produce defensible release evidence"
+    }
+  ],
+  "competencies": {
+    "python-backend": "Python service engineering",
+    "http-apis": "HTTP and REST contracts",
+    "sql": "SQL and data modeling",
+    "appsec": "Authorization and secure queries",
+    "payments": "Transactions and idempotency",
+    "testing": "Debugging and automated tests",
+    "professional": "Code review and technical documentation"
+  },
+  "tickets": [
+    {
+      "id": "NS-C401",
+      "sprint": 1,
+      "title": "Reproduce the health-check contract regression",
+      "role": "Backend apprentice",
+      "level": "Foundation",
+      "depends": [],
+      "topics": [
+        "Python packages",
+        "HTTP response semantics",
+        "unittest"
+      ],
+      "files": [
+        "app/server.py",
+        "app/bank.py",
+        "tests/test_sprint1.py"
+      ],
+      "learning": "An HTTP endpoint is a contract between a service and its clients. A green process is not necessarily a healthy application. Trace an HTTP request to the service method, write a failing assertion, and preserve response compatibility.",
+      "context": "The platform health probe returns 200, but the release dashboard cannot identify the deployed build. On-call asks for a minimal safe fix before rollout.",
+      "acceptance": [
+        "GET /health returns status, service and build fields with the documented values.",
+        "No customer data or environment secrets are included in health responses.",
+        "Sprint 1 tests pass without disabling an assertion."
+      ],
+      "commands": [
+        "python3 -m unittest tests.test_sprint1 -v",
+        "python3 -m app.server --port 8765",
+        "curl http://127.0.0.1:8765/health"
+      ],
+      "hint": "Compare the health contract in the sprint test to the response built in Bank.health().",
+      "reviewPrompt": "Why should health endpoints avoid customer data, credentials and stack traces?"
+    },
+    {
+      "id": "NS-C402",
+      "sprint": 1,
+      "title": "Scope and paginate account listings",
+      "role": "Backend apprentice",
+      "level": "Foundation",
+      "depends": [
+        "NS-C401"
+      ],
+      "topics": [
+        "SQL SELECT",
+        "Python lists",
+        "API pagination"
+      ],
+      "files": [
+        "app/bank.py",
+        "tests/test_sprint1.py"
+      ],
+      "learning": "Database queries are more than syntax: predicates and limits are part of your API security boundary. Query tenant-owned resources by identity, validate numeric request parameters and test boundary values.",
+      "context": "QA reports that the account list occasionally includes customers from other teams, and large accounts pages load unpredictably.",
+      "acceptance": [
+        "Account list returns only rows belonging to the caller-controlled demo identity.",
+        "A valid limit restricts results; invalid limits fail safely.",
+        "Account IDs have deterministic ordering for tests and consumers."
+      ],
+      "commands": [
+        "python3 -m unittest tests.test_sprint1 -v",
+        "curl -H \"X-Demo-User: alice\" \"http://127.0.0.1:8765/accounts?limit=1\""
+      ],
+      "hint": "Check WHERE owner=? and LIMIT ? together; adding LIMIT without scoping can still leak data.",
+      "reviewPrompt": "How would the design change when replacing the demo header with real authentication?"
+    },
+    {
+      "id": "NS-C403",
+      "sprint": 2,
+      "title": "Repair broken object-level authorization",
+      "role": "Product security apprentice",
+      "level": "Intermediate",
+      "depends": [
+        "NS-C402"
+      ],
+      "topics": [
+        "OWASP API1:2023 BOLA",
+        "authorization",
+        "HTTP 403"
+      ],
+      "files": [
+        "app/bank.py",
+        "app/server.py",
+        "tests/test_sprint2.py"
+      ],
+      "learning": "Object IDs are not authorization. For each read, verify the caller is entitled to the resource. Test an account owner and an unrelated account; avoid leaking sensitive identifiers through failure messages.",
+      "context": "A security tester observed that requesting /accounts/2 as alice returned a record belonging to bob.",
+      "acceptance": [
+        "Owner can retrieve the account.",
+        "Other actors receive a 403 without account contents.",
+        "HTTP contract test reproduces and prevents the regression."
+      ],
+      "commands": [
+        "python3 -m unittest tests.test_sprint2 -v",
+        "curl -i -H \"X-Demo-User: alice\" http://127.0.0.1:8765/accounts/2"
+      ],
+      "hint": "Find the account first, then compare owner with actor before returning fields.",
+      "reviewPrompt": "Why must authorization be enforced server-side even when the UI hides someone else’s account?"
+    },
+    {
+      "id": "NS-C404",
+      "sprint": 2,
+      "title": "Parameterize account search",
+      "role": "Product security apprentice",
+      "level": "Intermediate",
+      "depends": [
+        "NS-C403"
+      ],
+      "topics": [
+        "SQL injection",
+        "bound parameters",
+        "query planning"
+      ],
+      "files": [
+        "app/bank.py",
+        "tests/test_sprint2.py"
+      ],
+      "learning": "Never splice untrusted text into SQL. Parameterized queries separate SQL syntax from data. Apply the tenant authorization predicate before returning records and test adversarial strings.",
+      "context": "The accounts-search handler was built in a hurry. A reviewer found string interpolation in its query construction.",
+      "acceptance": [
+        "Search treats strings as data instead of executable SQL.",
+        "Results cannot cross the account owner boundary.",
+        "Normal search and adversarial search contract tests pass."
+      ],
+      "commands": [
+        "python3 -m unittest tests.test_sprint2 -v"
+      ],
+      "hint": "Use ? placeholders and pass values in a tuple; filter by owner in the same query.",
+      "reviewPrompt": "What do parameters protect, and what risks remain with dynamically chosen column names?"
+    },
+    {
+      "id": "NS-C405",
+      "sprint": 3,
+      "title": "Enforce atomic transfers and insufficient-funds handling",
+      "role": "Payments engineer",
+      "level": "Intermediate",
+      "depends": [
+        "NS-C404"
+      ],
+      "topics": [
+        "ACID",
+        "SQLite transactions",
+        "invariants"
+      ],
+      "files": [
+        "app/bank.py",
+        "tests/test_sprint3.py"
+      ],
+      "learning": "A transfer is a single logical unit: debit and credit must commit together or not at all. Use a transaction and protect the account balance invariant. Include ownership checks and concurrency behavior.",
+      "context": "Customers report that a failed transfer sometimes subtracts money before raising an error; the payment team wants a root-cause explanation.",
+      "acceptance": [
+        "Insufficient funds and foreign sources are rejected before funds move.",
+        "Successful transfers preserve the system-wide total.",
+        "No partial debit remains after a failed operation."
+      ],
+      "commands": [
+        "python3 -m unittest tests.test_sprint3 -v"
+      ],
+      "hint": "BEGIN IMMEDIATE, check the source balance and owner, and commit both updates in one transaction.",
+      "reviewPrompt": "What race arises when two transfers read the same opening balance simultaneously?"
+    },
+    {
+      "id": "NS-C406",
+      "sprint": 3,
+      "title": "Make transfer retries idempotent",
+      "role": "Payments engineer",
+      "level": "Advanced",
+      "depends": [
+        "NS-C405"
+      ],
+      "topics": [
+        "idempotency keys",
+        "unique constraints",
+        "API retry semantics"
+      ],
+      "files": [
+        "app/bank.py",
+        "app/server.py",
+        "tests/test_sprint3.py"
+      ],
+      "learning": "Networks fail after servers commit but before clients receive the response. Clients retry. A payment request must not execute twice when the same key and payload are repeated.",
+      "context": "Support found that retrying an interrupted payment duplicated the transfer.",
+      "acceptance": [
+        "A matching retry returns the original transfer ID and does not move funds again.",
+        "Reusing the same key with different transfer parameters fails.",
+        "The HTTP endpoint distinguishes created (201) from replay (200)."
+      ],
+      "commands": [
+        "python3 -m unittest tests.test_sprint3 -v"
+      ],
+      "hint": "The UNIQUE(actor,request_key) constraint only helps if you check for an earlier matching row before applying balances.",
+      "reviewPrompt": "Why should idempotency keys be scoped by client or account rather than globally?"
+    },
+    {
+      "id": "NS-C407",
+      "sprint": 4,
+      "title": "Fix cross-customer transaction history",
+      "role": "Product security apprentice",
+      "level": "Intermediate",
+      "depends": [
+        "NS-C406"
+      ],
+      "topics": [
+        "SQL JOIN",
+        "least privilege",
+        "data privacy"
+      ],
+      "files": [
+        "app/bank.py",
+        "tests/test_sprint4.py"
+      ],
+      "learning": "Never assume an endpoint is safe because it is read-only. Restrict result sets with owner-aware joins and write negative access tests.",
+      "context": "An audit review discovered an account statement endpoint that could reveal transfer records from unrelated customers.",
+      "acceptance": [
+        "History is scoped to the authenticated owner of each source account.",
+        "New customers cannot see the history of an unrelated account.",
+        "HTTP tests confirm that empty histories return an empty list."
+      ],
+      "commands": [
+        "python3 -m unittest tests.test_sprint4 -v"
+      ],
+      "hint": "Join the transfer source to accounts and bind a.owner to the actor.",
+      "reviewPrompt": "What additional access-control decisions apply when a user has joint ownership of an account?"
+    },
+    {
+      "id": "NS-C408",
+      "sprint": 4,
+      "title": "Protect audit logs and publish release evidence",
+      "role": "Security software engineer",
+      "level": "Advanced",
+      "depends": [
+        "NS-C407"
+      ],
+      "topics": [
+        "structured logs",
+        "secrets hygiene",
+        "CI",
+        "technical writing"
+      ],
+      "files": [
+        "app/bank.py",
+        "app/server.py",
+        "tests/test_sprint4.py",
+        "templates/engineering-report.md"
+      ],
+      "learning": "Log useful security decisions without recording secrets or request bodies. A professional release requires reproducible test evidence, a risk statement, and a code-review-ready change summary.",
+      "context": "A reviewer notices tokens and raw transfer request bodies in debug output. The team needs a privacy-safe audit event and a deployment decision.",
+      "acceptance": [
+        "Audit event fields contain bounded, non-sensitive metadata only.",
+        "Malformed HTTP transfer payloads produce controlled 4xx errors, not stack traces.",
+        "Prepare a PR summary, testing record, risk analysis and deployment/rollback note."
+      ],
+      "commands": [
+        "python3 -m unittest tests.test_sprint4 -v",
+        "bash run-checks.sh"
+      ],
+      "hint": "Whitelist safe audit fields; never serialize whole request dictionaries.",
+      "reviewPrompt": "How would you safely correlate events across requests without storing bearer tokens?"
+    }
+  ]
+}

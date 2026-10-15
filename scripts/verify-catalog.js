@@ -54,6 +54,6 @@ const source=fs.readFileSync(path.join(root,'app/src/app.template.html'),'utf8')
 const simIds=[...source.matchAll(/\{\s*id:"([a-z0-9-]+)",\s*name:/g)].map(m=>m[1]);
 assert.equal(simIds.length,15);
 assert.deepEqual(new Set(v2.modules.filter(m=>m.environment==='browser-simulation').map(m=>m.id)),new Set(simIds));
-assert.equal(v2.modules.filter(m=>m.track==='commercial'&&m.status==='available').length,2);
+assert.equal(v2.modules.filter(m=>m.track==='commercial'&&m.status==='available').length,3);
 assert.equal(v2.modules.filter(m=>m.track==='cno').length,0,'Do not pretend advanced CNO labs exist');
-console.log(`PASS schema v2: ${v2.tracks.length} tracks, ${v2.modules.length} modules, 15 retained browser simulations, 2 commercial labs, DAG valid`);
+console.log(`PASS schema v2: ${v2.tracks.length} tracks, ${v2.modules.length} modules, 15 retained browser simulations, 3 commercial modules (2 original labs + residency), DAG valid`);

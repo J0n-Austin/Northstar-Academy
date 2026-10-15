@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0",
-  "catalogVersion": "2026.10-stage3-integrated",
-  "description": "Canonical versioned registry for the integrated learner portal and standalone static curriculum explorer; not a credential service.",
+  "catalogVersion": "2026.10-stage4-residency",
+  "description": "Stage 4 adds connected commercial residency and locally simulated employer-style review; not a credential service.",
   "tracks": [
     {
       "id": "core",
@@ -101,7 +101,7 @@
     },
     {
       "id": "cprog",
-      "title": "C Programming — Log Helpers",
+      "title": "C Programming \u2014 Log Helpers",
       "ticket": "NS-173",
       "track": "core",
       "environment": "browser-simulation",
@@ -121,7 +121,7 @@
     },
     {
       "id": "wininternals",
-      "title": "Windows Internals — Triage",
+      "title": "Windows Internals \u2014 Triage",
       "ticket": "NS-191",
       "track": "core",
       "environment": "browser-simulation",
@@ -133,7 +133,7 @@
       "status": "available",
       "prerequisites": [],
       "estimatedHours": 1.5,
-      "summary": "Workplace-style investigation: Windows Internals — Triage.",
+      "summary": "Workplace-style investigation: Windows Internals \u2014 Triage.",
       "evidence": "self-reported-practice",
       "publicRoute": "app/northstar-academy.html"
     },
@@ -157,7 +157,7 @@
     },
     {
       "id": "linuxint",
-      "title": "Linux Internals — Host Triage",
+      "title": "Linux Internals \u2014 Host Triage",
       "ticket": "NS-187",
       "track": "core",
       "environment": "browser-simulation",
@@ -169,13 +169,13 @@
       "status": "available",
       "prerequisites": [],
       "estimatedHours": 1.5,
-      "summary": "Workplace-style investigation: Linux Internals — Host Triage.",
+      "summary": "Workplace-style investigation: Linux Internals \u2014 Host Triage.",
       "evidence": "self-reported-practice",
       "publicRoute": "app/northstar-academy.html"
     },
     {
       "id": "secure",
-      "title": "Secure Coding — Input Handling",
+      "title": "Secure Coding \u2014 Input Handling",
       "ticket": "NS-221",
       "track": "core",
       "environment": "browser-simulation",
@@ -195,7 +195,7 @@
     },
     {
       "id": "codereview",
-      "title": "Code Review — Pull Requests",
+      "title": "Code Review \u2014 Pull Requests",
       "ticket": "NS-230",
       "track": "core",
       "environment": "browser-simulation",
@@ -233,7 +233,7 @@
     },
     {
       "id": "capstone",
-      "title": "Capstone — First On-Call Night",
+      "title": "Capstone \u2014 First On-Call Night",
       "ticket": "NS-300",
       "track": "core",
       "environment": "browser-simulation",
@@ -248,13 +248,13 @@
         "networking"
       ],
       "estimatedHours": 1.5,
-      "summary": "Workplace-style investigation: Capstone — First On-Call Night.",
+      "summary": "Workplace-style investigation: Capstone \u2014 First On-Call Night.",
       "evidence": "self-reported-practice",
       "publicRoute": "app/northstar-academy.html"
     },
     {
       "id": "sockets",
-      "title": "Sockets & Protocols — NSP/1",
+      "title": "Sockets & Protocols \u2014 NSP/1",
       "ticket": "NS-176",
       "track": "core",
       "environment": "browser-simulation",
@@ -274,7 +274,7 @@
     },
     {
       "id": "debugging",
-      "title": "Debugging — Regression Hunt",
+      "title": "Debugging \u2014 Regression Hunt",
       "ticket": "NS-232",
       "track": "core",
       "environment": "browser-simulation",
@@ -294,7 +294,7 @@
     },
     {
       "id": "ticket",
-      "title": "Open Ticket — \"Dashboard is broken??\"",
+      "title": "Open Ticket \u2014 \"Dashboard is broken??\"",
       "ticket": "NS-250",
       "track": "core",
       "environment": "browser-simulation",
@@ -306,7 +306,7 @@
       "status": "available",
       "prerequisites": [],
       "estimatedHours": 1.5,
-      "summary": "Workplace-style investigation: Open Ticket — \"Dashboard is broken??\".",
+      "summary": "Workplace-style investigation: Open Ticket \u2014 \"Dashboard is broken??\".",
       "evidence": "self-reported-practice",
       "publicRoute": "app/northstar-academy.html"
     },
@@ -438,6 +438,32 @@
       "summary": "Repair duplicate-transfer and partial-debit defects in a SQLite-backed synthetic transfer service, with failure injection and regression tests.",
       "publicRoute": "docs/commercial-track.html#commercial-transaction-integrity",
       "evidence": "self-reported-practice"
+    },
+    {
+      "id": "banking-residency",
+      "title": "Northstar Banking Engineering Residency",
+      "ticket": "NS-C401\u2013408",
+      "track": "commercial",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "competencies": [
+        "python-backend",
+        "http-apis",
+        "appsec",
+        "payments",
+        "testing",
+        "professional"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "commercial-api-security",
+        "commercial-transaction-integrity"
+      ],
+      "estimatedHours": 35,
+      "summary": "Eight real backend and security engineering tickets across four sprints in one persistent codebase.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html#residency",
+      "path": "labs/banking-residency"
     }
   ],
   "evidencePolicy": {

@@ -24,7 +24,7 @@ ids.get('track').value='all';ids.get('env').value='all';ids.get('search').value=
 const doc={getElementById(id){return ids.get(id);},createElement(name){return new Node(name);}};
 const ctx=vm.createContext({document:doc,location:{search:'?track=commercial'},URLSearchParams});
 vm.runInContext(scriptFor('docs/curriculum.html'),ctx,{timeout:1500});
-assert.equal(ids.get('cards').children.length,2,'Commercial query param should show two available modules');
+assert.equal(ids.get('cards').children.length,3,'Commercial query param should show three available modules');
 assert.ok(ids.get('cards').children.some(n=>n.children.some(x=>x.textContent==='Account Authorization & SQL Query Security')));
 ids.get('search').value='idempotency';vm.runInContext('render()',ctx,{timeout:1000});
 assert.equal(ids.get('cards').children.length,1,'Search filter should retain one commercial module');

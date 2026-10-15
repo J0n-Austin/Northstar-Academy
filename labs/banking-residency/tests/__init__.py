@@ -1,0 +1,1 @@
+"""Bank residency acceptance tests."""

@@ -1,3 +1,5 @@
+> **Stage 4 (v1.4): Connected Banking Engineering Residency.** See [Stage 4 testing](docs/STAGE4_TESTING.md). The Stage 3 portal and 15 original simulations remain available. Real coding runs in Codespaces or Linux; GitHub Pages remains static.
+
 # Northstar Engineering Academy — Stage 3 Integrated Learner Portal
 
 **Version:** `1.3.0-stage3` · **Website:** static GitHub Pages · **Native labs:** GitHub Codespaces / local Ubuntu · **Authentication and verified employer assessments:** not implemented.

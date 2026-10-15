@@ -327,6 +327,43 @@
   .path-counts{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;color:var(--muted);font-size:12px}
   @media(max-width:800px){.residency-cols{grid-template-columns:1fr}}
   @media(max-width:600px){.top{gap:5px;padding-left:7px;padding-right:7px}.top .ws,.top .concept,.top .brand .dim{display:none}.top .avatar{flex:none}.top .brand{min-width:0}.residency-panel{padding:12px}.tick{gap:8px}}
+/* Connected residency, compatible with original light/dark theme. */
+.r-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.r-overview>div{display:flex;flex-direction:column;gap:5px;padding:14px;border:1px solid var(--line);background:var(--surface);border-radius:9px}
+.r-overview strong{font-size:24px;color:var(--fg)}
+.r-overview span,.r-small{font-size:12px;color:var(--muted);line-height:1.5}
+.r-notice{padding:16px;margin:14px 0;line-height:1.7}
+.r-actions{display:flex;gap:9px;flex-wrap:wrap;margin:15px 0}
+.r-sprint-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.r-sprint{padding:16px;min-width:0}
+.r-sprint .hd{padding:0 0 10px;margin:0 0 6px}
+.r-ticket-stack{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+.r-ticket{display:flex;flex-direction:column;align-items:flex-start;gap:7px;width:100%;text-align:left;padding:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;color:var(--fg);min-width:0}
+.r-ticket:hover{border-color:var(--accent)}
+.r-ticket-id{font-size:11px;color:var(--accent)}
+.r-status{display:inline-block;font-size:11px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);padding:4px 8px;color:var(--muted)}
+.r-practice{border-color:var(--good);color:var(--good)}
+.r-submitted{border-color:var(--accent);color:var(--accent)}
+.r-revision{border-color:var(--warn);color:var(--warn)}
+.r-ticket-header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0 15px}
+.r-ticket-columns{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px}
+.r-main,.r-side{min-width:0;display:flex;flex-direction:column;gap:14px}
+.r-panel{padding:18px;line-height:1.65}
+.r-panel h2{font-size:16px;margin:0 0 13px}.r-panel h3{font-size:13px;margin:18px 0 8px}
+.r-panel p,.r-panel li{font-size:13px;line-height:1.7}
+.r-panel li{margin-bottom:7px}.r-panel ul{padding-left:20px}
+.r-panel details{margin-top:15px}.r-panel summary{cursor:pointer;color:var(--accent)}
+.r-commands{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.8;background:var(--surface-2);padding:14px;border:1px solid var(--line);border-radius:8px;color:var(--fg)}
+.r-field{display:flex;flex-direction:column;gap:6px;margin:13px 0}
+.r-field label{font-size:12px;font-weight:600;color:var(--fg)}
+.r-field textarea,.r-field input{width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--fg);padding:9px 11px;border-radius:7px;font:12px/1.5 var(--font-ui)}
+.r-field textarea:focus,.r-field input:focus{outline:2px solid var(--accent)}
+.r-feedback{margin-top:14px;background:var(--surface-2);border-left:3px solid var(--accent);padding:10px 12px;font-size:12px;line-height:1.7}
+.r-competency{border-top:1px solid var(--line);padding:12px 0}
+.r-competency .r-small{margin:5px 0 9px}
+@media(max-width:900px){.r-ticket-columns{grid-template-columns:1fr}.r-sprint-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.r-overview{grid-template-columns:1fr}.r-sprint-grid{gap:10px}}
+
 </style>
 
 <div class="app">
@@ -347,6 +384,7 @@
     <button data-view="portal" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-5H4z"/></svg><span class="lab">My Work</span></button>
     <button data-view="labs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></svg><span class="lab">Labs</span></button>
     <button data-view="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><span class="lab">Curriculum</span></button>
+    <button data-view="residency"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h5"/></svg><span class="lab">Banking residency</span></button>
     <button data-view="commercial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.4 8.3 8 10 4.6-1.7 8-5 8-10V5z"/><path d="m9 12 2 2 4-4"/></svg><span class="lab">Commercial pathway</span></button>
     <button data-view="wiki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 3v15"/></svg><span class="lab">Wiki</span></button>
     <button data-view="skills"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg><span class="lab">Skills</span></button>
@@ -370,13 +408,17 @@
   // These are public learning prompts, NOT hidden tests or authenticated credentials.
   var CURRICULUM=/* __CURRICULUM__ */;
   var COMMERCIAL_PRACTICE=/* __COMMERCIAL_PRACTICE__ */;
+  var RESIDENCY=/* __RESIDENCY_DATA__ */;
+  var RESIDENCY_LESSONS=/* __RESIDENCY_LESSONS__ */;
   var TRACKS=CURRICULUM.tracks;
   var MODULES=CURRICULUM.modules;
-  var COM_MODULES=MODULES.filter(function(m){return m.track==="commercial"&&m.status==="available";});
+  var COM_MODULES=MODULES.filter(function(m){return m.track==="commercial"&&m.status==="available"&&m.id!=="banking-residency";});
   var COM_DETAILS=COMMERCIAL_PRACTICE.modules;
   function moduleFor(id){return MODULES.find(function(m){return m.id===id;});}
   function detailFor(id){return COM_DETAILS.find(function(m){return m.id===id;});}
   function relativeRoute(route){return "../"+String(route||"").replace(/^\/+/,"");}
+
+  /* __RESIDENCY_UI__ */
 
   // ---------- lab definitions ----------
   var LABS=[
@@ -685,7 +727,7 @@
 
   // ---------- state ----------
   var KEY="ns-academy-v1";
-  var state={ onboarded:false, view:"portal", lab:null, done:{}, reviewed:{}, taskState:{}, prReply:{}, events:[], selectedTrack:"core", practice:{}, workspace:{} };
+  var state={ onboarded:false, view:"portal", lab:null, done:{}, reviewed:{}, taskState:{}, prReply:{}, events:[], selectedTrack:"core", practice:{}, workspace:{},residency:{tickets:{}} };
   try{var raw=localStorage.getItem(KEY); if(raw) state=Object.assign(state,JSON.parse(raw));}catch(e){}
   if(!state.reviewed)state.reviewed={};
   if(!state.taskState)state.taskState={};
@@ -693,8 +735,10 @@
   if(!state.events)state.events=[];
   if(!state.practice || typeof state.practice!=="object")state.practice={};
   if(!state.workspace || typeof state.workspace!=="object")state.workspace={};
+  if(!state.residency || typeof state.residency!=="object")state.residency={tickets:{}};
+  if(!state.residency.tickets || typeof state.residency.tickets!=="object")state.residency.tickets={};
   if(!TRACKS.some(function(t){return t.id===state.selectedTrack;}))state.selectedTrack="core";
-  function save(){ try{localStorage.setItem(KEY,JSON.stringify({onboarded:state.onboarded,done:state.done,reviewed:state.reviewed,taskState:state.taskState,prReply:state.prReply,events:state.events.slice(-40),selectedTrack:state.selectedTrack,practice:state.practice,workspace:state.workspace}));}catch(e){} }
+  function save(){ try{localStorage.setItem(KEY,JSON.stringify({onboarded:state.onboarded,done:state.done,reviewed:state.reviewed,taskState:state.taskState,prReply:state.prReply,events:state.events.slice(-40),selectedTrack:state.selectedTrack,practice:state.practice,workspace:state.workspace,residency:state.residency}));}catch(e){} }
   function logEvent(ev){ ev.t=Date.now(); state.events.push(ev); if(state.events.length>40)state.events=state.events.slice(-40); }
   function relTime(t){ var s=Math.round((Date.now()-t)/1000); if(s<45)return "just now"; var m=Math.round(s/60); if(m<60)return m+"m ago"; var h=Math.round(m/60); if(h<24)return h+"h ago"; return Math.round(h/24)+"d ago"; }
 
@@ -783,12 +827,14 @@
 
   function render(){
     if(!state.onboarded){ renderOnboard(); return; }
-    document.querySelectorAll(".rail button[data-view]").forEach(function(b){ b.classList.toggle("active",b.dataset.view===state.view||(state.view==="lab"&&b.dataset.view==="labs")||(state.view==="commercial-module"&&b.dataset.view==="commercial")); });
+    document.querySelectorAll(".rail button[data-view]").forEach(function(b){ b.classList.toggle("active",b.dataset.view===state.view||(state.view==="lab"&&b.dataset.view==="labs")||(state.view==="commercial-module"&&b.dataset.view==="commercial")||(state.view==="residency-ticket"&&b.dataset.view==="residency")); });
     if(state.view==="portal") renderPortal();
     else if(state.view==="labs") renderLabs();
     else if(state.view==="skills") renderSkills();
     else if(state.view==="map") renderMap();
     else if(state.view==="commercial") renderCommercialPath();
+    else if(state.view==="residency") renderResidency();
+    else if(state.view==="residency-ticket") renderResidencyTicket(state.lab);
     else if(state.view==="commercial-module") renderCommercialModule(state.lab);
     else if(state.view==="wiki") renderWiki();
     else if(state.view==="lab") renderLab(state.lab);
@@ -805,7 +851,7 @@
       '<div class="step"><span class="n">3</span><div><div class="t">Build your competencies</div><div class="d">Finishing work fills your <b>Skills</b> transcript with evidence — not points.</div></div></div>'+
       '</div>'+
       '<button class="btn pri" id="start">Start your first ticket →</button></div>';
-    $("#start").addEventListener("click",function(){ var destination=state.view; state.onboarded=true; save(); setView(destination==="commercial"||destination==="map"?destination:"portal"); });
+    $("#start").addEventListener("click",function(){ var destination=state.view; state.onboarded=true; save(); setView(destination==="commercial"||destination==="map"||destination==="residency"?destination:"portal"); });
   }
 
   function renderPortal(){
@@ -820,7 +866,7 @@
         '<div class="tags"><span class="chip lv">'+L.tasks[0].lv+'+</span><span class="chip">browser simulation</span></div></span>'+
         '<span class="rt rt-'+st+'">'+label+'</span></button>';
     }).join('');
-    var commercialRows=COM_MODULES.map(commercialRow).join('');
+    var commercialRows='<div class="ticket-split">Multi-sprint · real banking codebase</div><button class="tick" data-view-jump="residency"><span class="stat s-prog"></span><span class="mid"><span class="id">NS-C401—408</span><div class="name">Banking Engineering Residency</div><div class="tags"><span class="chip">4 sprints · 8 tickets</span><span class="chip">Python / HTTP / SQL</span></div></span><span class="rt rt-todo">Open board →</span></button>'+COM_MODULES.map(commercialRow).join('');
     var commercialFirst=state.selectedTrack==="commercial";
     var ticketsHtml=commercialFirst?'<div class="ticket-split">Commercial · real workspace assignments</div>'+commercialRows+'<div class="ticket-split">Core · simulated practice</div>'+coreRows:
       '<div class="ticket-split">Core · simulated practice</div>'+coreRows+'<div class="ticket-split">Commercial · real workspace assignments</div>'+commercialRows;
@@ -833,7 +879,7 @@
         '<section class="card"><div class="ptile"><div class="ring" style="--p:'+pct+'"><i>'+pct+'%</i></div><div><div class="t">Core simulator progress</div><div class="d">'+totalDone()+' / '+totalTasks()+' simulated tasks · 15 labs</div></div></div><div class="path-note" style="border:0;margin:0">Commercial reasoning: '+allPracticeCount()+' / '+allPracticeTotal()+' checks passed locally. Workspace evidence is learner-reported.</div></section>'+
         skillsCard()+activityCard()+
       '</div></div>';
-    bindOpens();bindCommercial();bindTrackControls();
+    bindOpens();bindCommercial();bindTrackControls();bindJumps();
   }
 
   function activityCard(){
@@ -859,7 +905,7 @@
     var rows=competency().map(function(s){
       var got=s.cap?Math.min(s.got,s.cap):s.got, max=s.cap||s.max;
       var full=got>=max&&got>0;
-      var label=got===0?"Not assessed":full?"Independent":got>=Math.ceil(max/2)?"Assisted":"Developing";
+      var label=got===0?"Not assessed":full?"Simulation complete":got>=Math.ceil(max/2)?"In progress":"Developing";
       var pips="";for(var i=0;i<max;i++)pips+='<span class="'+(i<got?"on":"")+'"></span>';
       return '<div class="skill"><div class="top"><span class="nm">'+s.nm+'</span><span class="rt '+(full?"full":"")+'">'+label+'</span></div><div class="track '+(full?"full":"")+'">'+pips+'</div></div>';
     }).join("");
@@ -869,7 +915,7 @@
   function renderSkills(){
     var rows=competency().map(function(c){
       var full=c.got>=c.max&&c.got>0;
-      var label=c.got===0?"Not assessed":full?"Independent":c.got>=Math.ceil(c.max/2)?"Assisted":"Developing";
+      var label=c.got===0?"Not assessed":full?"Simulation complete":c.got>=Math.ceil(c.max/2)?"In progress":"Developing";
       var pips="";for(var i=0;i<c.max;i++)pips+='<span class="'+(i<c.got?"on":"")+'"></span>';
       var ev=evidenceFor(c);
       var evHtml=ev.length?'<ul class="ev-list">'+ev.map(function(s){return '<li>'+esc(s)+'</li>';}).join("")+'</ul>':'<div class="ev-none">No evidence yet — complete the linked tickets to earn this.</div>';
@@ -881,10 +927,10 @@
     }).join("");
     view.innerHTML='<h1 class="ph">Practice & competency evidence</h1><div class="ph-sub">Local browser simulation results and self-reported workspace notes. These are NOT independent or employer-verified qualifications.</div>'+
       '<div class="tr">'+rows+'</div>'+
-      '<h2 class="sec-h">Commercial security · local practice record</h2><div class="path-note">'+COM_MODULES.map(function(m){var d=detailFor(m.id);return '<div style="margin-bottom:10px"><b>'+esc(m.title)+'</b> · '+practiceCompleted(m.id)+'/'+d.checks.length+' reasoning checks · '+evidenceChecked(m.id)+'/'+d.evidence.length+' workspace notes (self-reported) <button class="act" data-commercial="'+esc(m.id)+'">Open ticket →</button></div>';}).join('')+'</div>'+
+      rCompetencyHTML()+ '<h2 class="sec-h">Commercial security · local practice record</h2><div class="path-note">'+COM_MODULES.map(function(m){var d=detailFor(m.id);return '<div style="margin-bottom:10px"><b>'+esc(m.title)+'</b> · '+practiceCompleted(m.id)+'/'+d.checks.length+' reasoning checks · '+evidenceChecked(m.id)+'/'+d.evidence.length+' workspace notes (self-reported) <button class="act" data-commercial="'+esc(m.id)+'">Open ticket →</button></div>';}).join('')+'</div>'+
       (replies?'<h2 class="sec-h">Review reflections</h2><div class="ph-sub">What you said when your pull requests were reviewed — part of the record employers see.</div><div class="replies">'+replies+'</div>':'')+
       '<p class="tr-foot">Simulated ratings reflect only these educational tasks; commercial workspace checkboxes are learner attestations. A future trusted reviewer and backend are required for verified transcripts.</p>';
-    bindJumps();bindCommercial();
+    bindJumps();bindCommercial();rBindCards();
   }
 
   function renderMap(){
@@ -897,7 +943,7 @@
       var detail=detailFor(m.id);
       var progress=isSim?d+'/'+n+' simulated tasks':detail?practiceCompleted(m.id)+'/'+detail.checks.length+' practice decisions':'external workspace';
       var prereqs=m.prerequisites.map(function(p){var other=moduleFor(p);return other?other.title:p;}).join(', ');
-      var action=isSim?'<button class="btn pri" data-open="'+esc(m.id)+'">Open simulation →</button>':
+      var action=m.id==='banking-residency'?'<button class="btn pri" data-view-jump="residency">Open residency →</button>':isSim?'<button class="btn pri" data-open="'+esc(m.id)+'">Open simulation →</button>':
         detail?'<button class="btn pri" data-commercial="'+esc(m.id)+'">Open assignment →</button>':
         '<a class="btn" href="'+esc(relativeRoute(m.publicRoute))+'">Workspace guide ↗</a>';
       return '<section class="card path-card"><div class="path-kicker">'+esc(m.ticket||m.id)+'</div><h3>'+esc(m.title)+'</h3><p>'+esc(m.summary)+'</p><div class="path-badges"><span>'+esc(m.environment==='browser-simulation'?'Browser simulation':'Real Linux workspace')+'</span><span>~'+esc(String(m.estimatedHours))+' hrs</span></div>'+
@@ -907,7 +953,7 @@
       '<div class="path-intro"><strong>'+esc(track.title)+'</strong> · '+esc(track.summary)+'<div class="path-counts"><span>'+modules.length+' available modules</span><span>'+esc(track.status)+' track</span></div></div>'+
       (cards?'<div class="path-grid">'+cards+'</div>':'<div class="path-note"><b>Planned — not playable yet.</b> The CNO track is being designed, but no advanced CNO modules or completion claims are available.</div>')+
       '<div class="path-note">This is a catalog of learning activities, not an accredited qualification. Browser exercises are simulations. Real code assessments run separately in Codespaces or Linux and require human review for verified evidence.</div>';
-    bindTrackControls();bindOpens();bindCommercial();
+    bindTrackControls();bindOpens();bindCommercial();bindJumps();
   }
 
   function renderCommercialPath(){
@@ -915,7 +961,8 @@
     var tickets=COM_MODULES.map(commercialRow).join('');
     view.innerHTML='<h1 class="ph">Commercial Software Security</h1><div class="ph-sub">Two connected secure-backend apprenticeship tickets · Python, SQLite, HTTP, testing and code review</div>'+
       '<div class="path-intro">These are authentic coding assignments, not simulated terminal commands. Study the ticket and practice reasoning here; open the source repository in Codespaces to write, test and review the code. Progress notes are saved only to this browser and are not verified.</div>'+
-      '<section class="card"><div class="hd"><h2>Commercial residency work queue</h2><span class="path-kicker">'+allPracticeCount()+' / '+allPracticeTotal()+' practice checks</span></div>'+tickets+'</section>'+
+      '<section class="card r-notice"><h2>Connected banking residency</h2><p>A single Python/SQLite service across eight engineering tickets, with a sprint board, PR evidence, and simulated mentor review.</p><button class="btn pri" data-view-jump="residency">Enter the 4-sprint residency →</button></section>'+
+      '<section class="card"><div class="hd"><h2>Earlier commercial practice labs</h2><span class="path-kicker">'+allPracticeCount()+' / '+allPracticeTotal()+' practice checks</span></div>'+tickets+'</section>'+
       '<div class="path-actions"><button class="btn" data-view-jump="map">View prerequisites & all pathways →</button><button class="btn" data-view-jump="skills">My practice evidence →</button></div>';
     bindCommercial();bindJumps();
   }
@@ -997,8 +1044,8 @@
     var commercialCards=COM_MODULES.map(function(m){
       var d=detailFor(m.id);return '<div class="labcard"><div class="k"><span class="ic">'+iconSvg('shield')+'</span><h3>'+esc(m.title)+'</h3></div><p>'+esc(m.summary)+'</p><div class="foot"><span class="mono">'+practiceCompleted(m.id)+' / '+d.checks.length+' decisions</span><button class="btn pri" data-commercial="'+esc(m.id)+'">Open ticket</button></div></div>';
     }).join('');
-    view.innerHTML='<h1 class="ph">Labs & engineering assignments</h1><div class="ph-sub">The 15 original browser simulations plus real coding tickets for Commercial Software Security.</div><h2 class="sec-h">Commercial · real workspace</h2><div class="labgrid">'+commercialCards+'</div><h2 class="sec-h">Engineering core · browser simulations</h2><div class="labgrid">'+cards+'</div>';
-    bindOpens();bindCommercial();
+    view.innerHTML='<h1 class="ph">Labs & engineering assignments</h1><div class="ph-sub">The 15 original browser simulations plus real coding tickets for Commercial Software Security.</div><h2 class="sec-h">Banking residency · real multi-sprint project</h2><div class="path-note">One shared service, eight progressive tickets. <button class="btn pri" data-view-jump="residency">Open sprint board →</button></div><h2 class="sec-h">Earlier commercial practice labs</h2><div class="labgrid">'+commercialCards+'</div><h2 class="sec-h">Engineering core · browser simulations</h2><div class="labgrid">'+cards+'</div>';
+    bindOpens();bindCommercial();bindJumps();
   }
 
   // ---------- lab view (terminal) ----------
@@ -1240,7 +1287,7 @@
     if(!window.confirm("Reset all local demo progress, including the commercial practice checklist?"))return;
     for(var k in shells)delete shells[k];
     state.done={};state.reviewed={};state.taskState={};state.prReply={};state.events=[];
-    state.practice={};state.workspace={};state.selectedTrack="core";
+    state.practice={};state.workspace={};state.residency={tickets:{}};state.selectedTrack="core";
     save();setView("portal");
   });
   (function(){
@@ -1258,7 +1305,8 @@
   // Deep links from the public landing page open the portal section after onboarding.
   // Only fixed, recognized hash values are supported; no arbitrary HTML or URL injection.
   var launch=window.location.hash.slice(1);
-  if(launch==='commercial'){state.selectedTrack='commercial';state.view='commercial';}
+  if(launch==='residency'){state.selectedTrack='commercial';state.view='residency';}
+  else if(launch==='commercial'){state.selectedTrack='commercial';state.view='commercial';}
   else if(launch==='curriculum'){state.view='map';}
   else if(launch==='work'){state.view='portal';}
   render();
