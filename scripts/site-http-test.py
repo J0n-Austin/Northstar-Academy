@@ -20,15 +20,18 @@ with http.server.ThreadingHTTPServer(('127.0.0.1', 0), QuietHandler) as server:
     base = f'http://127.0.0.1:{server.server_port}'
     for rel in ('/', '/index.html', '/app/northstar-academy.html',
                 '/app/northstar-interactive-lab.html', '/docs/real-labs.html',
-                '/mockups/portal.html', '/mockups/competency-record.html'):
+                '/mockups/portal.html', '/mockups/competency-record.html',
+                '/docs/curriculum.html', '/docs/commercial-track.html'):
         with urllib.request.urlopen(base + rel, timeout=4) as response:
             assert response.status == 200, rel
             assert b'Northstar' in response.read(), rel
-    for rel in ('/app/src/engine.js', '/modules/01-linux-service-triage/instructor/solutions.md'):
+    for rel in ('/app/src/engine.js', '/modules/01-linux-service-triage/instructor/solutions.md',
+                '/labs/commercial-api-security/src/bank.py',
+                '/labs/commercial-transaction-integrity/src/ledger.py'):
         try:
             urllib.request.urlopen(base + rel, timeout=4)
             raise AssertionError('Private/non-site artifact served: ' + rel)
         except urllib.error.HTTPError as exc:
             assert exc.code == 404, (rel, exc.code)
     server.shutdown()
-print('PASS local HTTP smoke (7 public routes / 2 excluded routes)')
+print('PASS local HTTP smoke (9 public routes / 4 excluded routes)')

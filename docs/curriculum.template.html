@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Northstar · Curriculum and Tracks</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0e14;--panel:#121823;--panel2:#192331;--line:#2a3545;--text:#e7edf6;--muted:#a1aec0;--accent:#79b9ff;--green:#69d6ae;--yellow:#ffd17b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.5}a{color:var(--accent)}.wrap{max-width:1120px;padding:24px;margin:auto}.nav{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-bottom:18px;border-bottom:1px solid var(--line)}.nav a{text-decoration:none}h1{font-size:clamp(2rem,4vw,3.2rem);letter-spacing:-.045em;line-height:1.15;margin:34px 0 12px}.lede{color:var(--muted);max-width:76ch}.eyebrow{color:var(--green);letter-spacing:.13em;text-transform:uppercase;font:600 12px ui-monospace,monospace}.notice{background:#1b2530;border:1px solid #3b5169;border-radius:10px;padding:14px 16px;color:var(--muted);font-size:14px;margin:22px 0}.tracks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:27px 0}.track{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:19px}.track h2{font-size:17px;margin:0 0 8px}.track p{color:var(--muted);font-size:14px;margin:0 0 12px}.tag{display:inline-block;background:var(--panel2);border:1px solid #354357;border-radius:99px;font:11px ui-monospace,monospace;padding:3px 8px;color:var(--muted)}.tag.live{color:var(--green);border-color:#356655}.tag.planned{color:var(--yellow)}.filters{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:28px 0 14px}.filter{display:grid;gap:5px;min-width:155px;flex:1}.filter label{font-size:12px;color:var(--muted)}select,input{background:var(--panel);color:var(--text);padding:11px;border:1px solid var(--line);border-radius:8px;font:inherit}input{width:100%}#summary{color:var(--muted);font-size:13px;margin-bottom:12px}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.module{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:10px}.module h3{font-size:18px;margin:0}.module p{margin:0;color:var(--muted);font-size:14px}.module .meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.module .foot{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto;align-items:center}.btn{color:#101923;background:var(--accent);border:0;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none}.btn:hover{filter:brightness(1.1)}.second{color:var(--text);background:var(--panel2);border:1px solid var(--line)}code{font:12px ui-monospace,monospace}small{color:var(--muted)}.empty{padding:24px;border:1px dashed var(--line);border-radius:10px;color:var(--muted)}footer{border-top:1px solid var(--line);color:var(--muted);margin:38px 0 0;padding:20px 0 35px;font-size:13px}@media(max-width:780px){.tracks{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
+</style></head><body>
+<main class="wrap">
+<header class="nav"><a href="../index.html">✧ Northstar / engineering academy</a><div><a href="commercial-track.html">Commercial residency</a> · <a href="real-labs.html">Real labs</a> · <a href="../app/northstar-academy.html">Original simulator</a></div></header>
+<p class="eyebrow">Stage 2 · Curriculum architecture</p><h1>Learn the work. Prove the work.</h1>
+<p class="lede">One engineering foundation, two specialist directions. Start with browser-based guided practice, then move into real, testable workspaces. The registry below comes from the same versioned data file used by repository checks.</p>
+<div class="notice" role="note"><strong>Transparency:</strong> Browser labs simulate tools. Real workspace labs run in local Linux or GitHub Codespaces. All results are <strong>practice evidence only</strong>; no identity verification, hidden assessment grading, accounts, or employer credentials exist in this release.</div>
+<section id="tracks" class="tracks" aria-label="Career track overview"></section>
+<section aria-labelledby="module-heading"><h2 id="module-heading">Course and assignment catalog</h2><div class="filters"><div class="filter"><label for="track">Track</label><select id="track"><option value="all">All tracks</option></select></div><div class="filter"><label for="env">Environment</label><select id="env"><option value="all">All environments</option><option value="browser-simulation">Browser simulation</option><option value="linux-workspace">Real Linux workspace</option></select></div><div class="filter" style="flex:2"><label for="search">Search modules or competencies</label><input id="search" type="search" placeholder="e.g., SQL, networking, debugging"></div></div><div id="summary" aria-live="polite"></div><div id="cards" class="cards"></div></section>
+<footer>Northstar MVP / Stage 2 · Curriculum data: <span id="version"></span> · All company and customer information is fictional. <a href="../index.html">Return to home</a>.</footer>
+</main>
+<script>
+'use strict';
+const catalog = /*CATALOG_JSON*/;
+const $=id=>document.getElementById(id);
+$('version').textContent=catalog.catalogVersion;
+const trackOptions=$('track'),tracks=$('tracks'),modules=$('cards');
+const labels=Object.fromEntries(catalog.tracks.map(t=>[t.id,t.title]));
+function el(tag,cls,content){const node=document.createElement(tag);if(cls)node.className=cls;if(content!==undefined)node.textContent=content;return node;}
+for(const t of catalog.tracks){
+ const opt=el('option','',t.title);opt.value=t.id;trackOptions.append(opt);
+ const box=el('div','track');const h=el('h2','',t.title);const p=el('p','',t.summary);const status=el('span','tag '+(t.status==='planned'?'planned':'live'),t.status.toUpperCase());
+ const count=catalog.modules.filter(m=>m.track===t.id&&m.status==='available').length;
+ const countText=el('p','',`${count} available module${count===1?'':'s'}`);
+ box.append(h,p,countText,status);tracks.append(box);
+}
+function render(){
+ const chosen=trackOptions.value,env=$('env').value,needle=$('search').value.trim().toLowerCase();
+ const visible=catalog.modules.filter(m=>(chosen==='all'||m.track===chosen)&&(env==='all'||m.environment===env)&&[m.title,m.summary,m.ticket||'',m.competencies.join(' ')].join(' ').toLowerCase().includes(needle));
+ modules.replaceChildren();
+ $('summary').textContent=`${visible.length} shown · ${catalog.modules.length} shipped modules · planned tracks are not counted as delivered content`;
+ if(!visible.length){modules.append(el('div','empty','No available modules match this filter. Try another search.'));return;}
+ for(const m of visible){
+  const box=el('article','module');const meta=el('div','meta');meta.append(el('span','tag',labels[m.track]),el('span','tag '+(m.environment==='linux-workspace'?'live':''),m.environment==='linux-workspace'?'REAL WORKSPACE':'BROWSER SIMULATOR'));if(m.ticket)meta.append(el('span','tag',m.ticket));
+  const h=el('h3','',m.title),p=el('p','',m.summary);
+  const req=m.prerequisites.map(id=>catalog.modules.find(x=>x.id===id)?.title||id);
+  const prerequisites=el('p','','Prerequisites: '+(req.length?req.join(' · '):'None'));
+  const competencies=el('p','','Practice: '+m.competencies.join(', '));
+  const foot=el('div','foot');const link=el('a','btn','Open learning activity →');link.href = '../' + m.publicRoute;
+  foot.append(link,el('small','',`≈ ${m.estimatedHours} hours · practice-only`));
+  if(m.path){const command=el('code','','Workspace: '+m.path);foot.append(command);}
+  box.append(meta,h,p,prerequisites,competencies,foot);modules.append(box);
+ }
+}
+for(const id of ['track','env','search']) $(id).addEventListener(id==='search'?'input':'change',render);
+const requested=new URLSearchParams(location.search).get('track');if(labels[requested])trackOptions.value=requested;
+render();
+</script></body></html>

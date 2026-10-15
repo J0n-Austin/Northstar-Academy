@@ -5,7 +5,8 @@ const root = path.resolve(__dirname, '..');
 const site = path.join(root, '_site');
 const allowed = new Set([
   '.nojekyll','index.html','mockups/portal.html','mockups/competency-record.html',
-  'app/northstar-academy.html','app/northstar-interactive-lab.html','docs/real-labs.html'
+  'app/northstar-academy.html','app/northstar-interactive-lab.html','docs/real-labs.html',
+  'docs/curriculum.html','docs/commercial-track.html'
 ]);
 function walk(dir, prefix='') {
   const out = [];

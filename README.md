@@ -1,90 +1,86 @@
-# Northstar Engineering Academy — Stage 1 Testing Release
+# Northstar Engineering Academy — Stage 2 Commercial Pilot
 
-**Status:** interactive prototype + real-Linux engineering labs. **Hosted front end:** GitHub Pages (static). **Real toolchains:** local Linux or GitHub Codespaces. **Accounts/verified assessments:** not implemented.
+**Version:** `1.2.0-stage2` · **Website:** static GitHub Pages · **Native labs:** GitHub Codespaces / local Ubuntu · **Authentication and verified employer assessments:** not implemented.
 
-The project is an apprenticeship-style engineering learning environment. It uses a simulated Northstar company, realistic tickets and assessments, and now includes actual C and socket-programming exercises. The site is **not** a real Linux terminal, a credential issuer, or a deployed backend.
+Northstar is a simulated engineering workplace with a curriculum foundation, two specialization pathways, a ticket-driven browser academy and **real workspace labs**. Stage 2 adds a canonical course registry and two substantial Commercial Software Security modules involving a fictional financial company.
 
-## What currently works
+## Quick start
 
-- **15 browser practice labs** (Linux, C intro, sockets, systems, debugging, review, and incident/capstone) inside [`app/northstar-academy.html`](app/northstar-academy.html). Browser state is saved only on that device in localStorage. Compiler, shell, and code-review interactions in this UI are simulations.
-- **2 original real-shell labs:** `labs/linux-fundamentals` and `modules/01-linux-service-triage`.
-- **2 additional real-tool starter labs:** `labs/native-c-engineering` (C binary-frame parser) and `labs/posix-protocol` (actual loopback TCP client/server and socket stream handling). These exercises deliberately ship with bugs to fix.
-- Static mockups, pilot kit, learning metadata and the proposed [product roadmap](docs/product-roadmap.md).
-- **GitHub Pages publishing** behind automated tests and an explicit, narrowly scoped site artifact. Instructor notes, graded source fixtures and other repo materials are not copied into the Pages website.
-
-## Local development and release gate
-
-Requirements: **Node.js 20+**, **bash**, **gcc**, **make**, **python3**. GitHub Actions uses Node 22 and installs Ubuntu build tools.
+**Requirements:** Node.js 20+, Python 3, Bash, GCC, and standard Linux tooling. All current commercial labs use Python's standard library only; no pip requirements, third-party SaaS or cloud account is needed. GitHub Actions uses Node 22.
 
 ```bash
-npm run check          # catalog + all 18 emulator suites + native lab smoke + site build + validation
-npm run build          # rebuild the single-file academy and _site/
-npm run verify:site    # confirm allowed files and local URLs in _site/
-```
-
-Open `_site/index.html` to preview the published site locally. To test with a local server instead:
-
-```bash
+npm run check        # full release gate: curriculum + 18 simulator test suites + native smoke + build + Pages verification + HTTP smoke
+npm run build        # rebuild generated academy, curriculum page and _site
 python3 -m http.server 8000 --directory _site
-# visit http://localhost:8000/
+# visit http://127.0.0.1:8000/
 ```
 
-The existing optional `app/src/ui_test.js` headless UI test uses `playwright-core` and a machine-specific Chromium path; it is **not** included in the dependency-free CI gate yet. Browser interactions must still be tested manually for this release.
+**Do not confuse smoke checks with learner completion:** the two new commercial exercises intentionally ship with defects. Running their full `run-checks.sh` initially produces failing assertions, and this is expected. `npm run check` verifies that the starter state is reproducible and that production build rules are sound.
 
-## Real engineering labs (Linux/Codespaces)
+## Stage 2 additions
 
-Once Codespaces is ready:
+| Feature | What's real? | Location |
+|---|---|---|
+| Curriculum registry | Machine-validated JSON schema 2.0 with module prerequisites, competency codes, states, and track definitions | `curriculum/catalog.v2.json` |
+| Browser curriculum explorer | Generated static HTML using the JSON source of truth; filter by specialization and environment | `docs/curriculum.html` |
+| Commercial residency briefing | Interactive decision checks and assignment instructions. Not a real code grader | `docs/commercial-track.html` |
+| Account-level security, COMM-101/102 | **Actual localhost HTTP server**, SQLite, ownership and unsafe SQL fixes, unit/integration tests | `labs/commercial-api-security/` |
+| Transfer integrity, COMM-201/202 | **Actual SQLite transactions** and CLI, intentional idempotency and atomicity bugs, failure-injection tests | `labs/commercial-transaction-integrity/` |
+| Preserved originals | Fifteen fully functional browser simulations and four real Linux workspace labs | `app/`, `labs/`, `modules/` |
+
+Commercial pilots use synthetic customer/account data. The HTTP teaching stub identifies a **demo persona**, but it does not authenticate clients, so it must never be deployed as real banking software or exposed to public networks.
+
+### Run the new practical labs
+
+Open the repo with **Code → Codespaces → Create codespace on main** or use Ubuntu locally:
 
 ```bash
-cd labs/native-c-engineering
-bash run-checks.sh              # fails on the deliberately buggy starter parser
-SANITIZE=1 bash run-checks.sh   # optional real ASan/UBSan check
+cd labs/commercial-api-security
+bash run-checks.sh       # learner suite; expected failures until fixed
+python3 src/api.py --port 8080
+# in another terminal (localhost only):
+curl -H 'X-Demo-User: alex' http://127.0.0.1:8080/api/v1/accounts/101
 
-cd ../posix-protocol
-bash run-demo.sh                 # localhost TCP ping/pong: works as a baseline
-bash run-checks.sh              # fails on deliberate partial-read defect
+cd ../commercial-transaction-integrity
+bash run-checks.sh       # learner suite; expected failures until fixed
+python3 src/cli.py --db /tmp/ns-test-ledger.sqlite3
 ```
 
-**Why CI stays green while those tests fail:** CI executes separate happy-path smoke tests to verify the labs can build and run in the provided environment. Full learner exercise tests should become green only after the learner fixes the code. Both labs include their own README, contracts, rubrics and evidence templates.
+Each lab's README contains the ticket, success criteria, review rubric and evidence template. Learners should work on **branches**, then produce a PR containing the patch, regression results and evidence. No protected reference solutions are included in the repository.
 
-## Create your new GitHub repository
+## Build and hosted content boundaries
 
-1. On GitHub choose **New repository**. Pick a name, e.g. `northstar-engineering-academy`. **Do not initialize** with a GitHub README, license or `.gitignore`; this handoff already includes project files. Select public visibility if you want publicly accessible Pages on a plan that requires it. Do not upload private instructor solutions or real secrets.
-2. Download/unzip this Stage 1 package into a directory, and open a terminal **inside the extracted `northstar-engineering-academy/` folder** (the one containing `package.json`).
-3. Run `npm run check`. This should pass without installing npm dependencies if Node and the native toolchain are available.
-4. Initialize and push:
+- `app/src/build.js` compiles the existing standalone browser academy without changing its emulator engine; `scripts/build-curriculum.js` compiles `docs/curriculum.html` from canonical JSON; `scripts/build-site.js` publishes a **strict allowlist** of HTML pages to `_site/`.
+- GitHub Pages hosts only static UI. Running Python, grading changes securely, persisting a protected learning record and managing real user identities are **not** supported by Pages itself.
+- The source GitHub repository may be public. All committed files, including visible tests and deliberately vulnerable examples, can be inspected by anyone; never commit secrets, instructor answer keys or employer-owned materials.
+- Student progress inside the existing simulator remains local to that browser. The new curriculum page is an explorer, **not** a replacement for its progress engine.
+- `curriculum/catalog.v1.json` remains the historical Stage 1 snapshot. v2 is now authoritative for public navigation. CNO specialization is explicitly marked **planned**.
 
+## Set up GitHub Pages for the new repo
+
+1. Create a **new empty GitHub repository** (no autogenerated README/license/gitignore).
+2. Extract this handoff ZIP into a folder, open a terminal in the directory containing `package.json` and run `npm run check` on Linux or Codespaces.
+3. Push to `main`:
    ```bash
    git init
    git add .
-   git commit -m "Stage 1: Pages foundation and native labs"
+   git commit -m "Stage 2: commercial residency and curriculum registry"
    git branch -M main
-   git remote add origin https://github.com/YOUR-USER/northstar-engineering-academy.git
+   git remote add origin https://github.com/YOUR-OWNER/YOUR-REPOSITORY.git
    git push -u origin main
    ```
+4. Set **Settings → Pages → Build and deployment → Source → GitHub Actions**.
+5. Inspect **Actions → Test and deploy Northstar Academy**; wait for **verify** and **deploy** to succeed. Open the Pages URL shown by GitHub.
+6. Check **Curriculum explorer → Commercial Software Security → Open learning activity**, complete the four browser decision checks, then use Codespaces to run both real labs. See [Stage 2 testing checklist](docs/STAGE2_TESTING.md).
 
-   Replace the owner and repository name with **your actual values**. If you already initialized an empty local Git repo, omit `git init`. GitHub may prompt for browser/Git Credential Manager authentication; HTTPS password-based account login is not supported.
+If you're applying this to an existing Stage 1 GitHub repository instead, copy/merge the Stage 2 files rather than initializing a second Git repository. Preserve any existing Git history and personal modifications.
 
-5. In the new GitHub repository go to **Settings → Pages → Build and deployment → Source → GitHub Actions**. Depending on the repo's policy, GitHub Actions may need enabling first.
-6. Go to **Actions → Test and deploy Northstar Academy**. The workflow runs the release checks and publishes `_site`. Wait for the deploy job to finish successfully.
-7. Visit `https://YOUR-USER.github.io/northstar-engineering-academy/` (the final address is shown on the Pages settings screen and the deployment job). Click **Northstar Academy**, check the interactive tutorial, then open **Native C + POSIX socket labs** for actual Linux/Codespaces instructions.
-8. To test the real labs, choose **Code → Codespaces → Create codespace on main**; the `.devcontainer` installs the native tools and seeds the original shell labs.
+## Documentation and planned work
 
-See the detailed manual test checklist in [`docs/TESTING.md`](docs/TESTING.md).
+- [`docs/STAGE2_CHANGELOG.md`](docs/STAGE2_CHANGELOG.md): completed scope, limitations, future priorities.
+- [`docs/STAGE2_TESTING.md`](docs/STAGE2_TESTING.md): build, hosted site and native lab acceptance checklist.
+- [`docs/TESTING.md`](docs/TESTING.md): Stage 1 simulator and native-lab checks, still relevant.
+- [`docs/product-roadmap.md`](docs/product-roadmap.md): longer-term educational vision.
+- [`docs/competency-evidence.md`](docs/competency-evidence.md): current evidence limitations.
 
-## Deploy boundaries and critical constraints
-
-- The Pages workflow intentionally copies only `index.html`, the 2 concept mockups, the generated academy + standalone lab HTML, and `docs/real-labs.html` into `_site`. **Publishing a repo publicly makes everything committed to that repo available in the GitHub source browser**, even when the files are excluded from Pages! The bundle intentionally excludes the original private instructor solution file, which is handed off separately.
-- Training hint content and source-visible tests are **not secret assessments**. Do not use results as verified job credentials. Do not put employer-owned material, real malware, passwords, or grading keys in a public repo.
-- Browser simulated progress **does not sync** with a Codespace, and Codespace changes must be committed/pushed if you want them to survive workspaces.
-- No real authentication, hosted sandbox provisioning, payment, employer portal or validated assessment backend has been implemented yet. Those require infrastructure beyond GitHub Pages.
-
-## Documentation
-
-- [`docs/STAGE1_CHANGELOG.md`](docs/STAGE1_CHANGELOG.md) — delivered scope, limitations and what is next.
-- [`docs/TESTING.md`](docs/TESTING.md) — exact GitHub Pages and Codespaces manual tests.
-- [`curriculum/catalog.v1.json`](curriculum/catalog.v1.json) — initial versioned inventory (not yet wired into app UI).
-- [`docs/competency-evidence.md`](docs/competency-evidence.md) — first evidence and review standard, without claims of secure verification.
-- [`docs/product-roadmap.md`](docs/product-roadmap.md) — the proposed multi-stage vision.
-
-**Stage 1 release gate:** `npm run check` passes; _site is allowlisted; the 15 browser labs remain intact; students can run two native starter labs in a real Linux environment. Additional roadmap Phase 1 requirements—authenticated learner state, protected grading, replayable employer assessments and access revocation—remain for later work.
+**Next stage after acceptance:** full backend engineering foundations (likely Java/Spring Boot or Python framework), more authentic secure SDLC/CI security, an identity-aware application lab, competency evidence exports, and eventually sandboxed trusted grading. No credential, regulated apprenticeship status, placement guarantee, or employer verification is claimed in this pilot.

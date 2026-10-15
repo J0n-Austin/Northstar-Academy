@@ -1,0 +1,465 @@
+{
+  "schemaVersion": "2.0",
+  "catalogVersion": "2026.10-stage2",
+  "description": "Canonical curriculum registry for static portal navigation and metadata validation. This is not a credential service.",
+  "tracks": [
+    {
+      "id": "core",
+      "title": "Engineering Foundation",
+      "status": "in-development",
+      "summary": "Linux, troubleshooting, software fundamentals and real system labs."
+    },
+    {
+      "id": "commercial",
+      "title": "Commercial Software Security",
+      "status": "pilot",
+      "summary": "Build and secure real backend services; start with object authorization, SQL safety and transaction integrity."
+    },
+    {
+      "id": "cno",
+      "title": "CNO / Low-Level Security",
+      "status": "planned",
+      "summary": "Future specialization in native code, architecture, operating-system internals and binary analysis. No advanced CNO modules are claimed as shipped."
+    }
+  ],
+  "modules": [
+    {
+      "id": "fundamentals",
+      "title": "Linux Fundamentals",
+      "ticket": "NS-101",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [],
+      "estimatedHours": 1.5,
+      "summary": "Navigate a realistic Linux operations environment using a simulated terminal.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "triage",
+      "title": "Linux Service Triage",
+      "ticket": "NS-210",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "fundamentals"
+      ],
+      "estimatedHours": 1.5,
+      "summary": "Workplace-style investigation: Linux Service Triage.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "networking",
+      "title": "Network & Protocol Diagnostics",
+      "ticket": "NS-142",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "fundamentals"
+      ],
+      "estimatedHours": 1.5,
+      "summary": "Investigate network diagnostics, DNS and protocol issues.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "automation",
+      "title": "Shell Scripting & Automation",
+      "ticket": "NS-168",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [],
+      "estimatedHours": 1.5,
+      "summary": "Workplace-style investigation: Shell Scripting & Automation.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "cprog",
+      "title": "C Programming — Log Helpers",
+      "ticket": "NS-173",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "fundamentals"
+      ],
+      "estimatedHours": 1.5,
+      "summary": "Practice C parsing and validation concepts in the academy simulator.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "wininternals",
+      "title": "Windows Internals — Triage",
+      "ticket": "NS-191",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [],
+      "estimatedHours": 1.5,
+      "summary": "Workplace-style investigation: Windows Internals — Triage.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "detection",
+      "title": "Detection Engineering",
+      "ticket": "NS-205",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [],
+      "estimatedHours": 1.5,
+      "summary": "Workplace-style investigation: Detection Engineering.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "linuxint",
+      "title": "Linux Internals — Host Triage",
+      "ticket": "NS-187",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [],
+      "estimatedHours": 1.5,
+      "summary": "Workplace-style investigation: Linux Internals — Host Triage.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "secure",
+      "title": "Secure Coding — Input Handling",
+      "ticket": "NS-221",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "cprog"
+      ],
+      "estimatedHours": 1.5,
+      "summary": "Identify unsafe input-handling decisions using guided C examples.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "codereview",
+      "title": "Code Review — Pull Requests",
+      "ticket": "NS-230",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "cprog"
+      ],
+      "estimatedHours": 1.5,
+      "summary": "Review changes, find defects and communicate actionable feedback.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "incident",
+      "title": "Incident Analysis & Postmortem",
+      "ticket": "NS-240",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [],
+      "estimatedHours": 1.5,
+      "summary": "Workplace-style investigation: Incident Analysis & Postmortem.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "capstone",
+      "title": "Capstone — First On-Call Night",
+      "ticket": "NS-300",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "triage",
+        "networking"
+      ],
+      "estimatedHours": 1.5,
+      "summary": "Workplace-style investigation: Capstone — First On-Call Night.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "sockets",
+      "title": "Sockets & Protocols — NSP/1",
+      "ticket": "NS-176",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "networking"
+      ],
+      "estimatedHours": 1.5,
+      "summary": "Understand framing and TCP stream boundaries before working with real sockets.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "debugging",
+      "title": "Debugging — Regression Hunt",
+      "ticket": "NS-232",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "fundamentals"
+      ],
+      "estimatedHours": 1.5,
+      "summary": "Reproduce regressions and narrow the faulty change.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "ticket",
+      "title": "Open Ticket — \"Dashboard is broken??\"",
+      "ticket": "NS-250",
+      "track": "core",
+      "environment": "browser-simulation",
+      "assessment": "guided-practice",
+      "competencies": [
+        "engineering-investigation",
+        "system-debugging"
+      ],
+      "status": "available",
+      "prerequisites": [],
+      "estimatedHours": 1.5,
+      "summary": "Workplace-style investigation: Open Ticket — \"Dashboard is broken??\".",
+      "evidence": "self-reported-practice",
+      "publicRoute": "app/northstar-academy.html"
+    },
+    {
+      "id": "linux-fundamentals",
+      "title": "Linux Fundamentals (native)",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "path": "labs/linux-fundamentals",
+      "competencies": [
+        "shell-automation",
+        "linux-fundamentals"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "fundamentals"
+      ],
+      "estimatedHours": 5,
+      "summary": "Run actual Linux commands in a real workspace.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "docs/real-labs.html"
+    },
+    {
+      "id": "linux-service-triage",
+      "title": "Linux Service Triage (native)",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "path": "modules/01-linux-service-triage",
+      "competencies": [
+        "system-debugging",
+        "technical-reporting"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "linux-fundamentals"
+      ],
+      "estimatedHours": 5,
+      "summary": "Workplace-style investigation: Linux Service Triage (native).",
+      "evidence": "self-reported-practice",
+      "publicRoute": "docs/real-labs.html"
+    },
+    {
+      "id": "native-c-engineering",
+      "title": "Native C Frame Parser",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "path": "labs/native-c-engineering",
+      "competencies": [
+        "native-c",
+        "input-validation",
+        "testing"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "cprog"
+      ],
+      "estimatedHours": 5,
+      "summary": "Build and test a bounded binary parser using GCC.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "docs/real-labs.html"
+    },
+    {
+      "id": "posix-protocol",
+      "title": "POSIX Socket Framing",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "path": "labs/posix-protocol",
+      "competencies": [
+        "tcp-ip",
+        "posix-sockets",
+        "debugging"
+      ],
+      "status": "available",
+      "prerequisites": [
+        "networking"
+      ],
+      "estimatedHours": 5,
+      "summary": "Debug partial reads and TCP framing using actual POSIX sockets.",
+      "evidence": "self-reported-practice",
+      "publicRoute": "docs/real-labs.html"
+    },
+    {
+      "id": "commercial-api-security",
+      "title": "Account Authorization & SQL Query Security",
+      "ticket": "NS-COM-101/102",
+      "track": "commercial",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/commercial-api-security",
+      "estimatedHours": 8,
+      "competencies": [
+        "http-apis",
+        "object-authorization",
+        "sql-injection-defense",
+        "regression-testing"
+      ],
+      "prerequisites": [
+        "networking",
+        "codereview"
+      ],
+      "summary": "Investigate a synthetic banking account API for broken object authorization and unsafe SQL query construction; patch code and validate with real HTTP/unit tests.",
+      "publicRoute": "docs/commercial-track.html#commercial-api-security",
+      "evidence": "self-reported-practice"
+    },
+    {
+      "id": "commercial-transaction-integrity",
+      "title": "Financial Transaction Integrity & Idempotency",
+      "ticket": "NS-COM-201/202",
+      "track": "commercial",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/commercial-transaction-integrity",
+      "estimatedHours": 8,
+      "competencies": [
+        "transaction-integrity",
+        "idempotency",
+        "database-atomicity",
+        "fault-injection"
+      ],
+      "prerequisites": [
+        "commercial-api-security"
+      ],
+      "summary": "Repair duplicate-transfer and partial-debit defects in a SQLite-backed synthetic transfer service, with failure injection and regression tests.",
+      "publicRoute": "docs/commercial-track.html#commercial-transaction-integrity",
+      "evidence": "self-reported-practice"
+    }
+  ],
+  "evidencePolicy": {
+    "browser": "guided practice only",
+    "workspace": "visible tests and learner-submitted evidence; unverified",
+    "employer": "not available; no identity or secure grading"
+  },
+  "nextCommercialModules": [
+    {
+      "id": "commercial-backend-foundations",
+      "title": "Backend Engineering & API Testing",
+      "status": "planned"
+    },
+    {
+      "id": "commercial-secure-sdlc",
+      "title": "Threat Modeling, Code Review & CI Security",
+      "status": "planned"
+    },
+    {
+      "id": "commercial-cloud-identity",
+      "title": "Cloud IAM & Secrets Management",
+      "status": "planned"
+    }
+  ]
+}

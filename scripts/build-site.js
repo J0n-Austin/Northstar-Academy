@@ -9,7 +9,9 @@ const files = [
   'mockups/competency-record.html',
   'app/northstar-academy.html',
   'app/northstar-interactive-lab.html',
-  'docs/real-labs.html'
+  'docs/real-labs.html',
+  'docs/curriculum.html',
+  'docs/commercial-track.html'
 ];
 fs.rmSync(site, {recursive: true, force: true});
 for (const rel of files) {
