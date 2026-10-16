@@ -58,6 +58,7 @@
       (!allDone&&prerequisites.length?'<div class="path-note">Suggested prerequisites: '+prerequisites.map(function(x){return esc(x.id)+' ('+esc(rStatus(rRecord(x.id)))+')';}).join(', ')+'. You can still inspect this ticket; the portal does not enforce prerequisites.</div>':'')+
       '<div class="r-ticket-columns"><div class="r-main">'+
       '<section class="card r-panel"><h2>Incoming engineering ticket</h2><p>'+esc(t.context)+'</p><h3>What you need to understand</h3><p>'+esc(t.learning)+'</p></section>'+
+      fTicketBridge(t)+
       '<section class="card r-panel"><h2>Read the sprint guide</h2><p>These concepts explain the real code and tradeoffs you will meet in this ticket.</p><details><summary>Open Sprint '+t.sprint+' engineering lessons</summary>'+rGuide(t.sprint)+'</details></section>'+
       '<section class="card r-panel"><h2>Acceptance criteria</h2><ul>'+t.acceptance.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul><h3>Files to investigate</h3><p class="mono">'+t.files.map(esc).join(' · ')+'</p></section>'+
       '<section class="card r-panel"><h2>Working in your repository</h2><p>Run these from <code>labs/banking-residency/</code>. Use a separate branch, then open a GitHub pull request.</p><pre class="r-commands">'+t.commands.map(esc).join('\n')+'</pre><details><summary>Escalating hint</summary><p>'+esc(t.hint)+'</p></details><p class="r-small">Learning guide: <code>guides/'+esc(guide)+'</code>. Evidence template: <code>templates/engineering-report.md</code>.</p></section>'+
@@ -94,7 +95,7 @@
       if(!navigator.clipboard||!navigator.clipboard.writeText){b.textContent='Clipboard unavailable; use your saved fields';return;}
       navigator.clipboard.writeText(content).then(function(){b.textContent='Draft copied';}).catch(function(){b.textContent='Copy unavailable — select your saved text';});
     });
-    bindJumps();
+    bindJumps();fBind();
   }
   function rExport(){
     var record={title:'Northstar banking residency — local unverified practice',generatedAt:new Date().toISOString(),disclaimer:'SELF-REPORTED. Browser simulation only; no Git or test result verification performed.',tickets:RESIDENCY.tickets.map(function(t){return {id:t.id,title:t.title,record:rRecord(t.id)};})};

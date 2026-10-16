@@ -1,3 +1,27 @@
+# Northstar Academy — Stage 4.2 Combined Curriculum Release
+
+**What ships:** 72 interactive foundations lessons in 10 units, ten real Python/Linux workshops, a four-step diagnostic trace visualization, the original 15 browser labs, the initial 4-sprint banking residency, and a second 2-sprint advanced FastAPI service with six tickets. The public website remains a GitHub Pages static artifact; vulnerable learner code runs only in Codespaces/Linux on localhost. Browser progress is **unverified practice**.
+
+**Upgrade existing repository:** extract this release and copy its inner contents into your Git checkout; preserve `.git`, and do not copy instructor-only packets. Then run `npm run check`, commit and push to `main`. The Actions workflow runs extra FastAPI smoke and Alembic migration checks using an isolated Python environment before publishing Pages.
+
+**Local prerequisites:** Node 20+, Python 3.10+ and GCC for existing native C labs. The advanced service additionally requires Python dependencies from `labs/banking-platform-v2/requirements.txt` and optionally Docker Compose for PostgreSQL. The project is not production-ready and must never be exposed to a public network.
+
+**Manual validation:** `docs/STAGE42_TESTING.md`.
+
+---
+
+# Stage 4.1 — Educational Depth & Foundations
+
+The existing Stage 4 banking residency remains intact. **New:** 24 authored, prerequisite-aware foundation lessons in six units (Python, HTTP, SQL, Testing, Debugging, CS); six long technical guides; six independent, runnable Python workshops with 48 public behavioral checks; formative quizzes, interactive three-stage concept flows and saved learning reflections.
+
+**Start here:** Open `app/northstar-academy.html#foundations` through GitHub Pages, complete the first Python unit, then run `labs/foundations/python/run-checks.sh` in Codespaces. As in the residency, learner fixtures are intentionally broken. `npm run check` validates the release and should pass; learner contract tests fail until students repair the code.
+
+**Important:** Foundation lesson completions are open-book practice and self-reported. They do not establish coding competence. Independent skills require tests, commits, and real reviewers.
+
+For the full acceptance walkthrough see `docs/STAGE41_TESTING.md`.
+
+---
+
 > **Stage 4 (v1.4): Connected Banking Engineering Residency.** See [Stage 4 testing](docs/STAGE4_TESTING.md). The Stage 3 portal and 15 original simulations remain available. Real coding runs in Codespaces or Linux; GitHub Pages remains static.
 
 # Northstar Engineering Academy — Stage 3 Integrated Learner Portal

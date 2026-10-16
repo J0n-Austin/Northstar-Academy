@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0",
-  "catalogVersion": "2026.10-stage4-residency",
-  "description": "Stage 4 adds connected commercial residency and locally simulated employer-style review; not a credential service.",
+  "catalogVersion": "2.2.0",
+  "description": "Stage 4.1: 24 lessons and six authentic practice workshops in addition to preserved core simulation and banking residency.",
   "tracks": [
     {
       "id": "core",
@@ -101,7 +101,7 @@
     },
     {
       "id": "cprog",
-      "title": "C Programming \u2014 Log Helpers",
+      "title": "C Programming — Log Helpers",
       "ticket": "NS-173",
       "track": "core",
       "environment": "browser-simulation",
@@ -121,7 +121,7 @@
     },
     {
       "id": "wininternals",
-      "title": "Windows Internals \u2014 Triage",
+      "title": "Windows Internals — Triage",
       "ticket": "NS-191",
       "track": "core",
       "environment": "browser-simulation",
@@ -133,7 +133,7 @@
       "status": "available",
       "prerequisites": [],
       "estimatedHours": 1.5,
-      "summary": "Workplace-style investigation: Windows Internals \u2014 Triage.",
+      "summary": "Workplace-style investigation: Windows Internals — Triage.",
       "evidence": "self-reported-practice",
       "publicRoute": "app/northstar-academy.html"
     },
@@ -157,7 +157,7 @@
     },
     {
       "id": "linuxint",
-      "title": "Linux Internals \u2014 Host Triage",
+      "title": "Linux Internals — Host Triage",
       "ticket": "NS-187",
       "track": "core",
       "environment": "browser-simulation",
@@ -169,13 +169,13 @@
       "status": "available",
       "prerequisites": [],
       "estimatedHours": 1.5,
-      "summary": "Workplace-style investigation: Linux Internals \u2014 Host Triage.",
+      "summary": "Workplace-style investigation: Linux Internals — Host Triage.",
       "evidence": "self-reported-practice",
       "publicRoute": "app/northstar-academy.html"
     },
     {
       "id": "secure",
-      "title": "Secure Coding \u2014 Input Handling",
+      "title": "Secure Coding — Input Handling",
       "ticket": "NS-221",
       "track": "core",
       "environment": "browser-simulation",
@@ -195,7 +195,7 @@
     },
     {
       "id": "codereview",
-      "title": "Code Review \u2014 Pull Requests",
+      "title": "Code Review — Pull Requests",
       "ticket": "NS-230",
       "track": "core",
       "environment": "browser-simulation",
@@ -233,7 +233,7 @@
     },
     {
       "id": "capstone",
-      "title": "Capstone \u2014 First On-Call Night",
+      "title": "Capstone — First On-Call Night",
       "ticket": "NS-300",
       "track": "core",
       "environment": "browser-simulation",
@@ -248,13 +248,13 @@
         "networking"
       ],
       "estimatedHours": 1.5,
-      "summary": "Workplace-style investigation: Capstone \u2014 First On-Call Night.",
+      "summary": "Workplace-style investigation: Capstone — First On-Call Night.",
       "evidence": "self-reported-practice",
       "publicRoute": "app/northstar-academy.html"
     },
     {
       "id": "sockets",
-      "title": "Sockets & Protocols \u2014 NSP/1",
+      "title": "Sockets & Protocols — NSP/1",
       "ticket": "NS-176",
       "track": "core",
       "environment": "browser-simulation",
@@ -274,7 +274,7 @@
     },
     {
       "id": "debugging",
-      "title": "Debugging \u2014 Regression Hunt",
+      "title": "Debugging — Regression Hunt",
       "ticket": "NS-232",
       "track": "core",
       "environment": "browser-simulation",
@@ -294,7 +294,7 @@
     },
     {
       "id": "ticket",
-      "title": "Open Ticket \u2014 \"Dashboard is broken??\"",
+      "title": "Open Ticket — \"Dashboard is broken??\"",
       "ticket": "NS-250",
       "track": "core",
       "environment": "browser-simulation",
@@ -306,7 +306,7 @@
       "status": "available",
       "prerequisites": [],
       "estimatedHours": 1.5,
-      "summary": "Workplace-style investigation: Open Ticket \u2014 \"Dashboard is broken??\".",
+      "summary": "Workplace-style investigation: Open Ticket — \"Dashboard is broken??\".",
       "evidence": "self-reported-practice",
       "publicRoute": "app/northstar-academy.html"
     },
@@ -442,7 +442,7 @@
     {
       "id": "banking-residency",
       "title": "Northstar Banking Engineering Residency",
-      "ticket": "NS-C401\u2013408",
+      "ticket": "NS-C401–408",
       "track": "commercial",
       "environment": "linux-workspace",
       "assessment": "practice-tests",
@@ -464,6 +464,232 @@
       "evidence": "self-reported-practice",
       "publicRoute": "app/northstar-academy.html#residency",
       "path": "labs/banking-residency"
+    },
+    {
+      "id": "foundations-python",
+      "title": "Python Engineering Foundations",
+      "ticket": "FND-PYTHON-01…08",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/foundations/python",
+      "estimatedHours": 12,
+      "competencies": [
+        "python-backend"
+      ],
+      "prerequisites": [],
+      "summary": "Python contracts, collections, modules and algorithmic reasoning; eight progressive lessons in the portal and a runnable Python coding workshop.",
+      "publicRoute": "app/northstar-academy.html#foundations",
+      "evidence": "self-reported-practice"
+    },
+    {
+      "id": "foundations-http",
+      "title": "HTTP Engineering Foundations",
+      "ticket": "FND-HTTP-01…08",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/foundations/http",
+      "estimatedHours": 12,
+      "competencies": [
+        "http-apis"
+      ],
+      "prerequisites": [
+        "foundations-python"
+      ],
+      "summary": "HTTP semantics, JSON validation, API contracts and retry correctness; eight progressive lessons in the portal and a runnable Python coding workshop.",
+      "publicRoute": "app/northstar-academy.html#foundations",
+      "evidence": "self-reported-practice"
+    },
+    {
+      "id": "foundations-sql",
+      "title": "SQL Engineering Foundations",
+      "ticket": "FND-SQL-01…08",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/foundations/sql",
+      "estimatedHours": 12,
+      "competencies": [
+        "sql"
+      ],
+      "prerequisites": [
+        "foundations-python"
+      ],
+      "summary": "Relational data modeling, parameterized SQL, transactions and concurrency; eight progressive lessons in the portal and a runnable Python coding workshop.",
+      "publicRoute": "app/northstar-academy.html#foundations",
+      "evidence": "self-reported-practice"
+    },
+    {
+      "id": "foundations-testing",
+      "title": "Testing Engineering Foundations",
+      "ticket": "FND-TESTING-01…08",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/foundations/testing",
+      "estimatedHours": 12,
+      "competencies": [
+        "testing"
+      ],
+      "prerequisites": [
+        "foundations-python"
+      ],
+      "summary": "Unit/integration testing, fixtures, boundary cases and regression design; eight progressive lessons in the portal and a runnable Python coding workshop.",
+      "publicRoute": "app/northstar-academy.html#foundations",
+      "evidence": "self-reported-practice"
+    },
+    {
+      "id": "foundations-debugging",
+      "title": "Debugging Engineering Foundations",
+      "ticket": "FND-DEBUGGING-01…08",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/foundations/debugging",
+      "estimatedHours": 12,
+      "competencies": [
+        "debugging"
+      ],
+      "prerequisites": [
+        "foundations-testing"
+      ],
+      "summary": "Root-cause analysis, call tracing and safe diagnostics; eight progressive lessons in the portal and a runnable Python coding workshop.",
+      "publicRoute": "app/northstar-academy.html#foundations",
+      "evidence": "self-reported-practice"
+    },
+    {
+      "id": "foundations-cs",
+      "title": "CS Engineering Foundations",
+      "ticket": "FND-CS-01…08",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/foundations/cs",
+      "estimatedHours": 12,
+      "competencies": [
+        "algorithms"
+      ],
+      "prerequisites": [
+        "foundations-python"
+      ],
+      "summary": "State invariants, data structures, complexity and dependency graphs; eight progressive lessons in the portal and a runnable Python coding workshop.",
+      "publicRoute": "app/northstar-academy.html#foundations",
+      "evidence": "self-reported-practice"
+    },
+    {
+      "id": "foundations-linux",
+      "title": "Linux & Process Engineering",
+      "ticket": "FND-LINUX-01…06",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/foundations/linux",
+      "estimatedHours": 12,
+      "competencies": [
+        "linux"
+      ],
+      "prerequisites": [
+        "foundations-python"
+      ],
+      "summary": "Six progressive concepts, real test-driven workshop and engineering residency preparation for linux & process engineering.",
+      "publicRoute": "app/northstar-academy.html#foundations",
+      "evidence": "self-reported-practice"
+    },
+    {
+      "id": "foundations-networking",
+      "title": "Networking & Socket Engineering",
+      "ticket": "FND-NETWORKING-01…06",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/foundations/networking",
+      "estimatedHours": 12,
+      "competencies": [
+        "networking"
+      ],
+      "prerequisites": [
+        "foundations-python"
+      ],
+      "summary": "Six progressive concepts, real test-driven workshop and engineering residency preparation for networking & socket engineering.",
+      "publicRoute": "app/northstar-academy.html#foundations",
+      "evidence": "self-reported-practice"
+    },
+    {
+      "id": "foundations-data-structures",
+      "title": "Data Structures & Algorithms",
+      "ticket": "FND-DATA-STRUCTURES-01…06",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/foundations/data-structures",
+      "estimatedHours": 12,
+      "competencies": [
+        "data-structures"
+      ],
+      "prerequisites": [
+        "foundations-python"
+      ],
+      "summary": "Six progressive concepts, real test-driven workshop and engineering residency preparation for data structures & algorithms.",
+      "publicRoute": "app/northstar-academy.html#foundations",
+      "evidence": "self-reported-practice"
+    },
+    {
+      "id": "foundations-architecture",
+      "title": "Software Architecture & System Design",
+      "ticket": "FND-ARCHITECTURE-01…06",
+      "track": "core",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/foundations/architecture",
+      "estimatedHours": 12,
+      "competencies": [
+        "architecture"
+      ],
+      "prerequisites": [
+        "foundations-python"
+      ],
+      "summary": "Six progressive concepts, real test-driven workshop and engineering residency preparation for software architecture & system design.",
+      "publicRoute": "app/northstar-academy.html#foundations",
+      "evidence": "self-reported-practice"
+    },
+    {
+      "id": "banking-platform-v2",
+      "title": "Advanced Banking Service — FastAPI & Secure SDLC",
+      "ticket": "NS-B501–506",
+      "track": "commercial",
+      "environment": "linux-workspace",
+      "assessment": "practice-tests",
+      "status": "available",
+      "path": "labs/banking-platform-v2",
+      "estimatedHours": 45,
+      "competencies": [
+        "python-backend",
+        "http-apis",
+        "sql",
+        "appsec",
+        "testing",
+        "professional"
+      ],
+      "prerequisites": [
+        "banking-residency",
+        "foundations-python",
+        "foundations-http",
+        "foundations-sql"
+      ],
+      "summary": "Six progressive tickets across Sprints 5–6: framework routing, authenticated sessions, account authorization, idempotency, statements, migrations and structured audit evidence.",
+      "publicRoute": "app/northstar-academy.html#advanced",
+      "evidence": "self-reported-practice"
     }
   ],
   "evidencePolicy": {
@@ -472,11 +698,6 @@
     "employer": "not available; no identity or secure grading"
   },
   "nextCommercialModules": [
-    {
-      "id": "commercial-backend-foundations",
-      "title": "Backend Engineering & API Testing",
-      "status": "planned"
-    },
     {
       "id": "commercial-secure-sdlc",
       "title": "Threat Modeling, Code Review & CI Security",
@@ -487,5 +708,6 @@
       "title": "Cloud IAM & Secrets Management",
       "status": "planned"
     }
-  ]
+  ],
+  "release": "stage4.1A-4.2"
 }

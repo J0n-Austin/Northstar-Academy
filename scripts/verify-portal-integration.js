@@ -14,8 +14,8 @@ const home=get('index.html');
 assert.equal(practice.schemaVersion,'1.0');
 assert.equal(practice.modules.length,2);
 const commercial=catalog.modules.filter(m=>m.track==='commercial'&&m.status==='available');
-assert.equal(commercial.length,3);
-assert.deepEqual(new Set(practice.modules.map(m=>m.id)),new Set(commercial.filter(m=>m.id!=='banking-residency').map(m=>m.id)));
+assert.equal(commercial.length,4);
+assert.deepEqual(new Set(practice.modules.map(m=>m.id)),new Set(commercial.filter(m=>m.id!=='banking-residency'&&m.id!=='banking-platform-v2').map(m=>m.id)));
 for(const d of practice.modules){
  const m=commercial.find(x=>x.id===d.id);
  assert.ok(m.path && fs.existsSync(path.join(root,m.path,'README.md')),`Missing real lab ${d.id}`);

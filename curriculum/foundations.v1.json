@@ -1,0 +1,3044 @@
+{
+  "schemaVersion": "1.0",
+  "release": "stage4.1A-4.1B",
+  "title": "Engineering Foundations: 72 sequenced lessons, 10 native workshops and residency bridges",
+  "disclaimer": "Formative checks are visible in the browser. Progress is self-reported, local and NOT proof of code proficiency.",
+  "units": [
+    {
+      "id": "python",
+      "title": "Python & program structure",
+      "overview": "An engineer must read unfamiliar code, model invariants, and predict how values move between functions. Python is not merely syntax: students must distinguish mutable from immutable objects, handle untrusted input deliberately, and isolate logic so it can be tested. In the banking service, a request handler calls functions that query records and produce dictionaries. Understanding these boundaries is essential before fixing a ticket.",
+      "targetTickets": [
+        "NS-C401",
+        "NS-C402"
+      ],
+      "guide": "docs/foundations/python.md",
+      "lab": "labs/foundations/python"
+    },
+    {
+      "id": "http",
+      "title": "HTTP, APIs & network contracts",
+      "overview": "An HTTP API is a public contract across process boundaries. A successful socket connection says little about whether a response is valid or safe. Engineers need to reason about methods, paths, headers, status codes, representations, authorization boundaries, timeouts and retries. The banking residency begins with a /health contract and eventually serves user-specific resources; both require predictable responses and failure semantics.",
+      "targetTickets": [
+        "NS-C401",
+        "NS-C403",
+        "NS-C407"
+      ],
+      "guide": "docs/foundations/http.md",
+      "lab": "labs/foundations/http"
+    },
+    {
+      "id": "sql",
+      "title": "SQL & relational data modeling",
+      "overview": "Real applications store data that must survive crashes and concurrent requests. Relational modeling, parameterized queries, constraints, transactions and isolation are foundational to secure backend work. A banking system has correctness invariants: balance must be represented precisely, transfers must not partially apply, and every returned record must be scoped to an authorized caller.",
+      "targetTickets": [
+        "NS-C402",
+        "NS-C404",
+        "NS-C405",
+        "NS-C406"
+      ],
+      "guide": "docs/foundations/sql.md",
+      "lab": "labs/foundations/sql"
+    },
+    {
+      "id": "testing",
+      "title": "Testing & quality engineering",
+      "overview": "A useful test is a reproducible claim about behavior. Tests should isolate assumptions, cover expected and failure cases, and survive implementation refactors without encoding private details. Northstar’s banking code has contract and integration suites; an engineer should understand why a test exists, how to reproduce it, and whether a passing suite actually establishes the property claimed.",
+      "targetTickets": [
+        "NS-C401",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "guide": "docs/foundations/testing.md",
+      "lab": "labs/foundations/testing"
+    },
+    {
+      "id": "debugging",
+      "title": "Debugging & observability",
+      "overview": "Debugging is disciplined hypothesis testing. A ticket gives symptoms, but the engineer must establish a reproducible scenario, localize the fault, examine runtime evidence, create a minimal fix, and guard against regression. Logging, traces and stack traces are clues, not conclusions. Sensitive information must not be exposed in diagnostic output.",
+      "targetTickets": [
+        "NS-C401",
+        "NS-C407",
+        "NS-C408"
+      ],
+      "guide": "docs/foundations/debugging.md",
+      "lab": "labs/foundations/debugging"
+    },
+    {
+      "id": "cs",
+      "title": "Computer science & engineering reasoning",
+      "overview": "Computer science fundamentals help engineers predict behavior before deploying code. Choosing data structures affects performance; understanding state and invariants prevents financial correctness bugs; tracing dependencies and failure modes turns complicated software into understandable components. This unit introduces reasoning skills that should carry into later discrete mathematics, algorithms and systems engineering.",
+      "targetTickets": [
+        "NS-C402",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "guide": "docs/foundations/cs.md",
+      "lab": "labs/foundations/cs"
+    },
+    {
+      "id": "linux",
+      "title": "Linux, processes & development environments",
+      "overview": "Process lifecycle, permissions, configuration and safe command execution are core workplace requirements. Learners reproduce faults with actual Python subprocesses and demonstrate resource cleanup.",
+      "targetTickets": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "guide": "docs/foundations/linux.md",
+      "lab": "labs/foundations/linux"
+    },
+    {
+      "id": "networking",
+      "title": "Networking, sockets & service operations",
+      "overview": "Understand the packet-to-API stack and its trust boundaries: IP and ports, TCP stream framing, TLS, HTTP and proxies. Real network faults reveal why a green socket is not the same as a correct service.",
+      "targetTickets": [
+        "NS-C401",
+        "NS-C407"
+      ],
+      "guide": "docs/foundations/networking.md",
+      "lab": "labs/foundations/networking"
+    },
+    {
+      "id": "data-structures",
+      "title": "Data structures & algorithms",
+      "overview": "Choose and justify collections and complexity using authentic account, job-queue and dependency examples. Practice invariants and performance before using these concepts in banking workflows.",
+      "targetTickets": [
+        "NS-C402",
+        "NS-C408"
+      ],
+      "guide": "docs/foundations/data-structures.md",
+      "lab": "labs/foundations/data-structures"
+    },
+    {
+      "id": "architecture",
+      "title": "Software architecture & system design",
+      "overview": "Trace code and data through explicit modules, isolate transport from business policy, and reason about migration, failure modes and reliability before implementing advanced service changes.",
+      "targetTickets": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "guide": "docs/foundations/architecture.md",
+      "lab": "labs/foundations/architecture"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "FND-PYTHON-01",
+      "unit": "python",
+      "position": 1,
+      "title": "Values, decisions and explicit contracts",
+      "level": "foundation",
+      "prerequisites": [],
+      "objectives": [
+        "Explain values, decisions and explicit contracts in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A function is a contract: it specifies what inputs it accepts, what result it produces, and how invalid inputs behave. Do not hide failure by silently substituting a default; callers may mistake an invalid account for a valid one. In Python, a boolean is also an integer subclass, so type checks involving numeric identifiers deserve care.",
+      "code": "def positive_id(raw):\n    if isinstance(raw, bool) or not isinstance(raw, int):\n        raise ValueError(\"integer required\")\n    if raw <= 0:\n        raise ValueError(\"must be positive\")\n    return raw",
+      "walkthrough": "The function rejects booleans even though isinstance(True, int) is true. The exception marks a violated contract, rather than inventing a usable identifier.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Why explicitly exclude bool from an integer identifier check?",
+        "choices": [
+          "Because bool is a subclass of int",
+          "Because bool cannot appear in JSON",
+          "Because Python variables are untyped"
+        ],
+        "answer": 0,
+        "rationale": "Python treats True as 1 in numeric contexts; a strict identifier contract should not."
+      },
+      "hints": [
+        "Revisit the contract: values, decisions and explicit contracts.",
+        "Python treats True as 1 in numeric contexts; a strict identifier contract should not.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Try the positive_id function with -1, 0, True and 7. Define the input and exception policy before coding.",
+      "bridge": [
+        "NS-C401",
+        "NS-C402"
+      ],
+      "workshop": "labs/foundations/python/README.md"
+    },
+    {
+      "id": "FND-PYTHON-02",
+      "unit": "python",
+      "position": 2,
+      "title": "Lists, dictionaries and aliasing",
+      "level": "guided",
+      "prerequisites": [
+        "FND-PYTHON-01"
+      ],
+      "objectives": [
+        "Explain lists, dictionaries and aliasing in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A list preserves order; a dictionary maps unique keys to values. Both are mutable, so passing a dictionary to another function may let that function change the caller’s object. Use copy semantics intentionally and never expose mutable internal account state through public API responses. Iterate using descriptive names and separate the shape of stored records from the shape of returned data.",
+      "code": "account = {\"owner\":\"alice\",\"balance\":100}\npublic = dict(account)\npublic.pop(\"balance\")\nassert \"balance\" in account",
+      "walkthrough": "dict(account) makes a shallow copy. For nested structures, changes to a nested list may still affect the original: consider copy.deepcopy when needed.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "What does dict(account) guarantee?",
+        "choices": [
+          "A shallow independent mapping",
+          "A recursive deep copy",
+          "An immutable account"
+        ],
+        "answer": 0,
+        "rationale": "It copies the outer mapping but not nested mutable objects."
+      },
+      "hints": [
+        "Revisit the contract: lists, dictionaries and aliasing.",
+        "It copies the outer mapping but not nested mutable objects.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Build a mapping from account owner to account IDs. Verify the input list remains unchanged.",
+      "bridge": [
+        "NS-C401",
+        "NS-C402"
+      ],
+      "workshop": "labs/foundations/python/README.md"
+    },
+    {
+      "id": "FND-PYTHON-03",
+      "unit": "python",
+      "position": 3,
+      "title": "Modules, exceptions and separation of concerns",
+      "level": "guided",
+      "prerequisites": [
+        "FND-PYTHON-02"
+      ],
+      "objectives": [
+        "Explain modules, exceptions and separation of concerns in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A service handler should translate HTTP requests and responses; business logic should enforce rules; database code should persist state. This separation makes code understandable and independently testable. Exceptions signal failures; catch them at an appropriate boundary where the service can produce a stable error response. Avoid a broad except Exception that converts programming bugs into misleading success results.",
+      "code": "def get_account(bank, actor, account_id):\n    account = bank.lookup(actor, account_id)\n    if account is None:\n        raise LookupError(\"not found\")\n    return {\"id\": account[\"id\"]}",
+      "walkthrough": "The service layer can catch LookupError and map it to an HTTP status, while unexpected programming errors should be diagnosed and logged safely.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Where should an HTTP status code be selected?",
+        "choices": [
+          "At the HTTP boundary",
+          "Inside every SQL query",
+          "In the unit test fixture only"
+        ],
+        "answer": 0,
+        "rationale": "Keep business errors independent from the transport protocol."
+      },
+      "hints": [
+        "Revisit the contract: modules, exceptions and separation of concerns.",
+        "Keep business errors independent from the transport protocol.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Trace app/server.py to app/bank.py. Sketch each layer’s responsibility and identify two places an exception can arise.",
+      "bridge": [
+        "NS-C401",
+        "NS-C402"
+      ],
+      "workshop": "labs/foundations/python/README.md"
+    },
+    {
+      "id": "FND-PYTHON-04",
+      "unit": "python",
+      "position": 4,
+      "title": "Iterators, complexity and independent refactoring",
+      "level": "independent",
+      "prerequisites": [
+        "FND-PYTHON-03"
+      ],
+      "objectives": [
+        "Explain iterators, complexity and independent refactoring in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "Comprehensions are concise but not automatically faster or clearer. For n records, a one-pass dictionary aggregation can be O(n) on average; searching an accumulated list for every record can become O(n²). Memory usage also matters. Optimize based on expected input size and tested behavior, not aesthetics. An independent engineer should explain a choice and provide a regression test.",
+      "code": "totals = {}\nfor item in records:\n    owner = item[\"owner\"]\n    totals[owner] = totals.get(owner, 0) + item[\"cents\"]",
+      "walkthrough": "Each record is processed once. Dictionary lookups are average O(1), while the aggregation consumes O(k) extra storage for k distinct owners.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "For n records, which approach is expected O(n) time?",
+        "choices": [
+          "Single-pass dictionary accumulation",
+          "Nested comparison of every pair",
+          "Sorting every prefix repeatedly"
+        ],
+        "answer": 0,
+        "rationale": "An average constant-time lookup inside one pass makes the total linear."
+      },
+      "hints": [
+        "Revisit the contract: iterators, complexity and independent refactoring.",
+        "An average constant-time lookup inside one pass makes the total linear.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Complete foundations/python/starter.py with the test suite and submit a short explanation of your algorithmic complexity.",
+      "bridge": [
+        "NS-C401",
+        "NS-C402"
+      ],
+      "workshop": "labs/foundations/python/README.md"
+    },
+    {
+      "id": "FND-HTTP-01",
+      "unit": "http",
+      "position": 1,
+      "title": "Requests, responses and layers",
+      "level": "foundation",
+      "prerequisites": [
+        "FND-PYTHON-03"
+      ],
+      "objectives": [
+        "Explain requests, responses and layers in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "An HTTP request contains a method, target, headers and optionally a body. The response returns a status, headers and representation. The URL identifies the resource; it is not a guarantee of access. Application code should parse input without assuming clients are honest. Learn to read a raw exchange before using frameworks that hide these mechanics.",
+      "code": "GET /health HTTP/1.1\nHost: 127.0.0.1:8765\nAccept: application/json\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"status\":\"ok\"}",
+      "walkthrough": "The status and Content-Type inform how the client interprets the body. Health check response shape is part of the API contract.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Where is the response status code found?",
+        "choices": [
+          "The status line",
+          "The URL path",
+          "Only in JSON"
+        ],
+        "answer": 0,
+        "rationale": "HTTP status is transport metadata; a JSON status field is application data."
+      },
+      "hints": [
+        "Revisit the contract: requests, responses and layers.",
+        "HTTP status is transport metadata; a JSON status field is application data.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Use curl -i on the local /health route and annotate the method, path, headers, status and body.",
+      "bridge": [
+        "NS-C401",
+        "NS-C403",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/http/README.md"
+    },
+    {
+      "id": "FND-HTTP-02",
+      "unit": "http",
+      "position": 2,
+      "title": "Methods, status codes and safe semantics",
+      "level": "guided",
+      "prerequisites": [
+        "FND-HTTP-01"
+      ],
+      "objectives": [
+        "Explain methods, status codes and safe semantics in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "GET retrieves a representation without intentionally changing server state. POST usually submits a state-changing operation. Status codes describe classes of outcome: 2xx success, 4xx client issues, 5xx service failures. 401 indicates missing or invalid authentication; 403 denies authenticated access; 404 may hide the existence of an inaccessible record when consistently applied. The body must not leak a secret.",
+      "code": "GET /accounts/7 HTTP/1.1\nX-Demo-User: alice\n\nHTTP/1.1 404 Not Found\nContent-Type: application/json",
+      "walkthrough": "A 404 can be a deliberate privacy-preserving response even when account 7 exists, if the caller lacks permission. The demo identity is not authentication.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Which status conventionally represents an unauthenticated request?",
+        "choices": [
+          "401",
+          "201",
+          "503"
+        ],
+        "answer": 0,
+        "rationale": "401 is about authentication; 403 is about authorization."
+      },
+      "hints": [
+        "Revisit the contract: methods, status codes and safe semantics.",
+        "401 is about authentication; 403 is about authorization.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "In the HTTP workshop return well-defined statuses for a valid request, missing resource and malformed identifier.",
+      "bridge": [
+        "NS-C401",
+        "NS-C403",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/http/README.md"
+    },
+    {
+      "id": "FND-HTTP-03",
+      "unit": "http",
+      "position": 3,
+      "title": "Validation, serialization and pagination",
+      "level": "guided",
+      "prerequisites": [
+        "FND-HTTP-02"
+      ],
+      "objectives": [
+        "Explain validation, serialization and pagination in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "JSON is a data interchange format; type validation is still required. \"10\" is not the same JSON value as 10, and an empty object may be valid JSON but invalid business input. Pagination limits response size and makes client behavior predictable. Set a bounded maximum limit, a documented offset policy, and stable ordering; otherwise clients can skip or duplicate records.",
+      "code": "limit = min(max(int(raw_limit), 1), 50)\noffset = max(int(raw_offset), 0)\nrows = query(order_by=\"id\", limit=limit, offset=offset)",
+      "walkthrough": "This sketch assumes integers can be parsed; production code must catch ValueError and return a documented client error rather than crashing.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Why sort before applying offset pagination?",
+        "choices": [
+          "To make page membership deterministic",
+          "To guarantee authorization",
+          "To encrypt the response"
+        ],
+        "answer": 0,
+        "rationale": "Without stable ordering, requests for adjacent pages may overlap or miss items."
+      },
+      "hints": [
+        "Revisit the contract: validation, serialization and pagination.",
+        "Without stable ordering, requests for adjacent pages may overlap or miss items.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Trace /accounts in the residency. Test a negative limit, an excessive limit and two adjacent pages.",
+      "bridge": [
+        "NS-C401",
+        "NS-C403",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/http/README.md"
+    },
+    {
+      "id": "FND-HTTP-04",
+      "unit": "http",
+      "position": 4,
+      "title": "Retries, idempotency and failure analysis",
+      "level": "independent",
+      "prerequisites": [
+        "FND-HTTP-03"
+      ],
+      "objectives": [
+        "Explain retries, idempotency and failure analysis in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "Networks can fail after a request succeeds but before the response reaches the client. A client that retries an operation may accidentally execute it twice. GET is intended to be safe; a POST transfer is not automatically idempotent. Use a server-enforced idempotency key with a consistent request fingerprint, durable storage and atomic result recording. The client should distinguish timeouts from documented 4xx outcomes.",
+      "code": "POST /transfers HTTP/1.1\nIdempotency-Key: demo-transaction-42\nContent-Type: application/json\n\n{\"from\":1,\"to\":2,\"cents\":500}",
+      "walkthrough": "A repeated request with the same key and same content must not repeat the debit. A reused key with different content must not silently adopt the first result.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "A client times out after a successful transfer. What prevents a repeated debit?",
+        "choices": [
+          "Durable server-side idempotency enforcement",
+          "A longer client timeout only",
+          "Changing POST to GET"
+        ],
+        "answer": 0,
+        "rationale": "Retries are a distributed-systems concern: the server must recognize previously committed operations."
+      },
+      "hints": [
+        "Revisit the contract: retries, idempotency and failure analysis.",
+        "Retries are a distributed-systems concern: the server must recognize previously committed operations.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Add idempotency tests to the HTTP workshop, then explain why a local-memory key cache is insufficient for restarts.",
+      "bridge": [
+        "NS-C401",
+        "NS-C403",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/http/README.md"
+    },
+    {
+      "id": "FND-SQL-01",
+      "unit": "sql",
+      "position": 1,
+      "title": "Tables, keys and invariants",
+      "level": "foundation",
+      "prerequisites": [
+        "FND-PYTHON-02"
+      ],
+      "objectives": [
+        "Explain tables, keys and invariants in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A relational table has rows and columns; a primary key uniquely identifies a row, while a foreign key links valid related rows. Design constraints to enforce rules close to the data, not only in a view or browser. Store money in integer minor units rather than binary floating point. A CHECK constraint can reject negative balances, but it does not replace application authorization.",
+      "code": "CREATE TABLE accounts (\n id INTEGER PRIMARY KEY,\n owner TEXT NOT NULL,\n cents INTEGER NOT NULL CHECK(cents >= 0)\n);",
+      "walkthrough": "The table rejects negative cents, supporting a business invariant even if a developer writes an incorrect update.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Why store whole cents instead of binary floating point?",
+        "choices": [
+          "Precise minor-unit arithmetic",
+          "It removes all concurrency concerns",
+          "It automatically proves authorization"
+        ],
+        "answer": 0,
+        "rationale": "Floating-point approximations can create rounding surprises in monetary calculations."
+      },
+      "hints": [
+        "Revisit the contract: tables, keys and invariants.",
+        "Floating-point approximations can create rounding surprises in monetary calculations.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Create two tables with keys and constraints in an in-memory SQLite database; try violating each constraint.",
+      "bridge": [
+        "NS-C402",
+        "NS-C404",
+        "NS-C405",
+        "NS-C406"
+      ],
+      "workshop": "labs/foundations/sql/README.md"
+    },
+    {
+      "id": "FND-SQL-02",
+      "unit": "sql",
+      "position": 2,
+      "title": "SELECT, JOIN and predictable scoping",
+      "level": "guided",
+      "prerequisites": [
+        "FND-SQL-01"
+      ],
+      "objectives": [
+        "Explain select, join and predictable scoping in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "SQL is declarative: describe which rows you need rather than how to iterate through them. Never retrieve all accounts and then filter by current user in a separate layer when the query can include the ownership predicate. Parameter placeholders prevent values from becoming executable SQL. For JOINs, qualify columns to avoid accidentally mixing identities or exposing unrelated data.",
+      "code": "SELECT id, cents FROM accounts\nWHERE owner = ? AND id = ?\nORDER BY id;",
+      "walkthrough": "Both actor and requested identifier are bound as data, and the authorization predicate travels with the query.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Where should the account-owner predicate be enforced?",
+        "choices": [
+          "In the data-access query as part of authorization",
+          "Only by hiding frontend buttons",
+          "Only in a README"
+        ],
+        "answer": 0,
+        "rationale": "Server-side authorization must be enforced regardless of what a client renders."
+      },
+      "hints": [
+        "Revisit the contract: select, join and predictable scoping.",
+        "Server-side authorization must be enforced regardless of what a client renders.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Implement an owner-scoped listing with LIMIT and OFFSET in the SQL workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C404",
+        "NS-C405",
+        "NS-C406"
+      ],
+      "workshop": "labs/foundations/sql/README.md"
+    },
+    {
+      "id": "FND-SQL-03",
+      "unit": "sql",
+      "position": 3,
+      "title": "Transactions, rollback and atomicity",
+      "level": "guided",
+      "prerequisites": [
+        "FND-SQL-02"
+      ],
+      "objectives": [
+        "Explain transactions, rollback and atomicity in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "One transfer modifies at least two balances; the updates must succeed together or not at all. BEGIN starts a transaction, COMMIT makes changes durable, and ROLLBACK discards uncommitted changes. Think in invariants: if funds move between accounts, the total should remain constant and no balance should go below zero. Simulate a failure after the debit and assert both original balances remain.",
+      "code": "BEGIN;\nUPDATE accounts SET cents=cents-500 WHERE id=1;\nUPDATE accounts SET cents=cents+500 WHERE id=2;\nCOMMIT;",
+      "walkthrough": "For an actual safe transfer, also verify ownership, available funds and that both target accounts exist; the example illustrates atomic grouping only.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "After a rollback, what happens to an uncommitted debit?",
+        "choices": [
+          "It is undone",
+          "It is always retained",
+          "It gets copied to the audit log"
+        ],
+        "answer": 0,
+        "rationale": "Rollback reverses changes made in that transaction."
+      },
+      "hints": [
+        "Revisit the contract: transactions, rollback and atomicity.",
+        "Rollback reverses changes made in that transaction.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Make the SQL workshop transfer function rollback when the credit fails; verify both balances in a test.",
+      "bridge": [
+        "NS-C402",
+        "NS-C404",
+        "NS-C405",
+        "NS-C406"
+      ],
+      "workshop": "labs/foundations/sql/README.md"
+    },
+    {
+      "id": "FND-SQL-04",
+      "unit": "sql",
+      "position": 4,
+      "title": "Concurrency, indexes and query plans",
+      "level": "independent",
+      "prerequisites": [
+        "FND-SQL-03"
+      ],
+      "objectives": [
+        "Explain concurrency, indexes and query plans in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A transaction does not automatically solve all concurrent update anomalies. Consider two workers reading the same initial balance and issuing overlapping writes. Database isolation, conditional updates, locking and UNIQUE constraints must be designed for the database in use. SQLite and PostgreSQL differ in locking and isolation behavior. An index accelerates predicates at the cost of write/storage overhead; EXPLAIN QUERY PLAN reveals actual access paths.",
+      "code": "UPDATE accounts SET cents=cents-?\nWHERE id=? AND owner=? AND cents>=?;",
+      "walkthrough": "A conditional update can preserve the nonnegative-balance invariant if the affected-row count is checked within the transaction.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Why inspect the affected row count after a conditional UPDATE?",
+        "choices": [
+          "Zero may mean missing permission or insufficient funds",
+          "It guarantees low latency",
+          "It makes the query read-only"
+        ],
+        "answer": 0,
+        "rationale": "A no-op update should be distinguished from a successful transfer debit."
+      },
+      "hints": [
+        "Revisit the contract: concurrency, indexes and query plans.",
+        "A no-op update should be distinguished from a successful transfer debit.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Investigate the banking transfer implementation: what would change under two concurrent requests? Document assumptions specific to SQLite.",
+      "bridge": [
+        "NS-C402",
+        "NS-C404",
+        "NS-C405",
+        "NS-C406"
+      ],
+      "workshop": "labs/foundations/sql/README.md"
+    },
+    {
+      "id": "FND-TESTING-01",
+      "unit": "testing",
+      "position": 1,
+      "title": "Arrange, act, assert and test boundaries",
+      "level": "foundation",
+      "prerequisites": [
+        "FND-PYTHON-01"
+      ],
+      "objectives": [
+        "Explain arrange, act, assert and test boundaries in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A test sets up a known state, performs one meaningful action and checks an observable outcome. The failure message should describe the contract. Unit tests are fast and narrow; integration tests verify several components cooperate. Avoid depending on test execution order, clocks or network availability unless the test specifically examines them.",
+      "code": "def test_positive_balance(self):\n    bank = make_bank(balance=100)\n    result = bank.balance(account_id=1)\n    self.assertEqual(result, 100)",
+      "walkthrough": "The assertion checks externally visible behavior rather than the name of an internal variable.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Which test design resists internal refactoring best?",
+        "choices": [
+          "Checking contract behavior",
+          "Reading internal local variable names",
+          "Depending on test order"
+        ],
+        "answer": 0,
+        "rationale": "Contracts remain stable even when implementation details change."
+      },
+      "hints": [
+        "Revisit the contract: arrange, act, assert and test boundaries.",
+        "Contracts remain stable even when implementation details change.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Write a positive and negative test for Python normalize records; do not copy the implementation logic into the test.",
+      "bridge": [
+        "NS-C401",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/testing/README.md"
+    },
+    {
+      "id": "FND-TESTING-02",
+      "unit": "testing",
+      "position": 2,
+      "title": "Boundary cases and negative paths",
+      "level": "guided",
+      "prerequisites": [
+        "FND-TESTING-01"
+      ],
+      "objectives": [
+        "Explain boundary cases and negative paths in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "Most high-impact defects occur at the edge of assumptions: empty collections, zero amounts, missing records, unexpected types, overflow limits and unauthorized callers. Enumerate equivalence classes rather than guessing. A negative test should verify the absence of an unsafe side effect, not only the error text. For security, test two distinct users and ensure one cannot view the other’s account.",
+      "code": "with self.assertRaises(ValueError):\n    transfer(cents=0)\nself.assertEqual(balance_before, balance_after)",
+      "walkthrough": "The second assertion is essential: raising an error does not prove no debit occurred.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "A transfer rejects zero cents. What else should the test establish?",
+        "choices": [
+          "Balances are unchanged",
+          "A stack trace is returned to client",
+          "The code took exactly 1 ms"
+        ],
+        "answer": 0,
+        "rationale": "Tests should verify state invariants on failure paths."
+      },
+      "hints": [
+        "Revisit the contract: boundary cases and negative paths.",
+        "Tests should verify state invariants on failure paths.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Add tests for missing owner, blank identifiers, repeated idempotency keys and simulated credit failure.",
+      "bridge": [
+        "NS-C401",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/testing/README.md"
+    },
+    {
+      "id": "FND-TESTING-03",
+      "unit": "testing",
+      "position": 3,
+      "title": "Fixtures, integration and HTTP contracts",
+      "level": "guided",
+      "prerequisites": [
+        "FND-TESTING-02"
+      ],
+      "objectives": [
+        "Explain fixtures, integration and http contracts in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A fixture prepares isolated dependencies, such as a fresh in-memory SQLite database. An HTTP integration test starts a local-only server on an ephemeral port, sends a real request and checks status, body and side effects. Keep test state hermetic; sharing one database across tests makes outcomes order-dependent. Reserve end-to-end tests for essential flows rather than using them for every helper.",
+      "code": "with self.assertRaises(HTTPError) as caught:\n    urlopen(private_url)\nself.assertEqual(caught.exception.code, 404)",
+      "walkthrough": "The network contract is observed at the HTTP boundary and can detect mismatched error mapping across layers.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Why prefer a fresh fixture for each test?",
+        "choices": [
+          "Prevent state leakage between tests",
+          "Guarantee no bugs can exist",
+          "Make every test use live production data"
+        ],
+        "answer": 0,
+        "rationale": "Repeatable tests begin from controlled state. Consider the behavior for invalid input and a failing operation before treating the contract as correct."
+      },
+      "hints": [
+        "Revisit the contract: fixtures, integration and http contracts.",
+        "Repeatable tests begin from controlled state.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Create a localhost HTTP contract test for one health endpoint and one unauthorized access result.",
+      "bridge": [
+        "NS-C401",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/testing/README.md"
+    },
+    {
+      "id": "FND-TESTING-04",
+      "unit": "testing",
+      "position": 4,
+      "title": "Regression strategy and testing limits",
+      "level": "independent",
+      "prerequisites": [
+        "FND-TESTING-03"
+      ],
+      "objectives": [
+        "Explain regression strategy and testing limits in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A test suite is evidence, not proof that software is correct. A regression test should reproduce a real failure before you fix it and pass afterward. Test the branch where the defect used to occur. Mutation testing asks whether deliberate incorrect changes cause tests to fail; code coverage alone counts execution rather than meaningful assertions. CI should fail on regressions and provide reproducible diagnostic output.",
+      "code": "def test_transfer_rollback(self):\n    with self.assertRaises(RuntimeError):\n        bank.transfer(fail_after_debit=True)\n    self.assertEqual(bank.total_cents(), initial_total)",
+      "walkthrough": "This property catches a partially committed debit even if the endpoint reports an error correctly.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Can 100% line coverage prove a transfer is atomic?",
+        "choices": [
+          "No, the assertions must exercise failure invariants",
+          "Yes, every executed line is correct",
+          "Only if the test runner is Python"
+        ],
+        "answer": 0,
+        "rationale": "Coverage is not a substitute for assertions about important properties."
+      },
+      "hints": [
+        "Revisit the contract: regression strategy and testing limits.",
+        "Coverage is not a substitute for assertions about important properties.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Use the testing workshop to write a minimal test that fails against the supplied buggy implementation, then fix the defect.",
+      "bridge": [
+        "NS-C401",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/testing/README.md"
+    },
+    {
+      "id": "FND-DEBUGGING-01",
+      "unit": "debugging",
+      "position": 1,
+      "title": "Reproduce and reduce the problem",
+      "level": "foundation",
+      "prerequisites": [
+        "FND-TESTING-01"
+      ],
+      "objectives": [
+        "Explain reproduce and reduce the problem in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "Describe the expected behavior, observed behavior, exact inputs and environment. Reproduce before changing code. Simplify the scenario to the minimum request or function call that still exhibits the defect. A failed curl command caused by starting the server incorrectly is not evidence of an application defect. Keep an evidence trail so another engineer can repeat the experiment.",
+      "code": "python3 -m unittest tests.test_sprint1 -v\npython3 -m app.server --port 8765\ncurl -i http://127.0.0.1:8765/health",
+      "walkthrough": "Separate test execution from server startup; each command addresses a different layer of failure.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "What should you do before patching a reported bug?",
+        "choices": [
+          "Reproduce the observable failure",
+          "Replace the entire module",
+          "Ignore test fixtures"
+        ],
+        "answer": 0,
+        "rationale": "A clear reproduction distinguishes cause from coincidence."
+      },
+      "hints": [
+        "Revisit the contract: reproduce and reduce the problem.",
+        "A clear reproduction distinguishes cause from coincidence.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Write a reproduction note for the health contract with commands, expected result, observed result and environment.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/debugging/README.md"
+    },
+    {
+      "id": "FND-DEBUGGING-02",
+      "unit": "debugging",
+      "position": 2,
+      "title": "Call stacks, state and exceptions",
+      "level": "guided",
+      "prerequisites": [
+        "FND-DEBUGGING-01"
+      ],
+      "objectives": [
+        "Explain call stacks, state and exceptions in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A call stack shows the active chain of functions; the point where an exception is raised may be downstream from the original input error. Check arguments at each boundary and ask where the invariant was first broken. Use breakpoints or a small focused print during development, then remove unsafe debug output before release. Stack traces belong in internal diagnostics, not public API bodies.",
+      "code": "def handler(request):\n    user = parse_user(request)\n    return bank.lookup(user, request.path)",
+      "walkthrough": "A wrong parse_user result can make a correct lookup behave incorrectly; examine the input at each stage.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Where should you look if lookup receives the wrong actor?",
+        "choices": [
+          "The caller and parse boundary",
+          "Only the database index",
+          "Only the CSS"
+        ],
+        "answer": 0,
+        "rationale": "Trace the value backward to where it became incorrect."
+      },
+      "hints": [
+        "Revisit the contract: call stacks, state and exceptions.",
+        "Trace the value backward to where it became incorrect.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Use pdb or a breakpoint on a small Python helper; record the variable value before and after the bug.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/debugging/README.md"
+    },
+    {
+      "id": "FND-DEBUGGING-03",
+      "unit": "debugging",
+      "position": 3,
+      "title": "Structured logs and safe telemetry",
+      "level": "guided",
+      "prerequisites": [
+        "FND-DEBUGGING-02"
+      ],
+      "objectives": [
+        "Explain structured logs and safe telemetry in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "Logs should include event type, correlation ID and enough context to diagnose failures, while excluding passwords, tokens and raw private customer details. Avoid logging entire request bodies by default. Distinguish events from mutable application state, and keep stable structured fields so downstream searches remain reliable. Log at the right level: a rejected request is not always a server outage.",
+      "code": "{\"event\":\"transfer_rejected\",\"request_id\":\"req-72\",\n \"reason\":\"insufficient_funds\"}",
+      "walkthrough": "The log identifies what happened without exposing balances, personal data, authentication headers or secrets.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "What should an audit-safe log omit?",
+        "choices": [
+          "Access tokens and raw secret values",
+          "Event type",
+          "Correlation identifier"
+        ],
+        "answer": 0,
+        "rationale": "Telemetry must not become a new disclosure path. Consider the behavior for invalid input and a failing operation before treating the contract as correct."
+      },
+      "hints": [
+        "Revisit the contract: structured logs and safe telemetry.",
+        "Telemetry must not become a new disclosure path.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Implement sanitization in the debugging workshop and demonstrate that authorization headers are not emitted.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/debugging/README.md"
+    },
+    {
+      "id": "FND-DEBUGGING-04",
+      "unit": "debugging",
+      "position": 4,
+      "title": "Root-cause report and regression",
+      "level": "independent",
+      "prerequisites": [
+        "FND-DEBUGGING-03"
+      ],
+      "objectives": [
+        "Explain root-cause report and regression in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A root-cause report separates trigger, defect, impact, resolution and prevention. The cause is not merely \"the endpoint failed\": identify which condition violated which assumption. Include the smallest reproduction, changed files, before-and-after tests and rollback considerations. If your hypothesis fails, record what was learned and iterate rather than making an unsupported claim.",
+      "code": "Trigger: unknown account\nDefect: missing null check\nImpact: HTTP 500 instead of 404\nFix: handle missing row\nRegression: test_missing_account",
+      "walkthrough": "Each statement has a distinct purpose and should point to reproducible evidence, not a vague statement that the bug is fixed.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "What makes a root-cause claim defensible?",
+        "choices": [
+          "A reproduction linked to code path and regression test",
+          "A confident assertion without logs",
+          "Only a screenshot of the homepage"
+        ],
+        "answer": 0,
+        "rationale": "Traceability matters more than polished wording. Consider the behavior for invalid input and a failing operation before treating the contract as correct."
+      },
+      "hints": [
+        "Revisit the contract: root-cause report and regression.",
+        "Traceability matters more than polished wording.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Create a root-cause note for the deliberately defective workshop and compare it with the banking ticket review fields.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/debugging/README.md"
+    },
+    {
+      "id": "FND-CS-01",
+      "unit": "cs",
+      "position": 1,
+      "title": "State, invariants and decomposition",
+      "level": "foundation",
+      "prerequisites": [
+        "FND-PYTHON-02"
+      ],
+      "objectives": [
+        "Explain state, invariants and decomposition in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A system state is everything needed to predict its next behavior. An invariant is a property that must remain true across allowed transitions. Instead of checking only that a function returned success, check the state after the operation. Break large problems into small pure computations and controlled mutations. For a transfer between two existing accounts, total system balance should not change.",
+      "code": "before = debit_cents + credit_cents\n# perform safe transfer\nafter = debit_cents_new + credit_cents_new\nassert after == before",
+      "walkthrough": "The conservation invariant detects lost or invented funds, including failures that a happy-path HTTP response may not reveal.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Which property is a state invariant for an internal transfer?",
+        "choices": [
+          "Total balance remains constant",
+          "Every API response is status 200",
+          "Every list is sorted"
+        ],
+        "answer": 0,
+        "rationale": "An invariant is a property across all permitted state transitions."
+      },
+      "hints": [
+        "Revisit the contract: state, invariants and decomposition.",
+        "An invariant is a property across all permitted state transitions.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Define three invariants for the banking service and create a test case that violates each.",
+      "bridge": [
+        "NS-C402",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/cs/README.md"
+    },
+    {
+      "id": "FND-CS-02",
+      "unit": "cs",
+      "position": 2,
+      "title": "Big-O and choosing data structures",
+      "level": "guided",
+      "prerequisites": [
+        "FND-CS-01"
+      ],
+      "objectives": [
+        "Explain big-o and choosing data structures in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "Big-O describes how resource needs grow with input size, not exact runtime. A dictionary lookup is O(1) on average while a linear scan over n records is O(n). A nested scan over n-by-n combinations can reach O(n²). Use lists for ordered sequences, dictionaries for key lookup, sets for membership, queues for first-in-first-out work and stacks for last-in-first-out processing.",
+      "code": "seen = set()\nfor item in events:\n    if item[\"id\"] in seen:\n        continue\n    seen.add(item[\"id\"])",
+      "walkthrough": "The set avoids rescanning every earlier event; average membership is O(1), giving an expected O(n) pass over n events.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "What is expected time for set membership in Python?",
+        "choices": [
+          "Average O(1)",
+          "Always O(n²)",
+          "Always O(log n)"
+        ],
+        "answer": 0,
+        "rationale": "Hash-table operations are average constant time, though worst cases differ."
+      },
+      "hints": [
+        "Revisit the contract: big-o and choosing data structures.",
+        "Hash-table operations are average constant time, though worst cases differ.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Compare duplicate detection with a list and a set on datasets of increasing sizes.",
+      "bridge": [
+        "NS-C402",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/cs/README.md"
+    },
+    {
+      "id": "FND-CS-03",
+      "unit": "cs",
+      "position": 3,
+      "title": "Graphs, prerequisites and cycle detection",
+      "level": "guided",
+      "prerequisites": [
+        "FND-CS-02"
+      ],
+      "objectives": [
+        "Explain graphs, prerequisites and cycle detection in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "A learning curriculum and a software build both contain dependency graphs. If lesson B depends on A, A must be completed first. A directed cycle such as A→B→A makes a strict prerequisite order impossible. Depth-first search can classify a node as unseen, visiting or complete; reaching a visiting node identifies a cycle. This exact property is validated by the curriculum registry tests.",
+      "code": "visiting = set()\nvisited = set()\ndef visit(node):\n    if node in visiting: raise ValueError(\"cycle\")\n    if node in visited: return\n    visiting.add(node)\n    for parent in deps[node]: visit(parent)\n    visiting.remove(node)\n    visited.add(node)",
+      "walkthrough": "Marking complete only after all parents have been traversed produces a valid dependency-first ordering.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "What does encountering a visiting node during DFS indicate?",
+        "choices": [
+          "A directed cycle",
+          "A stable topological ordering",
+          "A unique primary key"
+        ],
+        "answer": 0,
+        "rationale": "A node on the current DFS path cannot be its own prerequisite."
+      },
+      "hints": [
+        "Revisit the contract: graphs, prerequisites and cycle detection.",
+        "A node on the current DFS path cannot be its own prerequisite.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Implement deterministic topological ordering in the CS workshop and test both an acyclic graph and a cycle.",
+      "bridge": [
+        "NS-C402",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/cs/README.md"
+    },
+    {
+      "id": "FND-CS-04",
+      "unit": "cs",
+      "position": 4,
+      "title": "Tradeoffs, interfaces and system design",
+      "level": "independent",
+      "prerequisites": [
+        "FND-CS-03"
+      ],
+      "objectives": [
+        "Explain tradeoffs, interfaces and system design in the context of a real system",
+        "Interpret a worked example and its failure modes",
+        "Apply the concept in a runnable Python workshop"
+      ],
+      "explanation": "Architecture is a set of tradeoffs, not a contest to use the most services. A modular monolith keeps deployment simple and can have strong internal boundaries; splitting into networked services adds latency, coordination and failure modes. Draw the data flow, identify trust boundaries, define ownership of invariants and plan how to observe failures. Only introduce queues, caching or microservices when a measurable requirement demands them.",
+      "code": "Client -> HTTP adapter -> domain rules -> SQLite\n                  |                  |\n             validation         transaction",
+      "walkthrough": "A clear single-service design makes it easier to reason about where authorization and transactional invariants must be enforced.",
+      "misconception": "A correct example is not proof that every input and failure path is safe. Test boundary cases and articulate the assumptions before considering the work complete.",
+      "check": {
+        "prompt": "Which change best justifies a new service?",
+        "choices": [
+          "A measured need with clear ownership and tradeoff analysis",
+          "A preference for more technologies",
+          "Avoiding all documentation"
+        ],
+        "answer": 0,
+        "rationale": "Architectural complexity should solve a real constraint, not create new ones."
+      },
+      "hints": [
+        "Revisit the contract: tradeoffs, interfaces and system design.",
+        "Architectural complexity should solve a real constraint, not create new ones.",
+        "Try the example with one invalid input; compare the observed behavior with the stated invariant."
+      ],
+      "practice": "Draw the banking service trust boundaries and write an ADR comparing a modular monolith with two network services.",
+      "bridge": [
+        "NS-C402",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/cs/README.md"
+    },
+    {
+      "id": "FND-PYTHON-05",
+      "unit": "python",
+      "position": 5,
+      "title": "Iterators and generators",
+      "level": "guided",
+      "prerequisites": [
+        "FND-PYTHON-04"
+      ],
+      "objectives": [
+        "Explain iterators and generators with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "An iterator yields one item at a time instead of materializing a full collection. This enables bounded-memory processing of large transaction logs, but iterators can be exhausted; do not accidentally traverse the same stream twice. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "transactions = (line.strip() for line in [\" debit \",\" credit \"]); print(next(transactions))",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A generator expression is lazy; it is not a list and has no guaranteed rewind.",
+      "check": {
+        "prompt": "Why can a transaction-log generator save memory?",
+        "choices": [
+          "It produces records on demand",
+          "It permanently stores all records",
+          "It guarantees disk durability"
+        ],
+        "answer": 0,
+        "rationale": "An iterator yields one item at a time instead of materializing a full collection. A generator expression is lazy; it is not a list and has no guaranteed rewind."
+      },
+      "hints": [
+        "State the invariant behind iterators and generators in one sentence.",
+        "A generator expression is lazy; it is not a list and has no guaranteed rewind.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the python workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C402"
+      ],
+      "workshop": "labs/foundations/python/README.md"
+    },
+    {
+      "id": "FND-PYTHON-06",
+      "unit": "python",
+      "position": 6,
+      "title": "Type hints and validation",
+      "level": "guided",
+      "prerequisites": [
+        "FND-PYTHON-05"
+      ],
+      "objectives": [
+        "Explain type hints and validation with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Type annotations help reviewers and static tools understand interfaces, but Python does not enforce them at runtime. Untrusted JSON must still be parsed and validated. Avoid conflating bool and int or silently coercing string amounts into numeric financial values. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "def cents(amount: int) -> int:\n    if type(amount) is not int or amount <= 0: raise ValueError(\"amount\")\n    return amount",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A type hint does not validate an API request by itself.",
+      "check": {
+        "prompt": "What does amount: int do at runtime?",
+        "choices": [
+          "Makes all arithmetic atomic",
+          "Documents intent; explicit validation is still needed",
+          "Rejects every string automatically"
+        ],
+        "answer": 1,
+        "rationale": "Type annotations help reviewers and static tools understand interfaces, but Python does not enforce them at runtime. A type hint does not validate an API request by itself."
+      },
+      "hints": [
+        "State the invariant behind type hints and validation in one sentence.",
+        "A type hint does not validate an API request by itself.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the python workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C402"
+      ],
+      "workshop": "labs/foundations/python/README.md"
+    },
+    {
+      "id": "FND-PYTHON-07",
+      "unit": "python",
+      "position": 7,
+      "title": "Context managers and resources",
+      "level": "independent",
+      "prerequisites": [
+        "FND-PYTHON-06"
+      ],
+      "objectives": [
+        "Explain context managers and resources with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Files and database connections are limited resources. A context manager makes cleanup predictable when an exception interrupts a procedure; it does not automatically make unrelated database operations atomic. Understand what an object’s __exit__ actually guarantees. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "from contextlib import closing\nwith closing(open(\"/dev/null\")) as stream:\n    assert stream.read() == \"\"",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A with statement only offers guarantees implemented by the context manager.",
+      "check": {
+        "prompt": "What is the key role of a context manager?",
+        "choices": [
+          "Implicitly encrypt any resource",
+          "Guarantee all queries use one transaction",
+          "Deterministic acquire/release around a block"
+        ],
+        "answer": 2,
+        "rationale": "Files and database connections are limited resources. A with statement only offers guarantees implemented by the context manager."
+      },
+      "hints": [
+        "State the invariant behind context managers and resources in one sentence.",
+        "A with statement only offers guarantees implemented by the context manager.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the python workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C402"
+      ],
+      "workshop": "labs/foundations/python/README.md"
+    },
+    {
+      "id": "FND-PYTHON-08",
+      "unit": "python",
+      "position": 8,
+      "title": "Dependency injection and testing seams",
+      "level": "independent",
+      "prerequisites": [
+        "FND-PYTHON-07"
+      ],
+      "objectives": [
+        "Explain dependency injection and testing seams with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A function that reads its own environment, opens its own database and sends HTTP requests is difficult to test. Inject boundaries such as a repository or clock so tests can provide safe fakes. Keep business policy separate from transport or persistence details. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "def account_label(repository, owner):\n    return repository.find_label(owner)",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Injection is not the same as exposing internal mutable state to callers.",
+      "check": {
+        "prompt": "Which design most directly improves test isolation?",
+        "choices": [
+          "Pass dependencies into the function",
+          "Use global connections in every function",
+          "Disable errors in test mode"
+        ],
+        "answer": 0,
+        "rationale": "A function that reads its own environment, opens its own database and sends HTTP requests is difficult to test. Injection is not the same as exposing internal mutable state to callers."
+      },
+      "hints": [
+        "State the invariant behind dependency injection and testing seams in one sentence.",
+        "Injection is not the same as exposing internal mutable state to callers.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the python workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C402"
+      ],
+      "workshop": "labs/foundations/python/README.md"
+    },
+    {
+      "id": "FND-HTTP-05",
+      "unit": "http",
+      "position": 5,
+      "title": "Content types and serialization",
+      "level": "guided",
+      "prerequisites": [
+        "FND-HTTP-04"
+      ],
+      "objectives": [
+        "Explain content types and serialization with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "An API contract includes representation details. A valid JSON body delivered with the wrong content type can be rejected by clients, and an arbitrary object can fail serialization. Validate content type before reading input and return a consistent JSON response shape. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import json\npayload=json.dumps({\"ok\": True}).encode(\"utf-8\")\nassert payload.startswith(b\"{\")",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A 200 status does not prove that the content matches the declared media type.",
+      "check": {
+        "prompt": "Which response metadata tells a client how to parse JSON?",
+        "choices": [
+          "User-Agent: student",
+          "Content-Type: application/json",
+          "Server: development"
+        ],
+        "answer": 1,
+        "rationale": "An API contract includes representation details. A 200 status does not prove that the content matches the declared media type."
+      },
+      "hints": [
+        "State the invariant behind content types and serialization in one sentence.",
+        "A 200 status does not prove that the content matches the declared media type.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the http workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C403",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/http/README.md"
+    },
+    {
+      "id": "FND-HTTP-06",
+      "unit": "http",
+      "position": 6,
+      "title": "Pagination and stable ordering",
+      "level": "guided",
+      "prerequisites": [
+        "FND-HTTP-05"
+      ],
+      "objectives": [
+        "Explain pagination and stable ordering with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Large resources should be paginated to avoid unbounded responses. A limit without a deterministic order can skip or repeat rows when new records are inserted. Keyset pagination scales better for many append-only workloads; offset pagination is simpler but requires tradeoff analysis. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "rows=[{\"id\":3},{\"id\":1},{\"id\":2}]\npage=sorted(rows,key=lambda x:x[\"id\"])[:2]\nassert [x[\"id\"] for x in page]==[1,2]",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A LIMIT without ORDER BY does not establish stable page contents.",
+      "check": {
+        "prompt": "Why order results before pagination?",
+        "choices": [
+          "To authenticate a caller",
+          "To eliminate every race condition",
+          "To make the page deterministic"
+        ],
+        "answer": 2,
+        "rationale": "Large resources should be paginated to avoid unbounded responses. A LIMIT without ORDER BY does not establish stable page contents."
+      },
+      "hints": [
+        "State the invariant behind pagination and stable ordering in one sentence.",
+        "A LIMIT without ORDER BY does not establish stable page contents.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the http workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C403",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/http/README.md"
+    },
+    {
+      "id": "FND-HTTP-07",
+      "unit": "http",
+      "position": 7,
+      "title": "Timeouts, retries and backoff",
+      "level": "independent",
+      "prerequisites": [
+        "FND-HTTP-06"
+      ],
+      "objectives": [
+        "Explain timeouts, retries and backoff with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Networks fail partially: a client may time out after the server commits an operation. Retrying blindly can duplicate effects. Pair timeouts with idempotency keys, bounded retries and exponential backoff with jitter; decide which failure categories are retryable. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "def delays():\n    for attempt in range(3):\n        yield min(8, 2 ** attempt)\nassert list(delays())==[1,2,4]",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Timeout does not imply the server rolled back the request.",
+      "check": {
+        "prompt": "When should a payment request be safely retried?",
+        "choices": [
+          "With a stable idempotency key and defined retry policy",
+          "Whenever the connection closes, with a new key",
+          "Only when the client uses GET"
+        ],
+        "answer": 0,
+        "rationale": "Networks fail partially: a client may time out after the server commits an operation. Timeout does not imply the server rolled back the request."
+      },
+      "hints": [
+        "State the invariant behind timeouts, retries and backoff in one sentence.",
+        "Timeout does not imply the server rolled back the request.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the http workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C403",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/http/README.md"
+    },
+    {
+      "id": "FND-HTTP-08",
+      "unit": "http",
+      "position": 8,
+      "title": "HTTP API compatibility",
+      "level": "independent",
+      "prerequisites": [
+        "FND-HTTP-07"
+      ],
+      "objectives": [
+        "Explain http api compatibility with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "External clients rely on status codes, field names and failure formats. Adding a required field can break existing callers; version or migrate contracts deliberately. Contract tests should cover absent and invalid fields as well as successful requests. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "def respond(account):\n    return {\"id\":account[\"id\"],\"balance_cents\":account[\"balance_cents\"]}",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A breaking change is not made safe simply by documenting it after deployment.",
+      "check": {
+        "prompt": "What best detects an accidental response change?",
+        "choices": [
+          "A passing import smoke test",
+          "A contract test of public fields and status codes",
+          "A successful database connection"
+        ],
+        "answer": 1,
+        "rationale": "External clients rely on status codes, field names and failure formats. A breaking change is not made safe simply by documenting it after deployment."
+      },
+      "hints": [
+        "State the invariant behind http api compatibility in one sentence.",
+        "A breaking change is not made safe simply by documenting it after deployment.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the http workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C403",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/http/README.md"
+    },
+    {
+      "id": "FND-SQL-05",
+      "unit": "sql",
+      "position": 5,
+      "title": "Foreign keys and schema constraints",
+      "level": "guided",
+      "prerequisites": [
+        "FND-SQL-04"
+      ],
+      "objectives": [
+        "Explain foreign keys and schema constraints with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A database can enforce relationships even when application code contains defects. Foreign keys prevent orphan records when enabled, CHECK constraints reject invalid domain values, and UNIQUE constraints reject duplicate keys. Treat constraints as a second defense, not a replacement for authorization. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import sqlite3\nc=sqlite3.connect(\":memory:\"); c.execute(\"PRAGMA foreign_keys=ON\")\nc.execute(\"CREATE TABLE parent(id INTEGER PRIMARY KEY)\")",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "SQLite foreign keys require explicit enablement per connection.",
+      "check": {
+        "prompt": "What protects relationship integrity at the storage boundary?",
+        "choices": [
+          "A LIMIT clause",
+          "HTTP status 201",
+          "An enabled foreign key constraint"
+        ],
+        "answer": 2,
+        "rationale": "A database can enforce relationships even when application code contains defects. SQLite foreign keys require explicit enablement per connection."
+      },
+      "hints": [
+        "State the invariant behind foreign keys and schema constraints in one sentence.",
+        "SQLite foreign keys require explicit enablement per connection.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the sql workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C404",
+        "NS-C405",
+        "NS-C406"
+      ],
+      "workshop": "labs/foundations/sql/README.md"
+    },
+    {
+      "id": "FND-SQL-06",
+      "unit": "sql",
+      "position": 6,
+      "title": "Indexes and query planning",
+      "level": "guided",
+      "prerequisites": [
+        "FND-SQL-05"
+      ],
+      "objectives": [
+        "Explain indexes and query planning with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Indexes can speed up selective lookups but add write costs and cannot compensate for incorrect queries. Study EXPLAIN QUERY PLAN and design indexes around equality predicates, joins and ordering. Evaluate the workload instead of indexing every column blindly. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import sqlite3\ndb=sqlite3.connect(\":memory:\");db.execute(\"CREATE TABLE a(owner TEXT, id INTEGER)\")\ndb.execute(\"CREATE INDEX idx_owner ON a(owner)\")",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "An index improves access paths, not authorization decisions.",
+      "check": {
+        "prompt": "Why might an index slow bulk inserts?",
+        "choices": [
+          "It must be maintained for each write",
+          "It disables parameterization",
+          "It prevents row validation"
+        ],
+        "answer": 0,
+        "rationale": "Indexes can speed up selective lookups but add write costs and cannot compensate for incorrect queries. An index improves access paths, not authorization decisions."
+      },
+      "hints": [
+        "State the invariant behind indexes and query planning in one sentence.",
+        "An index improves access paths, not authorization decisions.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the sql workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C404",
+        "NS-C405",
+        "NS-C406"
+      ],
+      "workshop": "labs/foundations/sql/README.md"
+    },
+    {
+      "id": "FND-SQL-07",
+      "unit": "sql",
+      "position": 7,
+      "title": "Isolation and concurrent writes",
+      "level": "independent",
+      "prerequisites": [
+        "FND-SQL-06"
+      ],
+      "objectives": [
+        "Explain isolation and concurrent writes with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Two requests can read the same balance before either updates it. A correct transfer needs transactional boundaries, locking or atomic conditions so the invariant holds under concurrency. Database isolation is a design decision; understand lost updates, stale reads and deadlocks. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "balance=100\nrequested=[80,80]\nassert sum(requested)>balance  # both cannot safely succeed",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Sequential tests alone cannot establish concurrent correctness.",
+      "check": {
+        "prompt": "What catches a lost-update risk?",
+        "choices": [
+          "A separate JSON serializer",
+          "Concurrent transaction tests and atomic database constraints",
+          "A larger logging buffer"
+        ],
+        "answer": 1,
+        "rationale": "Two requests can read the same balance before either updates it. Sequential tests alone cannot establish concurrent correctness."
+      },
+      "hints": [
+        "State the invariant behind isolation and concurrent writes in one sentence.",
+        "Sequential tests alone cannot establish concurrent correctness.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the sql workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C404",
+        "NS-C405",
+        "NS-C406"
+      ],
+      "workshop": "labs/foundations/sql/README.md"
+    },
+    {
+      "id": "FND-SQL-08",
+      "unit": "sql",
+      "position": 8,
+      "title": "Migrations and rollback plans",
+      "level": "independent",
+      "prerequisites": [
+        "FND-SQL-07"
+      ],
+      "objectives": [
+        "Explain migrations and rollback plans with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Schema changes must work for existing populated databases. A migration defines forward changes, data backfills and operational rollback implications; blindly dropping a populated table is not acceptable. Practice migrating from one compatible schema version to another. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import sqlite3\ndb=sqlite3.connect(\":memory:\");db.execute(\"CREATE TABLE event(id INTEGER PRIMARY KEY)\")\ndb.execute(\"ALTER TABLE event ADD COLUMN category TEXT\")",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A schema migration is more than a create_all call on an empty database.",
+      "check": {
+        "prompt": "Which migration strategy reduces rollout risk?",
+        "choices": [
+          "Drop all old tables immediately",
+          "Change API and database simultaneously without tests",
+          "Add compatible column, backfill, then tighten constraints"
+        ],
+        "answer": 2,
+        "rationale": "Schema changes must work for existing populated databases. A schema migration is more than a create_all call on an empty database."
+      },
+      "hints": [
+        "State the invariant behind migrations and rollback plans in one sentence.",
+        "A schema migration is more than a create_all call on an empty database.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the sql workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C404",
+        "NS-C405",
+        "NS-C406"
+      ],
+      "workshop": "labs/foundations/sql/README.md"
+    },
+    {
+      "id": "FND-TESTING-05",
+      "unit": "testing",
+      "position": 5,
+      "title": "Property-based and boundary testing",
+      "level": "guided",
+      "prerequisites": [
+        "FND-TESTING-04"
+      ],
+      "objectives": [
+        "Explain property-based and boundary testing with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Example tests check known cases, but invariants describe entire classes of input. Even without a property-test library, generate structured boundary inputs and assert conservation of money, deterministic ordering and input rejection. Record random seeds for reproducible failures. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "def allowed(x): return type(x) is int and 0 < x <= 500\nassert not allowed(0) and not allowed(True)",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Many examples do not replace a clearly expressed property.",
+      "check": {
+        "prompt": "What is a strong transfer invariant?",
+        "choices": [
+          "Total cents across participating accounts is conserved",
+          "Every transfer returns HTTP 200",
+          "Only happy-path inputs are used"
+        ],
+        "answer": 0,
+        "rationale": "Example tests check known cases, but invariants describe entire classes of input. Many examples do not replace a clearly expressed property."
+      },
+      "hints": [
+        "State the invariant behind property-based and boundary testing in one sentence.",
+        "Many examples do not replace a clearly expressed property.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the testing workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/testing/README.md"
+    },
+    {
+      "id": "FND-TESTING-06",
+      "unit": "testing",
+      "position": 6,
+      "title": "Mocking versus integration",
+      "level": "guided",
+      "prerequisites": [
+        "FND-TESTING-05"
+      ],
+      "objectives": [
+        "Explain mocking versus integration with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A mock can prove an interaction occurred but not that a real transaction commits correctly. Use unit tests for policies and integration tests for databases, HTTP serialization, migrations and concurrent work. Avoid overmocking the component whose behavior matters. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "class FakeClock:\n    def now(self): return 42\nassert FakeClock().now()==42",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A fake database cannot prove real SQL behavior or isolation.",
+      "check": {
+        "prompt": "Which test best validates actual SQL constraints?",
+        "choices": [
+          "A syntax-only compile",
+          "Integration test with the target database",
+          "Mocked repository call count"
+        ],
+        "answer": 1,
+        "rationale": "A mock can prove an interaction occurred but not that a real transaction commits correctly. A fake database cannot prove real SQL behavior or isolation."
+      },
+      "hints": [
+        "State the invariant behind mocking versus integration in one sentence.",
+        "A fake database cannot prove real SQL behavior or isolation.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the testing workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/testing/README.md"
+    },
+    {
+      "id": "FND-TESTING-07",
+      "unit": "testing",
+      "position": 7,
+      "title": "Mutation and negative tests",
+      "level": "independent",
+      "prerequisites": [
+        "FND-TESTING-06"
+      ],
+      "objectives": [
+        "Explain mutation and negative tests with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A good regression test should fail when the original defect is reintroduced. Temporarily change a guard or condition to evaluate whether a test detects the specific vulnerability. Negative tests must also verify no side effect happened after rejection. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "def restricted(actor, owner): return actor == owner\nassert restricted(\"a\",\"b\") is False",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A suite passing on both correct and intentionally broken code is not meaningful evidence.",
+      "check": {
+        "prompt": "What does a mutation surviving all tests suggest?",
+        "choices": [
+          "The application is necessarily secure",
+          "The mutation is automatically production-safe",
+          "Coverage or assertions may be insufficient"
+        ],
+        "answer": 2,
+        "rationale": "A good regression test should fail when the original defect is reintroduced. A suite passing on both correct and intentionally broken code is not meaningful evidence."
+      },
+      "hints": [
+        "State the invariant behind mutation and negative tests in one sentence.",
+        "A suite passing on both correct and intentionally broken code is not meaningful evidence.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the testing workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/testing/README.md"
+    },
+    {
+      "id": "FND-TESTING-08",
+      "unit": "testing",
+      "position": 8,
+      "title": "CI gates and flaky tests",
+      "level": "independent",
+      "prerequisites": [
+        "FND-TESTING-07"
+      ],
+      "objectives": [
+        "Explain ci gates and flaky tests with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Continuous integration repeats clean-environment checks without relying on a developer’s laptop state. Tests that share mutable databases or assume timing/order are often flaky. Pin dependencies, isolate fixtures, report failure artifacts and separate learner-red exercises from release-gate tests. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import tempfile\nwith tempfile.TemporaryDirectory() as directory:\n    assert directory",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A green workflow can still conceal missing security assertions.",
+      "check": {
+        "prompt": "How should a shared-state flaky test be repaired?",
+        "choices": [
+          "Use isolated fixtures and deterministic setup",
+          "Add unbounded sleeps",
+          "Retry until green without investigation"
+        ],
+        "answer": 0,
+        "rationale": "Continuous integration repeats clean-environment checks without relying on a developer’s laptop state. A green workflow can still conceal missing security assertions."
+      },
+      "hints": [
+        "State the invariant behind ci gates and flaky tests in one sentence.",
+        "A green workflow can still conceal missing security assertions.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the testing workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/testing/README.md"
+    },
+    {
+      "id": "FND-DEBUGGING-05",
+      "unit": "debugging",
+      "position": 5,
+      "title": "Stack traces and exception boundaries",
+      "level": "guided",
+      "prerequisites": [
+        "FND-DEBUGGING-04"
+      ],
+      "objectives": [
+        "Explain stack traces and exception boundaries with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A stack trace shows where an error surfaced, not always where it originated. Follow the call chain and inspect validated assumptions at each boundary. HTTP handlers should return safe errors without leaking account numbers, stack traces or credentials. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "def parse(raw): return int(raw)\ntry: parse(\"bad\")\nexcept ValueError as exc: assert type(exc).__name__ == \"ValueError\"",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Suppressing a stack trace in the response is different from suppressing the internal diagnostic event.",
+      "check": {
+        "prompt": "Which clue helps locate a failure path?",
+        "choices": [
+          "The server start banner",
+          "Exception type and relevant call stack",
+          "The most recent commit message alone"
+        ],
+        "answer": 1,
+        "rationale": "A stack trace shows where an error surfaced, not always where it originated. Suppressing a stack trace in the response is different from suppressing the internal diagnostic event."
+      },
+      "hints": [
+        "State the invariant behind stack traces and exception boundaries in one sentence.",
+        "Suppressing a stack trace in the response is different from suppressing the internal diagnostic event.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the debugging workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/debugging/README.md"
+    },
+    {
+      "id": "FND-DEBUGGING-06",
+      "unit": "debugging",
+      "position": 6,
+      "title": "Structured events and correlation",
+      "level": "guided",
+      "prerequisites": [
+        "FND-DEBUGGING-05"
+      ],
+      "objectives": [
+        "Explain structured events and correlation with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Structured logs let engineers filter by request ID, outcome and component. Request correlation identifies a transaction across services without placing secrets or personal details in log messages. Logs should preserve causality and be bounded in size. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "event={\"request_id\":\"req-42\",\"action\":\"transfer\",\"ok\":False}\nassert \"password\" not in event",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "More logs can reduce security if they include raw authorization headers or sensitive bodies.",
+      "check": {
+        "prompt": "Which field helps join events across a request?",
+        "choices": [
+          "An access token",
+          "A plaintext password",
+          "A non-sensitive correlation identifier"
+        ],
+        "answer": 2,
+        "rationale": "Structured logs let engineers filter by request ID, outcome and component. More logs can reduce security if they include raw authorization headers or sensitive bodies."
+      },
+      "hints": [
+        "State the invariant behind structured events and correlation in one sentence.",
+        "More logs can reduce security if they include raw authorization headers or sensitive bodies.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the debugging workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/debugging/README.md"
+    },
+    {
+      "id": "FND-DEBUGGING-07",
+      "unit": "debugging",
+      "position": 7,
+      "title": "Race investigation",
+      "level": "independent",
+      "prerequisites": [
+        "FND-DEBUGGING-06"
+      ],
+      "objectives": [
+        "Explain race investigation with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A bug that only appears under load needs controlled concurrent reproduction. Use deterministic barriers or synchronized workers rather than hoping the race occurs. Capture transaction ordering and invariant failures; use atomic write conditions or locking to resolve the root cause. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import threading\nb=threading.Barrier(2)\nassert b.parties==2",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Passing a single-threaded test does not prove thread safety.",
+      "check": {
+        "prompt": "What helps reproduce a concurrency race reliably?",
+        "choices": [
+          "Synchronization that forces the risky interleaving",
+          "Restarting the service once",
+          "Adding print statements only"
+        ],
+        "answer": 0,
+        "rationale": "A bug that only appears under load needs controlled concurrent reproduction. Passing a single-threaded test does not prove thread safety."
+      },
+      "hints": [
+        "State the invariant behind race investigation in one sentence.",
+        "Passing a single-threaded test does not prove thread safety.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the debugging workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/debugging/README.md"
+    },
+    {
+      "id": "FND-DEBUGGING-08",
+      "unit": "debugging",
+      "position": 8,
+      "title": "Performance profiles and baselines",
+      "level": "independent",
+      "prerequisites": [
+        "FND-DEBUGGING-07"
+      ],
+      "objectives": [
+        "Explain performance profiles and baselines with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Optimize after measuring. Capture timing, query counts and relevant input size. A growing N+1 query problem may dominate request time even if each individual query is fast. Use representative workloads and measure again after a targeted change. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import time\nt=time.perf_counter();sum(range(1000));elapsed=time.perf_counter()-t\nassert elapsed>=0",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A single timing sample is not evidence of a reliable performance improvement.",
+      "check": {
+        "prompt": "What should happen before optimization?",
+        "choices": [
+          "Disable tests to reduce runtime",
+          "Establish a repeatable baseline and suspected bottleneck",
+          "Rewrite every module"
+        ],
+        "answer": 1,
+        "rationale": "Optimize after measuring. A single timing sample is not evidence of a reliable performance improvement."
+      },
+      "hints": [
+        "State the invariant behind performance profiles and baselines in one sentence.",
+        "A single timing sample is not evidence of a reliable performance improvement.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the debugging workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/debugging/README.md"
+    },
+    {
+      "id": "FND-CS-05",
+      "unit": "cs",
+      "position": 5,
+      "title": "Sets, maps and membership",
+      "level": "guided",
+      "prerequisites": [
+        "FND-CS-04"
+      ],
+      "objectives": [
+        "Explain sets, maps and membership with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Choosing the right data structure changes complexity. Searching a list is typically linear, while set membership averages constant-time. Sets discard duplicates, so use them for membership or uniqueness, not for preserving ordered audit entries. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "allowed={\"alice\",\"bob\"}\nassert \"bob\" in allowed and \"eve\" not in allowed",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Average O(1) lookup does not mean constant runtime under every possible adversarial condition.",
+      "check": {
+        "prompt": "Which structure models unique membership?",
+        "choices": [
+          "List of every occurrence",
+          "A file path",
+          "Set"
+        ],
+        "answer": 2,
+        "rationale": "Choosing the right data structure changes complexity. Average O(1) lookup does not mean constant runtime under every possible adversarial condition."
+      },
+      "hints": [
+        "State the invariant behind sets, maps and membership in one sentence.",
+        "Average O(1) lookup does not mean constant runtime under every possible adversarial condition.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the cs workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/cs/README.md"
+    },
+    {
+      "id": "FND-CS-06",
+      "unit": "cs",
+      "position": 6,
+      "title": "Stacks, queues and scheduling",
+      "level": "guided",
+      "prerequisites": [
+        "FND-CS-05"
+      ],
+      "objectives": [
+        "Explain stacks, queues and scheduling with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A stack follows last-in-first-out and a queue follows first-in-first-out. Background jobs need explicit ordering, retries, dead-letter handling and deduplication; a simple Python deque models queue behavior but is not a durable job broker. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "from collections import deque\nq=deque([\"reconcile\",\"audit\"]);assert q.popleft()==\"reconcile\"",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "An in-process deque loses its contents if the process crashes.",
+      "check": {
+        "prompt": "Which data structure best models FIFO tasks?",
+        "choices": [
+          "Queue/deque",
+          "Stack with pop from end",
+          "Unordered set"
+        ],
+        "answer": 0,
+        "rationale": "A stack follows last-in-first-out and a queue follows first-in-first-out. An in-process deque loses its contents if the process crashes."
+      },
+      "hints": [
+        "State the invariant behind stacks, queues and scheduling in one sentence.",
+        "An in-process deque loses its contents if the process crashes.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the cs workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/cs/README.md"
+    },
+    {
+      "id": "FND-CS-07",
+      "unit": "cs",
+      "position": 7,
+      "title": "Big-O tradeoffs and measurement",
+      "level": "independent",
+      "prerequisites": [
+        "FND-CS-06"
+      ],
+      "objectives": [
+        "Explain big-o tradeoffs and measurement with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Algorithm analysis estimates growth as input expands. Sorting is often O(n log n), scanning is O(n), and a nested pairwise search is O(n²). Real performance also includes I/O, caching and database execution plans; benchmark alongside reasoning. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "def duplicates(items):\n    return len(set(items)) != len(items)\nassert duplicates([1,2,1])",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Big-O alone does not establish latency or suitability for tiny fixed workloads.",
+      "check": {
+        "prompt": "Which approach avoids a nested pairwise comparison for duplicates?",
+        "choices": [
+          "Adding more print statements",
+          "A set membership strategy",
+          "Repeated full-list scans"
+        ],
+        "answer": 1,
+        "rationale": "Algorithm analysis estimates growth as input expands. Big-O alone does not establish latency or suitability for tiny fixed workloads."
+      },
+      "hints": [
+        "State the invariant behind big-o tradeoffs and measurement in one sentence.",
+        "Big-O alone does not establish latency or suitability for tiny fixed workloads.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the cs workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/cs/README.md"
+    },
+    {
+      "id": "FND-CS-08",
+      "unit": "cs",
+      "position": 8,
+      "title": "State machines and invariants",
+      "level": "independent",
+      "prerequisites": [
+        "FND-CS-07"
+      ],
+      "objectives": [
+        "Explain state machines and invariants with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Services move through defined states, and illegal transitions must be rejected. A transfer should progress from created to committed or rejected without reentering committed from a retry. Write transition tables and invariants before implementation. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "allowed={\"created\":{\"committed\",\"rejected\"},\"committed\":set()}\nassert \"created\" not in allowed[\"committed\"]",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A boolean flag is not always enough to capture lifecycle and retry semantics.",
+      "check": {
+        "prompt": "What protects workflow integrity?",
+        "choices": [
+          "Accept any state requested by the client",
+          "Logging successful transitions only",
+          "Explicit allowed transitions and invariant checks"
+        ],
+        "answer": 2,
+        "rationale": "Services move through defined states, and illegal transitions must be rejected. A boolean flag is not always enough to capture lifecycle and retry semantics."
+      },
+      "hints": [
+        "State the invariant behind state machines and invariants in one sentence.",
+        "A boolean flag is not always enough to capture lifecycle and retry semantics.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the cs workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C405",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/cs/README.md"
+    },
+    {
+      "id": "FND-LINUX-01",
+      "unit": "linux",
+      "position": 1,
+      "title": "Shell quoting and safe paths",
+      "level": "foundation",
+      "prerequisites": [],
+      "objectives": [
+        "Explain shell quoting and safe paths with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A shell interprets spaces, wildcard characters, pipes and substitutions before a program sees its arguments. Treat paths as data; prefer subprocess argument arrays over shell=True when invoking system tools. Verify the working directory and never run destructive commands on unknown files. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import subprocess\nr=subprocess.run([\"python3\",\"-c\",\"print(1 + 1)\"],capture_output=True,text=True)\nassert r.stdout.strip()==\"2\"",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Quoting a malicious-looking string after concatenation is not equivalent to avoiding a shell.",
+      "check": {
+        "prompt": "What is safer for invoking a tool with user arguments?",
+        "choices": [
+          "subprocess.run with an argument list and shell=False",
+          "Concatenate a shell command from raw input",
+          "Disable exception handling"
+        ],
+        "answer": 0,
+        "rationale": "A shell interprets spaces, wildcard characters, pipes and substitutions before a program sees its arguments. Quoting a malicious-looking string after concatenation is not equivalent to avoiding a shell."
+      },
+      "hints": [
+        "State the invariant behind shell quoting and safe paths in one sentence.",
+        "Quoting a malicious-looking string after concatenation is not equivalent to avoiding a shell.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the linux workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/linux/README.md"
+    },
+    {
+      "id": "FND-LINUX-02",
+      "unit": "linux",
+      "position": 2,
+      "title": "Processes, PIDs and signals",
+      "level": "guided",
+      "prerequisites": [
+        "FND-LINUX-01"
+      ],
+      "objectives": [
+        "Explain processes, pids and signals with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A running program is an OS process with an environment, file descriptors and lifecycle. Understand foreground/background execution, exit codes, termination and the distinction between a process and its threads. Debug the failing child process, not only its launcher. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import os\nassert os.getpid()>0",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Exit code zero only reports the process-defined notion of success, not semantic correctness.",
+      "check": {
+        "prompt": "Which datum uniquely identifies a live process at a point in time?",
+        "choices": [
+          "Its source filename",
+          "Its PID within that PID namespace",
+          "Its printed output alone"
+        ],
+        "answer": 1,
+        "rationale": "A running program is an OS process with an environment, file descriptors and lifecycle. Exit code zero only reports the process-defined notion of success, not semantic correctness."
+      },
+      "hints": [
+        "State the invariant behind processes, pids and signals in one sentence.",
+        "Exit code zero only reports the process-defined notion of success, not semantic correctness.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the linux workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/linux/README.md"
+    },
+    {
+      "id": "FND-LINUX-03",
+      "unit": "linux",
+      "position": 3,
+      "title": "Permissions and least privilege",
+      "level": "guided",
+      "prerequisites": [
+        "FND-LINUX-02"
+      ],
+      "objectives": [
+        "Explain permissions and least privilege with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "File permissions decide which identities can read, write or execute resources. Use dedicated service identities and avoid world-readable credentials. Unix mode bits, ownership and ACLs interact; simply hiding a file in a directory does not protect it. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import stat\nmode=stat.S_IRUSR | stat.S_IWUSR\nassert mode == 0o600",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "chmod 600 does not protect data if the application sends it into logs.",
+      "check": {
+        "prompt": "Which mode limits a file to owner read/write?",
+        "choices": [
+          "0777",
+          "0644",
+          "0600"
+        ],
+        "answer": 2,
+        "rationale": "File permissions decide which identities can read, write or execute resources. chmod 600 does not protect data if the application sends it into logs."
+      },
+      "hints": [
+        "State the invariant behind permissions and least privilege in one sentence.",
+        "chmod 600 does not protect data if the application sends it into logs.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the linux workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/linux/README.md"
+    },
+    {
+      "id": "FND-LINUX-04",
+      "unit": "linux",
+      "position": 4,
+      "title": "Pipes, streams and exit status",
+      "level": "guided",
+      "prerequisites": [
+        "FND-LINUX-03"
+      ],
+      "objectives": [
+        "Explain pipes, streams and exit status with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Processes communicate through stdin, stdout and stderr. Separate machine-readable output from diagnostic messages, and check exit status rather than parsing success from human-facing text. Pipe failures can be hidden unless your shell checks every stage. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import subprocess\np=subprocess.run([\"python3\",\"-c\",\"import sys;sys.exit(3)\"])\nassert p.returncode==3",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A process can produce stdout and still fail.",
+      "check": {
+        "prompt": "What should automation check after invoking a command?",
+        "choices": [
+          "Exit status and relevant output contract",
+          "Only whether stdout is non-empty",
+          "Only whether the command exists"
+        ],
+        "answer": 0,
+        "rationale": "Processes communicate through stdin, stdout and stderr. A process can produce stdout and still fail."
+      },
+      "hints": [
+        "State the invariant behind pipes, streams and exit status in one sentence.",
+        "A process can produce stdout and still fail.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the linux workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/linux/README.md"
+    },
+    {
+      "id": "FND-LINUX-05",
+      "unit": "linux",
+      "position": 5,
+      "title": "Environment and configuration",
+      "level": "guided",
+      "prerequisites": [
+        "FND-LINUX-04"
+      ],
+      "objectives": [
+        "Explain environment and configuration with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Environment variables configure development services but are not a secure secret store. Treat configuration as explicit, validate required settings at startup, and use separate test values. Never write production keys into example repositories. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import os\nmode=os.environ.get(\"NORTHSTAR_MODE\",\"development\")\nassert isinstance(mode,str)",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Reading a secret from an environment variable does not make it safe to log.",
+      "check": {
+        "prompt": "Which action improves configuration safety?",
+        "choices": [
+          "Accept any missing config silently",
+          "Validate required settings without printing secrets",
+          "Hardcode production credentials in Git"
+        ],
+        "answer": 1,
+        "rationale": "Environment variables configure development services but are not a secure secret store. Reading a secret from an environment variable does not make it safe to log."
+      },
+      "hints": [
+        "State the invariant behind environment and configuration in one sentence.",
+        "Reading a secret from an environment variable does not make it safe to log.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the linux workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/linux/README.md"
+    },
+    {
+      "id": "FND-LINUX-06",
+      "unit": "linux",
+      "position": 6,
+      "title": "Reproducible developer environments",
+      "level": "guided",
+      "prerequisites": [
+        "FND-LINUX-05"
+      ],
+      "objectives": [
+        "Explain reproducible developer environments with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A clean setup document should bring a teammate to a passing baseline without undocumented global packages. Pin versions, explain run commands and isolate test data. Containers and Codespaces help but do not replace documentation and offline understanding. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import sys\nassert sys.version_info.major==3",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A developer environment that only runs on its author’s machine is not reproducible.",
+      "check": {
+        "prompt": "What indicates reproducible onboarding?",
+        "choices": [
+          "An archived screenshot of success",
+          "A globally installed unknown dependency",
+          "Fresh setup executes documented tests successfully"
+        ],
+        "answer": 2,
+        "rationale": "A clean setup document should bring a teammate to a passing baseline without undocumented global packages. A developer environment that only runs on its author’s machine is not reproducible."
+      },
+      "hints": [
+        "State the invariant behind reproducible developer environments in one sentence.",
+        "A developer environment that only runs on its author’s machine is not reproducible.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the linux workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/linux/README.md"
+    },
+    {
+      "id": "FND-NETWORKING-01",
+      "unit": "networking",
+      "position": 1,
+      "title": "IP addressing and routing",
+      "level": "foundation",
+      "prerequisites": [],
+      "objectives": [
+        "Explain ip addressing and routing with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "IP addresses identify interfaces in a routing context, while ports select transport endpoints. Distinguish loopback, private and public bindings. Keep intentionally insecure training services bound to 127.0.0.1 instead of exposing them to the Internet. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import ipaddress\nassert ipaddress.ip_address(\"127.0.0.1\").is_loopback",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A service listening on 0.0.0.0 is not restricted to loopback.",
+      "check": {
+        "prompt": "Which address is appropriate for a local vulnerable training API?",
+        "choices": [
+          "127.0.0.1",
+          "0.0.0.0",
+          "A public IP interface"
+        ],
+        "answer": 0,
+        "rationale": "IP addresses identify interfaces in a routing context, while ports select transport endpoints. A service listening on 0.0.0.0 is not restricted to loopback."
+      },
+      "hints": [
+        "State the invariant behind ip addressing and routing in one sentence.",
+        "A service listening on 0.0.0.0 is not restricted to loopback.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the networking workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/networking/README.md"
+    },
+    {
+      "id": "FND-NETWORKING-02",
+      "unit": "networking",
+      "position": 2,
+      "title": "TCP streams and message framing",
+      "level": "guided",
+      "prerequisites": [
+        "FND-NETWORKING-01"
+      ],
+      "objectives": [
+        "Explain tcp streams and message framing with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "TCP guarantees ordered bytes, not application message boundaries. A recv call may return a partial message or combine multiple messages; build framing with explicit lengths and bounded buffers. Test fragmentation rather than assuming one read equals one request. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "msg=b\"0005hello\"\nlength=int(msg[:4]);assert msg[4:4+length]==b\"hello\"",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A single recv(4096) is not guaranteed to contain an entire logical message.",
+      "check": {
+        "prompt": "How does a stream protocol delimit application messages?",
+        "choices": [
+          "Assume each recv returns the entire request",
+          "Explicit framing such as length-prefix",
+          "TCP packets map 1:1 to messages"
+        ],
+        "answer": 1,
+        "rationale": "TCP guarantees ordered bytes, not application message boundaries. A single recv(4096) is not guaranteed to contain an entire logical message."
+      },
+      "hints": [
+        "State the invariant behind tcp streams and message framing in one sentence.",
+        "A single recv(4096) is not guaranteed to contain an entire logical message.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the networking workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/networking/README.md"
+    },
+    {
+      "id": "FND-NETWORKING-03",
+      "unit": "networking",
+      "position": 3,
+      "title": "DNS and TLS trust boundaries",
+      "level": "guided",
+      "prerequisites": [
+        "FND-NETWORKING-02"
+      ],
+      "objectives": [
+        "Explain dns and tls trust boundaries with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "DNS resolves hostnames, while TLS authenticates a peer and protects the channel when certificate checks are correct. HTTPS alone does not authorize an API user. Do not disable TLS verification to fix certificate problems in production code. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "from urllib.parse import urlparse\nu=urlparse(\"https://example.test:443/api\");assert u.scheme==\"https\"",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "TLS server authentication does not replace application-level authorization.",
+      "check": {
+        "prompt": "What does validated TLS primarily provide?",
+        "choices": [
+          "Customer account ownership checks",
+          "Guaranteed availability",
+          "Server identity and protected transport"
+        ],
+        "answer": 2,
+        "rationale": "DNS resolves hostnames, while TLS authenticates a peer and protects the channel when certificate checks are correct. TLS server authentication does not replace application-level authorization."
+      },
+      "hints": [
+        "State the invariant behind dns and tls trust boundaries in one sentence.",
+        "TLS server authentication does not replace application-level authorization.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the networking workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/networking/README.md"
+    },
+    {
+      "id": "FND-NETWORKING-04",
+      "unit": "networking",
+      "position": 4,
+      "title": "Socket lifecycle and timeouts",
+      "level": "guided",
+      "prerequisites": [
+        "FND-NETWORKING-03"
+      ],
+      "objectives": [
+        "Explain socket lifecycle and timeouts with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Sockets have connect, read, write and close lifecycles. A stalled peer can hold resources indefinitely without timeouts and bounded request sizes. Errors should be handled at the correct boundary with cleanup of file descriptors. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import socket\ns=socket.socket();s.settimeout(2);assert s.gettimeout()==2;s.close()",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Setting a timeout is not a complete retry policy.",
+      "check": {
+        "prompt": "What prevents a read from waiting forever?",
+        "choices": [
+          "A configured socket timeout",
+          "A larger receive buffer",
+          "Using an IPv6 address"
+        ],
+        "answer": 0,
+        "rationale": "Sockets have connect, read, write and close lifecycles. Setting a timeout is not a complete retry policy."
+      },
+      "hints": [
+        "State the invariant behind socket lifecycle and timeouts in one sentence.",
+        "Setting a timeout is not a complete retry policy.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the networking workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/networking/README.md"
+    },
+    {
+      "id": "FND-NETWORKING-05",
+      "unit": "networking",
+      "position": 5,
+      "title": "Observability across layers",
+      "level": "guided",
+      "prerequisites": [
+        "FND-NETWORKING-04"
+      ],
+      "objectives": [
+        "Explain observability across layers with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Diagnose requests using layers: DNS resolution, TCP connection, TLS handshake, HTTP status and business result. Successful connectivity does not mean correct authorization. Gather evidence at the narrowest useful layer and avoid collecting secrets. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import urllib.parse\nassert urllib.parse.urlsplit(\"http://127.0.0.1:8765/health\").path==\"/health\"",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Ping success is neither proof an HTTPS endpoint works nor proof its data is correct.",
+      "check": {
+        "prompt": "Which step best isolates an HTTP 403 issue?",
+        "choices": [
+          "Disable certificate validation",
+          "Inspect authorization and request policy after transport works",
+          "Change DNS to a public resolver"
+        ],
+        "answer": 1,
+        "rationale": "Diagnose requests using layers: DNS resolution, TCP connection, TLS handshake, HTTP status and business result. Ping success is neither proof an HTTPS endpoint works nor proof its data is correct."
+      },
+      "hints": [
+        "State the invariant behind observability across layers in one sentence.",
+        "Ping success is neither proof an HTTPS endpoint works nor proof its data is correct.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the networking workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/networking/README.md"
+    },
+    {
+      "id": "FND-NETWORKING-06",
+      "unit": "networking",
+      "position": 6,
+      "title": "HTTP proxies and deployment edges",
+      "level": "guided",
+      "prerequisites": [
+        "FND-NETWORKING-05"
+      ],
+      "objectives": [
+        "Explain http proxies and deployment edges with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Reverse proxies can terminate TLS, enforce limits and forward requests. Applications must distrust client-supplied forwarded headers unless they come from trusted infrastructure. Test origin binding and health checks after deploying behind a proxy. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "headers={\"X-Forwarded-For\":\"203.0.113.7\"}\nassert \"X-Forwarded-For\" in headers",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Never trust X-Forwarded-For from arbitrary direct clients for security decisions.",
+      "check": {
+        "prompt": "When are forwarded headers trustworthy?",
+        "choices": [
+          "Whenever they contain a valid IP",
+          "Whenever the user is authenticated",
+          "Only through configured trusted proxies"
+        ],
+        "answer": 2,
+        "rationale": "Reverse proxies can terminate TLS, enforce limits and forward requests. Never trust X-Forwarded-For from arbitrary direct clients for security decisions."
+      },
+      "hints": [
+        "State the invariant behind http proxies and deployment edges in one sentence.",
+        "Never trust X-Forwarded-For from arbitrary direct clients for security decisions.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the networking workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C407"
+      ],
+      "workshop": "labs/foundations/networking/README.md"
+    },
+    {
+      "id": "FND-DATA-STRUCTURES-01",
+      "unit": "data-structures",
+      "position": 1,
+      "title": "Arrays, lists and indexing",
+      "level": "foundation",
+      "prerequisites": [],
+      "objectives": [
+        "Explain arrays, lists and indexing with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Arrays enable direct indexed access but shifting elements during middle insertions may be linear. Choose a data structure based on read/write patterns and invariants. Validate indexes carefully, especially when translating zero-based positions to user-facing numbering. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "a=[10,20,30];assert a[1]==20",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Constant-time indexing does not mean constant-time insertion at every position.",
+      "check": {
+        "prompt": "What is typical list access complexity by index?",
+        "choices": [
+          "O(1)",
+          "O(n²)",
+          "O(log n)"
+        ],
+        "answer": 0,
+        "rationale": "Arrays enable direct indexed access but shifting elements during middle insertions may be linear. Constant-time indexing does not mean constant-time insertion at every position."
+      },
+      "hints": [
+        "State the invariant behind arrays, lists and indexing in one sentence.",
+        "Constant-time indexing does not mean constant-time insertion at every position.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the data-structures workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/data-structures/README.md"
+    },
+    {
+      "id": "FND-DATA-STRUCTURES-02",
+      "unit": "data-structures",
+      "position": 2,
+      "title": "Maps and collision tradeoffs",
+      "level": "guided",
+      "prerequisites": [
+        "FND-DATA-STRUCTURES-01"
+      ],
+      "objectives": [
+        "Explain maps and collision tradeoffs with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Hash maps support fast average lookups for account IDs and idempotency keys, but duplicate assignment replaces values. Plan key uniqueness and collision behavior; never use a dict alone as durable financial storage. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "counts={};counts[\"alice\"]=counts.get(\"alice\",0)+1\nassert counts[\"alice\"]==1",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Fast memory lookups do not guarantee transaction durability.",
+      "check": {
+        "prompt": "What happens on a repeated assignment to one dict key?",
+        "choices": [
+          "The assignment is ignored",
+          "The value is replaced",
+          "A second identical key is appended"
+        ],
+        "answer": 1,
+        "rationale": "Hash maps support fast average lookups for account IDs and idempotency keys, but duplicate assignment replaces values. Fast memory lookups do not guarantee transaction durability."
+      },
+      "hints": [
+        "State the invariant behind maps and collision tradeoffs in one sentence.",
+        "Fast memory lookups do not guarantee transaction durability.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the data-structures workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/data-structures/README.md"
+    },
+    {
+      "id": "FND-DATA-STRUCTURES-03",
+      "unit": "data-structures",
+      "position": 3,
+      "title": "Graphs and dependency ordering",
+      "level": "guided",
+      "prerequisites": [
+        "FND-DATA-STRUCTURES-02"
+      ],
+      "objectives": [
+        "Explain graphs and dependency ordering with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A prerequisite catalog forms a directed graph. Detect cycles before presenting a learning path; otherwise no course can unlock. Topological ordering schedules tasks only after their prerequisites. This reasoning also applies to build systems and deployment dependencies. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "prereqs={\"api\":[\"python\"],\"python\":[]}\nassert prereqs[\"api\"]==[\"python\"]",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A dependency graph can have cycles and must be validated.",
+      "check": {
+        "prompt": "What graph property is required for prerequisite ordering?",
+        "choices": [
+          "Every node connects to itself",
+          "All nodes have exactly two edges",
+          "An acyclic directed graph"
+        ],
+        "answer": 2,
+        "rationale": "A prerequisite catalog forms a directed graph. A dependency graph can have cycles and must be validated."
+      },
+      "hints": [
+        "State the invariant behind graphs and dependency ordering in one sentence.",
+        "A dependency graph can have cycles and must be validated.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the data-structures workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/data-structures/README.md"
+    },
+    {
+      "id": "FND-DATA-STRUCTURES-04",
+      "unit": "data-structures",
+      "position": 4,
+      "title": "Binary search and sortedness",
+      "level": "guided",
+      "prerequisites": [
+        "FND-DATA-STRUCTURES-03"
+      ],
+      "objectives": [
+        "Explain binary search and sortedness with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Binary search repeatedly halves a sorted search interval, yielding O(log n) comparisons. It is invalid on unsorted data and not always worth sorting for one lookup. Reason about the precondition before selecting an optimization. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "from bisect import bisect_left\na=[2,4,8,16];assert a[bisect_left(a,8)]==8",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Binary search is not correct on arbitrary insertion-order transaction records.",
+      "check": {
+        "prompt": "What is the essential binary-search precondition?",
+        "choices": [
+          "Data sorted by the searched key",
+          "Data stored in a Python list specifically",
+          "Data contains no duplicates"
+        ],
+        "answer": 0,
+        "rationale": "Binary search repeatedly halves a sorted search interval, yielding O(log n) comparisons. Binary search is not correct on arbitrary insertion-order transaction records."
+      },
+      "hints": [
+        "State the invariant behind binary search and sortedness in one sentence.",
+        "Binary search is not correct on arbitrary insertion-order transaction records.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the data-structures workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/data-structures/README.md"
+    },
+    {
+      "id": "FND-DATA-STRUCTURES-05",
+      "unit": "data-structures",
+      "position": 5,
+      "title": "Heaps and priority queues",
+      "level": "guided",
+      "prerequisites": [
+        "FND-DATA-STRUCTURES-04"
+      ],
+      "objectives": [
+        "Explain heaps and priority queues with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A heap supports efficiently selecting a minimum-priority element while maintaining partial order. Use it for job scheduling with explicit priorities; understand that equal-priority elements need a tie breaker if stable order matters. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "import heapq\nh=[(2,\"review\"),(1,\"alert\")];heapq.heapify(h)\nassert heapq.heappop(h)[1]==\"alert\"",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A heap is not a fully sorted list and should not be treated as one.",
+      "check": {
+        "prompt": "What workload suits a heap?",
+        "choices": [
+          "Unique account authorization checks",
+          "Repeated highest-priority job selection",
+          "Stable audit storage by timestamp"
+        ],
+        "answer": 1,
+        "rationale": "A heap supports efficiently selecting a minimum-priority element while maintaining partial order. A heap is not a fully sorted list and should not be treated as one."
+      },
+      "hints": [
+        "State the invariant behind heaps and priority queues in one sentence.",
+        "A heap is not a fully sorted list and should not be treated as one.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the data-structures workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/data-structures/README.md"
+    },
+    {
+      "id": "FND-DATA-STRUCTURES-06",
+      "unit": "data-structures",
+      "position": 6,
+      "title": "Complexity and space budgeting",
+      "level": "guided",
+      "prerequisites": [
+        "FND-DATA-STRUCTURES-05"
+      ],
+      "objectives": [
+        "Explain complexity and space budgeting with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Analyze both runtime and memory across scale. Loading a 20 GB log into a list is risky, while streaming can bound memory but may add I/O and prohibit rewinding. Document assumptions about maximum input size and service concurrency. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "from itertools import islice\nsmall=list(islice(range(1000000),3));assert small==[0,1,2]",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "An O(n) algorithm can be infeasible if it retains every item in memory.",
+      "check": {
+        "prompt": "Which design bounds memory for large log processing?",
+        "choices": [
+          "Read all records into a Python list",
+          "Duplicate the input first",
+          "Stream records and aggregate incrementally"
+        ],
+        "answer": 2,
+        "rationale": "Analyze both runtime and memory across scale. An O(n) algorithm can be infeasible if it retains every item in memory."
+      },
+      "hints": [
+        "State the invariant behind complexity and space budgeting in one sentence.",
+        "An O(n) algorithm can be infeasible if it retains every item in memory.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the data-structures workshop.",
+      "bridge": [
+        "NS-C402",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/data-structures/README.md"
+    },
+    {
+      "id": "FND-ARCHITECTURE-01",
+      "unit": "architecture",
+      "position": 1,
+      "title": "Cohesion, coupling and module boundaries",
+      "level": "foundation",
+      "prerequisites": [],
+      "objectives": [
+        "Explain cohesion, coupling and module boundaries with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Cohesive modules own one responsibility and expose narrow contracts. Separate HTTP input handling, domain policy and persistence so tests can reason about each independently. Too many tiny modules can also hurt comprehension; choose boundaries based on change frequency. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "def transfer_policy(amount, balance):\n    return type(amount) is int and 0 < amount <= balance",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A directory tree is not proof of good architecture.",
+      "check": {
+        "prompt": "Where should balance invariants live?",
+        "choices": [
+          "In explicit business/domain logic",
+          "Only in the HTML UI",
+          "Only in logging middleware"
+        ],
+        "answer": 0,
+        "rationale": "Cohesive modules own one responsibility and expose narrow contracts. A directory tree is not proof of good architecture."
+      },
+      "hints": [
+        "State the invariant behind cohesion, coupling and module boundaries in one sentence.",
+        "A directory tree is not proof of good architecture.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the architecture workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/architecture/README.md"
+    },
+    {
+      "id": "FND-ARCHITECTURE-02",
+      "unit": "architecture",
+      "position": 2,
+      "title": "Dependency inversion and interfaces",
+      "level": "guided",
+      "prerequisites": [
+        "FND-ARCHITECTURE-01"
+      ],
+      "objectives": [
+        "Explain dependency inversion and interfaces with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Core business logic should depend on a repository contract rather than a concrete network service. This lets tests substitute deterministic stores and makes infrastructure replacement safer. Document method behavior, exceptions and transaction boundaries. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "class Store:\n    def get(self,key): return {\"x\":1}.get(key)\nassert Store().get(\"x\")==1",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Dependency injection does not excuse omitting integration tests against real storage.",
+      "check": {
+        "prompt": "What benefits from depending on a storage interface?",
+        "choices": [
+          "Avoiding any need for schema migrations",
+          "Isolating domain tests from database implementation",
+          "Bypassing authorization checks"
+        ],
+        "answer": 1,
+        "rationale": "Core business logic should depend on a repository contract rather than a concrete network service. Dependency injection does not excuse omitting integration tests against real storage."
+      },
+      "hints": [
+        "State the invariant behind dependency inversion and interfaces in one sentence.",
+        "Dependency injection does not excuse omitting integration tests against real storage.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the architecture workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/architecture/README.md"
+    },
+    {
+      "id": "FND-ARCHITECTURE-03",
+      "unit": "architecture",
+      "position": 3,
+      "title": "Data flow diagrams and threat boundaries",
+      "level": "guided",
+      "prerequisites": [
+        "FND-ARCHITECTURE-02"
+      ],
+      "objectives": [
+        "Explain data flow diagrams and threat boundaries with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Map where credentials, account identifiers and transaction requests cross trust boundaries. At each crossing, define validation and authorization. Architecture diagrams are useful only when they drive actionable controls and test cases. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "flow=[\"client\",\"api\",\"policy\",\"database\"]\nassert flow.index(\"policy\") < flow.index(\"database\")",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "TLS protection does not authorize a user to read a different customer’s data.",
+      "check": {
+        "prompt": "Where is object-level authorization required?",
+        "choices": [
+          "Only on the client UI",
+          "Only in periodic batch reports",
+          "Before accessing or returning protected account data"
+        ],
+        "answer": 2,
+        "rationale": "Map where credentials, account identifiers and transaction requests cross trust boundaries. TLS protection does not authorize a user to read a different customer’s data."
+      },
+      "hints": [
+        "State the invariant behind data flow diagrams and threat boundaries in one sentence.",
+        "TLS protection does not authorize a user to read a different customer’s data.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the architecture workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/architecture/README.md"
+    },
+    {
+      "id": "FND-ARCHITECTURE-04",
+      "unit": "architecture",
+      "position": 4,
+      "title": "Eventual consistency and reliability",
+      "level": "guided",
+      "prerequisites": [
+        "FND-ARCHITECTURE-03"
+      ],
+      "objectives": [
+        "Explain eventual consistency and reliability with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Background tasks can process events later, so consumers must tolerate retries and duplicate delivery. Use durable outboxes or equivalent mechanisms if a database commit and event publication must remain coherent. Measure lag and expose safe operational signals. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "seen=set()\nfor key in [\"t1\",\"t1\"]:\n    if key in seen: continue\n    seen.add(key)\nassert len(seen)==1",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "In-memory deduplication alone is not durable after process restart.",
+      "check": {
+        "prompt": "What avoids duplicate effects in at-least-once delivery?",
+        "choices": [
+          "Durable idempotent processing",
+          "Assuming messages never repeat",
+          "Silently dropping all errors"
+        ],
+        "answer": 0,
+        "rationale": "Background tasks can process events later, so consumers must tolerate retries and duplicate delivery. In-memory deduplication alone is not durable after process restart."
+      },
+      "hints": [
+        "State the invariant behind eventual consistency and reliability in one sentence.",
+        "In-memory deduplication alone is not durable after process restart.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the architecture workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/architecture/README.md"
+    },
+    {
+      "id": "FND-ARCHITECTURE-05",
+      "unit": "architecture",
+      "position": 5,
+      "title": "Modular monolith versus services",
+      "level": "guided",
+      "prerequisites": [
+        "FND-ARCHITECTURE-04"
+      ],
+      "objectives": [
+        "Explain modular monolith versus services with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "Separating deployable services creates failure modes, network boundaries and operational overhead. Start with well-defined modules in one deployable application; split only when scaling, isolation or team ownership justifies the cost. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "components=[\"api\",\"domain\",\"repository\"]\nassert len(components)==3",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "Microservices do not automatically improve maintainability or security.",
+      "check": {
+        "prompt": "When is a modular monolith often preferable?",
+        "choices": [
+          "When tests are absent",
+          "When the team needs clear boundaries without distributed overhead",
+          "Whenever every function uses a new database"
+        ],
+        "answer": 1,
+        "rationale": "Separating deployable services creates failure modes, network boundaries and operational overhead. Microservices do not automatically improve maintainability or security."
+      },
+      "hints": [
+        "State the invariant behind modular monolith versus services in one sentence.",
+        "Microservices do not automatically improve maintainability or security.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the architecture workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/architecture/README.md"
+    },
+    {
+      "id": "FND-ARCHITECTURE-06",
+      "unit": "architecture",
+      "position": 6,
+      "title": "Release planning and rollback design",
+      "level": "guided",
+      "prerequisites": [
+        "FND-ARCHITECTURE-05"
+      ],
+      "objectives": [
+        "Explain release planning and rollback design with a concrete input and output",
+        "Run the annotated code and predict a boundary or failure case",
+        "Document how this concept affects a banking service change"
+      ],
+      "explanation": "A production change should define acceptance criteria, monitoring, deployment order, migration compatibility and rollback limits. For irreversible data changes, rollback may require forward-fix rather than reverting code. Capture decision records for important tradeoffs. In production work, write down the preconditions, expected behavior and observable failure before editing code. Use a small reproducible example to challenge your assumptions, then turn a demonstrated failure into a regression test.",
+      "code": "release={\"build\":\"1.2\",\"migration\":\"additive\",\"rollback\":\"revert API\"}\nassert release[\"migration\"]==\"additive\"",
+      "walkthrough": "Execute the example, predict its output, and change one boundary condition to determine which guarantee remains valid. Compare observed behavior with the contract and describe where the policy is enforced. This connects directly to a Northstar ticket rather than merely testing syntax.",
+      "misconception": "A Git revert does not reverse external payments or destructive database changes.",
+      "check": {
+        "prompt": "What belongs in a release plan?",
+        "choices": [
+          "Only a merge commit hash",
+          "Only a screenshot of the UI",
+          "Verification steps, compatibility and rollback constraints"
+        ],
+        "answer": 2,
+        "rationale": "A production change should define acceptance criteria, monitoring, deployment order, migration compatibility and rollback limits. A Git revert does not reverse external payments or destructive database changes."
+      },
+      "hints": [
+        "State the invariant behind release planning and rollback design in one sentence.",
+        "A Git revert does not reverse external payments or destructive database changes.",
+        "Execute the example in your workspace, alter an input, and compare both outcomes."
+      ],
+      "practice": "Run the worked example, change one input to trigger a boundary case, and explain the result before completing the architecture workshop.",
+      "bridge": [
+        "NS-C401",
+        "NS-C408"
+      ],
+      "workshop": "labs/foundations/architecture/README.md"
+    }
+  ]
+}

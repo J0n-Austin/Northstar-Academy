@@ -1,0 +1,19 @@
+# LOCAL TRAINING ONLY. Demo credentials; never expose on a public interface.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: northstar
+      POSTGRES_PASSWORD: local_demo_only
+      POSTGRES_DB: northstar_training
+    ports:
+      - "127.0.0.1:55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U northstar -d northstar_training"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - northstar_pg_training:/var/lib/postgresql/data
+volumes:
+  northstar_pg_training:

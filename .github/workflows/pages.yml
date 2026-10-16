@@ -26,6 +26,15 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y build-essential python3
       - name: Regression, native labs, build, and site verification
         run: npm run check
+      - name: Install advanced residency Python environment
+        run: |
+          python3 -m venv /tmp/northstar-ci-advanced
+          /tmp/northstar-ci-advanced/bin/python -m pip install -r labs/banking-platform-v2/requirements.txt
+      - name: Verify advanced API and migration
+        run: |
+          cd labs/banking-platform-v2
+          /tmp/northstar-ci-advanced/bin/python -m pytest tests/test_smoke.py -q
+          NORTHSTAR_DATABASE_URL="sqlite:///$RUNNER_TEMP/northstar-advanced-migration.sqlite3" /tmp/northstar-ci-advanced/bin/python -m alembic upgrade head
       - name: Publish build to workflow artifacts
         uses: actions/upload-artifact@v4
         with:

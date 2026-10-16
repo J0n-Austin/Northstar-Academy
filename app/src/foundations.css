@@ -1,0 +1,43 @@
+/* Stage 4.1: learning content and interactive diagrams. Theme and mobile responsive. */
+.f-intro,.f-panel,.f-prereq{padding:18px;line-height:1.75;margin-bottom:15px;min-width:0}
+.f-intro p,.f-panel p,.f-prereq p{font-size:13px;color:var(--muted);line-height:1.8}
+.f-unit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.f-unit{padding:18px;min-width:0}
+.f-unit-header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.f-unit-header h2{font-size:17px;line-height:1.4;margin:7px 0}
+.f-unit-header strong{color:var(--accent);font-size:17px;white-space:nowrap}
+.f-unit p{font-size:13px;line-height:1.7;color:var(--muted)}
+.f-lessons{display:grid;grid-template-columns:1fr;gap:9px;margin:16px 0}
+.f-lesson-card{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:5px;width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);color:var(--fg)}
+.f-lesson-card strong{font-size:13px;line-height:1.5}.f-lesson-card:hover,.f-answer:hover{border-color:var(--accent)}
+.f-lesson-card.f-complete{border-left:3px solid var(--good)}.f-lesson-card.f-locked{opacity:.76}
+.f-small{font-size:11px!important;line-height:1.6;color:var(--muted)}
+.f-lesson-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr);gap:15px}
+.f-lesson-main,.f-lesson-side{display:flex;flex-direction:column;min-width:0;gap:12px}
+.f-panel h2{font-size:17px;margin:7px 0 12px}.f-panel h3{font-size:13px;margin:12px 0 5px}
+.f-panel li{font-size:13px;color:var(--muted);line-height:1.65;margin:4px 0}
+.f-code{padding:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font:12px/1.7 var(--font-mono);white-space:pre-wrap;overflow-wrap:anywhere;border-radius:7px;max-width:100%}
+.f-caution{padding:12px;border-left:3px solid var(--warn);background:var(--surface-2)}
+.f-answers{display:flex;flex-direction:column;gap:8px}
+.f-answer{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:7px;color:var(--fg);font-size:13px;text-align:left;padding:11px 12px}
+.f-answer.f-selected{border-color:var(--accent);outline:1px solid var(--accent)}
+.f-feedback{min-height:22px;padding-top:8px}.f-hint{color:var(--muted);font-size:13px;line-height:1.7}
+.f-flow{display:flex;align-items:stretch;gap:5px;padding:10px 0}
+.f-flow-node{flex:1;min-width:0;padding:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;font-size:11px;line-height:1.7;display:flex;flex-direction:column;gap:8px}
+.f-flow-node span{font-weight:bold;color:var(--accent)}.f-flow-node.active{border:2px solid var(--accent);background:var(--surface)}
+.f-flow-arrow{align-self:center;color:var(--muted)}
+.f-label{display:block;color:var(--fg);font-size:12px;margin-bottom:8px}
+.f-note{width:100%;padding:12px;background:var(--surface-2);color:var(--fg);border:1px solid var(--line);border-radius:8px;font-size:13px;line-height:1.6}
+.f-note:focus,.f-answer:focus-visible,.f-lesson-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.f-progress-row{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding:9px 0;font-size:12px}
+.f-bridge-links{display:flex;flex-wrap:wrap;gap:8px}.f-bridge-links button{font-size:12px}
+@media(max-width:960px){.f-lesson-layout{grid-template-columns:1fr}}
+@media(max-width:740px){.f-unit-grid{grid-template-columns:1fr}.f-flow{flex-direction:column}.f-flow-arrow{transform:rotate(90deg)}}
+
+.f-reading summary{cursor:pointer;font-size:13px;color:var(--fg)}.f-reading-body{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}.f-reading-body h3{margin-top:18px;font-size:14px}.f-reading-body p{line-height:1.85;font-size:13px}.f-reading-body code:not(pre code){font-family:var(--font-mono);color:var(--accent);overflow-wrap:anywhere}
+
+/* Stage 4.1B: deterministic hypothesis/observation trace with keyboard-accessible controls */
+.f-trace{background:var(--surface-2);border:1px solid var(--line);padding:14px;border-radius:9px;min-height:124px}
+.f-trace-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.f-trace-head strong{color:var(--accent);font-size:13px}
+.f-trace-dots{display:flex;gap:6px;margin-top:14px}.f-trace-dots span{height:5px;flex:1;background:var(--line);border-radius:6px}.f-trace-dots .active{background:var(--accent)}

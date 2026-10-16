@@ -1,0 +1,13 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const data=JSON.parse(read('curriculum/banking.v2.json'));
+assert.equal(data.sprints.length,2);assert.equal(data.tickets.length,6);
+assert.deepEqual(data.tickets.map(t=>t.id),['NS-B501','NS-B502','NS-B503','NS-B504','NS-B505','NS-B506']);
+const files=['README.md','compose.yaml','requirements.txt','alembic.ini','migrations/env.py','migrations/versions/0001_initial.py','service/api.py','service/models.py','service/security.py','tests/test_smoke.py','tests/test_contract.py','templates/pr-report.md'];
+for(const f of files)assert.ok(fs.existsSync(path.join(root,'labs/banking-platform-v2',f)),f);
+const app=read('app/northstar-academy.html');
+for(const marker of ['Banking Platform V2','data-view="advanced"','renderAdvancedTicket','renderAdvanced','NS-B501','NS-B506','Step through the engineering scenario','fTraceHTML'])assert.ok(app.includes(marker),marker);
+const catalog=JSON.parse(read('curriculum/catalog.v2.json'));
+assert.ok(catalog.modules.some(m=>m.id==='banking-platform-v2'&&m.publicRoute.endsWith('#advanced')));
+const page=path.join(root,'_site');if(fs.existsSync(page))for(const unsafe of ['labs/banking-platform-v2/service/api.py','labs/foundations/linux/starter.py','curriculum/banking.v2.json'])assert.ok(!fs.existsSync(path.join(page,unsafe)),unsafe);
+console.log('PASS Stage 4.2 structure: FastAPI+SQLAlchemy, Alembic initial migration, PostgreSQL lab option, 2 sprints/6 tickets and integrated portal. Real v2 Python tests are separately exercised in CI.');

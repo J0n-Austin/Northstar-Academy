@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0",
+  "release": "stage4.2",
+  "title": "Banking Platform V2 \u2014 Advanced Backend Residency",
+  "warning": "Browser review is self-reported only. The V2 local service contains deliberate vulnerabilities; never expose publicly.",
+  "sprints": [
+    {
+      "id": 5,
+      "title": "Sprint 5 \u2014 Framework, identity and transfers"
+    },
+    {
+      "id": 6,
+      "title": "Sprint 6 \u2014 Statements, observability and release"
+    }
+  ],
+  "tickets": [
+    {
+      "id": "NS-B501",
+      "sprint": 5,
+      "title": "Trace FastAPI routing and authentication",
+      "context": "Reproduce route behavior and confirm bearer authentication uses database-backed token identity.",
+      "topics": "HTTP boundaries, Pydantic and dependency injection",
+      "test": "test_auth_and_accounts",
+      "hint": "Map request \u2192 authentication dependency \u2192 account repository, and show the status/body for a missing token.",
+      "guide": "guides/01-fastapi-and-boundaries.md",
+      "acceptance": [
+        "Write or identify a failing test before modifying implementation",
+        "Preserve authenticated ownership and data invariants under invalid input",
+        "Provide a concise PR report with root cause, tests and rollback risk"
+      ]
+    },
+    {
+      "id": "NS-B502",
+      "sprint": 5,
+      "title": "Stop cross-customer account disclosure",
+      "context": "A second customer can retrieve an account by guessing its ID. Diagnose the failing ownership test and repair the route.",
+      "topics": "Object-level authorization and negative tests",
+      "test": "test_cross_customer_get_is_denied",
+      "hint": "A user holding a valid token is not necessarily entitled to read the requested account.",
+      "guide": "guides/01-fastapi-and-boundaries.md",
+      "acceptance": [
+        "Write or identify a failing test before modifying implementation",
+        "Preserve authenticated ownership and data invariants under invalid input",
+        "Provide a concise PR report with root cause, tests and rollback risk"
+      ]
+    },
+    {
+      "id": "NS-B503",
+      "sprint": 5,
+      "title": "Make money movement safe to retry",
+      "context": "A client times out and retries a transfer, receiving 409 instead of the original successful result. Correct replay and payload mismatch behavior.",
+      "topics": "Idempotency, atomic transactions and concurrency",
+      "test": "test_transfer_retry_has_no_second_effect",
+      "hint": "The unique request key protects durable retries only if the API implements equivalent replay semantics.",
+      "guide": "guides/01-fastapi-and-boundaries.md",
+      "acceptance": [
+        "Write or identify a failing test before modifying implementation",
+        "Preserve authenticated ownership and data invariants under invalid input",
+        "Provide a concise PR report with root cause, tests and rollback risk"
+      ]
+    },
+    {
+      "id": "NS-B504",
+      "sprint": 6,
+      "title": "Implement a scoped account statement",
+      "context": "Product needs a statement endpoint with a stable shape. The starter responds 501; implement scoped history with bounded pagination.",
+      "topics": "SQLAlchemy queries and API read models",
+      "test": "test_statement_is_scoped_and_stable",
+      "hint": "Returned rows must be derived from accounts the authenticated actor actually owns.",
+      "guide": "guides/03-auth-idempotency-and-audit.md",
+      "acceptance": [
+        "Write or identify a failing test before modifying implementation",
+        "Preserve authenticated ownership and data invariants under invalid input",
+        "Provide a concise PR report with root cause, tests and rollback risk"
+      ]
+    },
+    {
+      "id": "NS-B505",
+      "sprint": 6,
+      "title": "Record minimum-necessary audit evidence",
+      "context": "Operations cannot determine why a protected action was attempted. Add audit records without exposing tokens or passwords.",
+      "topics": "Structured observability and data minimization",
+      "test": "test_audit_event_is_minimal_and_recorded",
+      "hint": "Logging more data is not equivalent to better or safer incident evidence.",
+      "guide": "guides/03-auth-idempotency-and-audit.md",
+      "acceptance": [
+        "Write or identify a failing test before modifying implementation",
+        "Preserve authenticated ownership and data invariants under invalid input",
+        "Provide a concise PR report with root cause, tests and rollback risk"
+      ]
+    },
+    {
+      "id": "NS-B506",
+      "sprint": 6,
+      "title": "Validate migrations and deployment assumptions",
+      "context": "A teammate proposes an unsafe migration and a public demo deployment. Reject the risk, test Alembic upgrades, and document rollback limits.",
+      "topics": "Alembic, PostgreSQL, CI and release planning",
+      "test": "test_auth_and_accounts",
+      "hint": "Do not deploy intentionally vulnerable code; record SQLite/PostgreSQL differences and loopback-only constraints.",
+      "guide": "guides/03-auth-idempotency-and-audit.md",
+      "acceptance": [
+        "Write or identify a failing test before modifying implementation",
+        "Preserve authenticated ownership and data invariants under invalid input",
+        "Provide a concise PR report with root cause, tests and rollback risk"
+      ]
+    }
+  ]
+}
